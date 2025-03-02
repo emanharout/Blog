@@ -1,0 +1,16 @@
+---
+import SearchResultList from '../components/SearchResultList.astro';
+import SearchWidget from '../components/SearchWidget.astro';
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Search" description="Search the Blog.">
+    <div class="flex flex-col mx-auto items-center">
+        <SearchWidget />
+        <SearchResultList />
+    </div>
+    <script>
+        import * as SearchModule from '../scripts/search.ts';
+        SearchModule.setupOnLoad_updateDocWithSearchURLParam();
+    </script>
+</MainLayout>

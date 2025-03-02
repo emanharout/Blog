@@ -1,0 +1,69 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import TagList from '../../components/TagList.astro';
+import BlogGrid from '../../components/BlogGrid.astro';
+import MainLayout from '../../layouts/MainLayout.astro';
+import { toTitleCase, getAllPostsSorted } from '../../scripts/utilities.ts';
+import { ALL_TAGS_TAG } from '../../scripts/constants.ts';
+
+type TagSlugParams = { tag_slug: string } | { tag_slug: undefined };
+// A phantom tag that represents all tags
+
+export const getStaticPaths = async () => {
+    const posts = (await getCollection('posts')) as CollectionEntry<'posts'>[];
+    const allTags = posts.flatMap((post) => post.data.tags);
+    const tags = Array.from(new Set(allTags));
+
+    const paths = tags.map((tag) => {
+        const postsWithTag = posts.filter((post) => post.data.tags.includes(tag));
+        return {
+            params: {
+                tag_slug: tag,
+            } as TagSlugParams,
+            props: {
+                tag,
+                posts: postsWithTag,
+            },
+        };
+    });
+
+    // Add an additional path for the `/tags/` route (empty tag_slug)
+    paths.push({
+        // `undefined` matches mysite.com/tags
+        params: { tag_slug: undefined } as TagSlugParams,
+        props: {
+            tag: ALL_TAGS_TAG,
+            posts: posts,
+        },
+    });
+    return paths;
+};
+
+type Props = {
+    tag: string;
+    posts: CollectionEntry<'posts'>[];
+};
+
+const { tag, posts } = Astro.props;
+const tagCapitalized = toTitleCase(tag);
+const isShowingSingleTag = tag !== ALL_TAGS_TAG;
+const description = isShowingSingleTag ? `Explore posts on ${tagCapitalized}.` : 'Explore posts via topics.';
+
+const allPosts = await getAllPostsSorted();
+const allTagsIncludingDupes = allPosts.flatMap((post) => post.data.tags);
+const allTags = Array.from(new Set(allTagsIncludingDupes));
+---
+
+<MainLayout title="Blog" description={description}>
+    <section class="mx-auto px-4
+        max-w-screen-2xl">
+        {
+            isShowingSingleTag ? (
+                <p class="text-center text-fg-1 py-8 font-semibold font-serif text-2xl">{tagCapitalized}</p>
+            ) : (
+                <TagList tags={allTags} />
+            )
+        }
+        <BlogGrid posts={posts} />
+    </section>
+</MainLayout>

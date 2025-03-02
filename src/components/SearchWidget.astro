@@ -1,0 +1,25 @@
+<form
+    id="searchForm"
+    class="grid gap-4 w-full max-w-xl py-6 px-outer-edge
+    bg-bg-2 shadow-md border border-fg-border-2 rounded-lg"
+>
+    <div class="text-fg-2">
+        <label for="search" class="mx-auto mb-6 block text-center text-3xl font-bold">Search the Blog</label>
+    </div>
+    <input
+        id="searchInput"
+        class="bg-gray-temp-200 dark:bg-gray-temp-500"
+        type="search"
+        required
+        min="2"
+        max="64"
+        name="search"
+        placeholder="Enter a search term…"
+    />
+</form>
+
+<script>
+    import * as SearchModule from '../scripts/search.ts';
+    SearchModule.setupOnSearchSubmit_updateURLWithSearchQuery();
+    SearchModule.setupOnSearchInput();
+</script>

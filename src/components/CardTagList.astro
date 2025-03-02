@@ -1,0 +1,26 @@
+---
+const { tags } = Astro.props;
+
+interface Props {
+    tags: string[];
+}
+
+const evenBgColor = 'bg-secondary-500 dark:bg-secondary-700';
+const oddBgColor = 'bg-primary-500 dark:bg-primary-800';
+---
+
+<div class="flex flex-wrap gap-y-1 gap-x-1">
+    {
+        tags.map((tag: string, index: number) => (
+            <span
+                class:list={[
+                    'px-1.5 py-1 text-fg-light rounded-lg text-xs hover:opacity-90',
+                    { [evenBgColor]: index % 2 === 0 },
+                    { [oddBgColor]: index % 2 === 1 },
+                ]}
+            >
+                <a href={'/tags/' + tag}>{tag}</a>
+            </span>
+        ))
+    }
+</div>

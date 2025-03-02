@@ -1,0 +1,42 @@
+---
+const { heading } = Astro.props;
+import type { MarkdownHeading } from 'astro';
+
+export interface HeadingHierarchy extends MarkdownHeading {
+    subheadings: HeadingHierarchy[];
+}
+
+// Additional tailwind classes to apply for indented headings
+let headingDepthSpecificClasses = '';
+if (heading.depth === 3) {
+    headingDepthSpecificClasses = 'pl-4';
+}
+---
+
+<!-- If h3 heading, then indent -->
+<li class={`leading-snug ${headingDepthSpecificClasses}`} data-slug={`#${heading.slug}`}>
+    <!-- Note: color of links is applied and managed by a script -->
+    <!-- EH: id:ToC Default Link Color - In order to avoid a flash of incorrect colors on initial load, -->
+    <!-- we set the initial color of the links to the inactive link color specified by the script -->
+    <!-- If the script changes, must update the link color below to match -->
+    <a
+        href={`#${heading.slug}`}
+        class="inline-block
+        my-0.5 py-0.5
+        text-gray-temp-500 dark:text-gray-temp-400
+        table-of-content-link"
+    >
+        {heading.text}
+    </a>
+    {
+        // If heading has subheadings, then create a sublist (i.e. <ul>)
+        // Astro.self just initializes another TableOfContentsHeading component
+        heading.subheadings.length > 0 && (
+            <ul>
+                {heading.subheadings.map((subheading: any) => (
+                    <Astro.self heading={subheading} />
+                ))}
+            </ul>
+        )
+    }
+</li>

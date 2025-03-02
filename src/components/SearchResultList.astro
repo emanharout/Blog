@@ -1,0 +1,22 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+
+<div
+    id="searchResultListComponent"
+    class="w-full max-w-xl my-6 pt-4 pb-6 px-outer-edge
+    hidden
+    bg-bg-2 border border-fg-border-2 rounded-xl shadow-md"
+>
+    <h3 id="searchReadout" class="text-xl font-serif font-semibold"></h3>
+    <Icon
+        id="loadingSpinnerIcon"
+        name="loading-spinner-icon"
+        class="animate-[spin_2.5s_linear_infinite] hidden my-10 mx-auto"
+        size="64"
+        desc="Loading spinner."
+    />
+    <section aria-label="Search Results">
+        <ul id="searchResultsList"></ul>
+    </section>
+</div>

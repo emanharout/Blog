@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate } from '../scripts/utilities';
+import CardTagList from './CardTagList.astro';
+
+type Props = {
+    post: CollectionEntry<'posts'>;
+};
+
+const { post } = Astro.props;
+---
+
+<li class="flex flex-col
+w-80 h-52 gap-x-80
+rounded-lg shadow-md
+border border-fg-border-2
+bg-bg-2 text-fg-2">
+    <article class="flex-grow flex flex-col justify-between">
+        <div class="px-4 pt-2 pb-4">
+            <a href={`/blog/${post.id}`} class="hover:text-primary-400">
+                {/* {# TODO: Add image: /path/to/image.jpg in each post's frontmatter #} */}
+                <h3 class="font-semibold leading-tight
+                text-gray-temp-800 dark:text-gray-temp-200">
+                    {post.data.title}
+                </h3>
+            </a>
+            <p class="mt-2 text-xs
+            text-gray-temp-400 dark:text-gray-temp-300">
+                by {post.data.author} on {formatDate(post.data.date)}
+            </p>
+        </div>
+        <div class="px-4 pb-3">
+            <CardTagList tags={post.data.tags} />
+        </div>
+    </article>
+</li>

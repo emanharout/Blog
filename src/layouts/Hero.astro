@@ -1,0 +1,29 @@
+---
+type Props = {
+    heroTitle: string;
+};
+
+const { heroTitle } = Astro.props;
+---
+
+<section class="bg-primary-700
+sm:text-balance">
+    <section
+        class="grid grid-rows-2 justify-center max-w-[1000px] mx-auto
+        mb-6 pb-4 px-4
+        text-fg-light
+        sm:grid-cols-2 sm:grid-rows-none sm:items-start sm:justify-items-stretch sm:gap-5
+        sm:py-9"
+    >
+        <header
+            class="text-center text-4xl font-serif flex flex-row justify-center self-center
+            sm:self-start sm:justify-end sm:text-right"
+        >
+            <h2 class="text-balance max-w-[24rem]
+        sm:text-right">{heroTitle}</h2>
+        </header>
+        <div>
+            <slot />
+        </div>
+    </section>
+</section>

@@ -1,0 +1,16 @@
+---
+import HeaderLogo from './HeaderLogo.astro';
+import HeaderNav from './HeaderNav.astro';
+---
+
+<header
+    class="flex flex-col justify-between items-center
+    md:flex-row
+    max-w-screen-lg w-full
+    mx-auto px-outer-edge
+    bg-bg-1 text-fg-1"
+>
+    <HeaderLogo />
+    <HeaderNav />
+</header>
+<script src="../scripts/navigationDropdownMenu.ts"></script>

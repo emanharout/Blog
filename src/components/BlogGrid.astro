@@ -1,0 +1,47 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BlogGridCard from './BlogGridCard.astro';
+
+type Props = {
+    posts: CollectionEntry<'posts'>[];
+};
+
+// Same as writing `const posts = Astro.props.posts;`
+const { posts } = Astro.props;
+const postCount = posts.length;
+// Tailwind requires the full class name to be spelled out, no string interpolations.
+const mdCols: { [key: number]: string } = {
+    1: 'md:grid-cols-1',
+    2: 'md:grid-cols-2',
+};
+const lgCols: { [key: number]: string } = {
+    1: 'lg:grid-cols-1',
+    2: 'lg:grid-cols-2',
+    3: 'lg:grid-cols-3',
+};
+const twoXlCols: { [key: number]: string } = {
+    1: '2xl:grid-cols-1',
+    2: '2xl:grid-cols-2',
+    3: '2xl:grid-cols-3',
+    4: '2xl:grid-cols-4',
+};
+
+const mdPostColumnCount = Math.min(postCount, 2);
+const lgPostColumnCount = Math.min(postCount, 3);
+const twoXlPostColumnCount = Math.min(postCount, 4);
+
+const mdColClass = mdCols[mdPostColumnCount];
+const lgColClass = lgCols[lgPostColumnCount];
+const twoXlColClass = twoXlCols[twoXlPostColumnCount];
+const gridClasses = `${mdColClass} ${lgColClass} ${twoXlColClass}`;
+---
+
+<ul
+    class:list={[
+        'grid grid-cols-1 gap-4 mx-auto max-w-fit justify-center justify-items-center justify-self-center',
+        'md:gap-5 xl:gap-6 bg-bg-1',
+        gridClasses,
+    ]}
+>
+    {posts.map((post) => <BlogGridCard post={post} />)}
+</ul>

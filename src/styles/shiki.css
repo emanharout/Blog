@@ -1,0 +1,228 @@
+/* Per Astro, we need to add this code for shiki themes to work */
+/* Specifically, when we specify `light` and `dark` theme keys for shiki in astro.config.mjs, then */
+/* the below code is needed to style it */
+
+/* SETUP LIGHT THEME */
+html .astro-code,
+html .astro-code span {
+    color: var(--shiki-light);
+    background-color: var(--shiki-light-bg);
+
+    /* Optional, if you also want font styles */
+    font-style: var(--shiki-light-font-style);
+    font-weight: var(--shiki-light-font-weight);
+    text-decoration: var(--shiki-light-text-decoration);
+}
+
+/* SETUP DARK THEME */
+html.dark .astro-code,
+html.dark .astro-code span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+
+    /* Optional, if you also want font styles */
+    font-style: var(--shiki-dark-font-style);
+    font-weight: var(--shiki-dark-font-weight);
+    text-decoration: var(--shiki-dark-text-decoration);
+}
+
+/* General Code Styling (diffs, lines) */
+pre.astro-code {
+    min-width: 100%;
+    position: relative;
+    overflow-x: auto;
+    padding-inline-start: 0px;
+    padding-left: 0px;
+    padding-inline-end: 0px;
+    border-radius: 1px;
+    border-top: 2px solid hsl(var(--primary-color-300));
+    border-bottom: 2px solid hsl(var(--primary-color-300));
+
+    /* EH: Hack id:article-card-insets */
+    /* 
+        Expands code fence slightly by adding a negative margin.
+        This is done to align the first character in the code block with text outside the code block.
+        Note: This value should always be less than the padding inside the article card.
+        */
+    margin-left: -2rem;
+    margin-right: -2rem;
+}
+
+pre.astro-code code {
+    width: fit-content;
+    min-width: 100%;
+    display: block;
+}
+
+.dark pre.astro-code {
+    border-top: 2px solid hsl(var(--primary-color-600));
+    border-bottom: 2px solid hsl(var(--primary-color-600));
+}
+
+/* ============================================================================================================== */
+
+/* Inline Code */
+
+/* EH: Note id:remove-backticks-from-inline-code */
+/* For some reason, Shiki renders the backticks when writing code inline, e.g. `displays backticks` */
+/* This removes it, but it uses the same selector that introduces the backticks (retrieved from browser tools. */
+/* Reason I'm noting this is because this code may have the same priority and be ignored in favor of the CSS */
+/* that introduces the backticks. */
+.prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *))::before,
+.prose :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *))::after {
+    content: none;
+}
+
+/* Style inline code found in articles */
+.prose section > p > code {
+    background-color: hsl(var(--primary-bg));
+    outline: 1px solid hsl(var(--primary-bg-border));
+    font-weight: 500;
+    border-radius: 3px;
+    padding-inline: 3px 3px;
+    padding-bottom: 2px;
+}
+
+.dark .prose section > p > code {
+    background-color: hsl(var(--primary-bg));
+    outline: 1px solid hsl(var(--primary-bg-border));
+}
+
+/* INLINE CODE COLOR */
+/* Note: this also targets the `code` element when it is a child of `pre` */
+/* But since we're not modifying anything that will impact code blocks, this is safe */
+/* If you need to target strictly inline `code`, then use selectors above  */
+/* i.e. `.prose section > p > code` and `.dark .prose section > p > code` */
+.prose code,
+.dark .prose code {
+    color: hsl(var(--fg-primary-2));
+}
+
+/* EH: Hack id:In Case of Future Behavior Change - Shiki */
+/* 
+    For some reason Shiki is adding an empty line at the end of my code blocks: `<span class="line"></span>`
+    This selector removes the **last** empty line within a code block.
+    If Shiki stops adding this empty line at the end of code blocks, then remove this style.
+     */
+pre.astro-code .line:empty:last-of-type {
+    display: none;
+}
+
+pre.astro-code code .line {
+    display: inline-block;
+    width: 100%;
+    border-radius: 3px;
+    /* EH: Hack id:article-card-insets */
+    /* 
+        Inside a code block, each line's first character should have their left-edge align with the left edge of
+        text outside the code block. The text to compare against is the padding on the
+        article card.
+         */
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* ============================================================================================================== */
+
+/* SETUP TRANSFORMERS (e.g. styles for diffs, highlighting lines, words, etc. */
+
+/* DIFF STYLE */
+/* [!code --] and [!code ++] */
+.astro-code.has-diff .line.diff.add {
+    --shiki-light-bg: hsl(120, 70%, 90%);
+}
+
+.dark .astro-code.has-diff .line.diff.add {
+    --shiki-dark-bg: hsl(120, 50%, 20%);
+}
+
+.astro-code.has-diff .line.diff.remove {
+    --shiki-light-bg: hsl(0, 70%, 90%);
+}
+
+.dark .astro-code.has-diff .line.diff.remove {
+    --shiki-dark-bg: hsl(0, 50%, 20%);
+}
+
+/* HIGHLIGHT LINE STYLE */
+/* [!code highlight] */
+/* ```swift {1,3-4} */
+
+/* First selector selects for `transformerNotationHighlight`  */
+/* Second selector selects for `transformerMetaHighlight` */
+.astro-code.has-highlighted .line.highlighted,
+.astro-code .line.highlighted {
+    font-weight: 500;
+    --shiki-light-bg: hsl(50, 100%, 90%);
+}
+
+.dark .astro-code.has-highlighted .line.highlighted,
+.dark .astro-code .line.highlighted {
+    --shiki-dark-bg: hsl(50, 50%, 30%);
+}
+
+/* HIGHLIGHT WORD STYLE */
+/* [!code word:MyRandomWord] */
+/* [!code word:MyRandomWord:2] (matches against multiple lines) */
+.astro-code .highlighted-word {
+    border-radius: 3px;
+    padding: 0px 2px 2px 2px;
+    margin-left: 2px;
+    margin-right: 2px;
+
+    /* EH: Color Theme Modification id:code-word-border/outline-color */
+    /* 
+        If my color theme ever changes (e.g. the color value assigned to `--primary-color-800` var
+        is modified), then you have two options for the outline color:
+        A) continue using this var as before
+        B) update it to another var that has an hsl `lightness` value closest to 40%
+
+        The variable below was selected only because the lightness was closest to 40% for the current
+        theme's color pallete.
+         */
+    background-color: hsl(var(--primary-color-100));
+    outline: 2px solid hsl(var(--primary-color-800));
+}
+
+.dark .astro-code .highlighted-word {
+    /* EH: Color Theme Modification id:code-word-border/outline-color */
+    /* 
+        If my color theme ever changes (e.g. the color value assigned to `--primary-color-500` var
+        is modified), then you have two options for the outline color:
+        A) continue using this var as before
+        B) update it to another var that has an hsl `lightness` value closest to 70%
+
+        The variable below was selected only because the lightness was closest to 70% for the current
+        theme's color pallete.
+         */
+    background-color: hsl(var(--primary-color-700));
+    outline: 1.5px solid hsl(var(--primary-color-500));
+}
+
+/* Focus */
+
+.has-focused .line {
+    filter: blur(0.095rem);
+}
+
+.has-focused .focused {
+    filter: blur(0);
+}
+
+/* HIGHLIGHT LINE ERROR AND WARNING LINE STYLE */
+/* [!code error] or [!code warning] */
+.astro-code .line.highlighted.error {
+    --shiki-light-bg: hsl(0, 100%, 90%);
+}
+
+.dark .astro-code .line.highlighted.error {
+    --shiki-dark-bg: hsl(0, 100%, 30%);
+}
+
+.astro-code .line.highlighted.warning {
+    --shiki-light-bg: hsl(45, 90%, 85%);
+}
+
+.dark .astro-code .line.highlighted.warning {
+    --shiki-dark-bg: hsl(45, 90%, 30%);
+}

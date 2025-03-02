@@ -1,0 +1,57 @@
+---
+import BlogArticle from '../../components/BlogArticle.astro';
+import MainLayout from '../../layouts/MainLayout.astro';
+
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+    const allBlogPosts: CollectionEntry<'posts'>[] = await getCollection('posts');
+    return allBlogPosts.map((post) => ({
+        params: {
+            id: post.id,
+        },
+        props: { post },
+    }));
+}
+
+type Props = {
+    post: CollectionEntry<'posts'>;
+};
+
+const { post } = Astro.props;
+---
+
+<MainLayout title={post.data.title} description={post.data.subtitle} image={post.data.image?.src}>
+    <BlogArticle post={post} />
+    <script is:inline>
+        var refTagger = {
+            settings: {
+                bibleReader: 'bible.faithlife',
+                bibleVersion: 'HCSB',
+                roundCorners: true,
+                socialSharing: ['google'],
+                tooltipStyle: 'dark',
+                customStyle: {
+                    heading: {
+                        backgroundColor: '#000000',
+                        color: '#ebebeb',
+                    },
+                    body: {
+                        color: '#ebebeb',
+                        fontSize: '16px',
+                    },
+                },
+            },
+        };
+        (function (d, t) {
+            var n = d.querySelector('[nonce]');
+            refTagger.settings.nonce = n && (n.nonce || n.getAttribute('nonce'));
+            var g = d.createElement(t),
+                s = d.getElementsByTagName(t)[0];
+            g.src = 'https://api.reftagger.com/v2/RefTagger.js';
+            g.nonce = refTagger.settings.nonce;
+            s.parentNode.insertBefore(g, s);
+        })(document, 'script');
+    </script>
+</MainLayout>

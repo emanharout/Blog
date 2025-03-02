@@ -1,0 +1,79 @@
+---
+// EH: WARNING id:'theme constants': 'system' element in this array MUST match `systemThemeStorageValue` in scripts.js
+const themeToggleInput = 'themeToggleInput';
+import { Icon } from 'astro-icon/components';
+---
+
+<div
+    class="grid grid-cols-3 h-8 w-full justify-center items-center
+        text-sm shadow-md outline outline-1 outline-gray-temp-500/25 dark:outline-gray-temp-800
+        rounded-lg bg-bg-1"
+>
+    <div class="h-full w-full flex items-center justify-center self-center
+        rounded-l-lg">
+        <input id="light" type="radio" name={themeToggleInput} value="light" class="hidden peer" />
+        <label
+            id="lightInputLabel"
+            for="light"
+            class="flex justify-center items-center w-full h-full
+                rounded-l-lg bg-bg-2 cursor-pointer
+                peer-checked:bg-gray-temp-100
+                peer-checked:hover:bg-gray-temp-200 hover:bg-gray-temp-200 dark:hover:bg-gray-temp-600
+                shadow-[inset_0_-1px_0px_rgba(0,0,0,0.08)] dark:shadow-[inset_0_-1px_0px_rgba(0,0,0,0.125)]
+                peer-checked:shadow-[inset_0_1px_4px_rgba(0,0,0,0.2)]"
+        >
+            <Icon
+                name=`color-theme-light-icon`
+                size="22"
+                desc="Light mode theme icon"
+                class="sun text-yellow-500 dark:text-yellow-400 opacity-100 w-full h-[22px] px-2"
+            />
+        </label>
+    </div>
+
+    <div class="h-full w-full flex items-center justify-center self-center">
+        <input id="dark" type="radio" name={themeToggleInput} value="dark" class="hidden peer" />
+        <label
+            id="darkInputLabel"
+            for="dark"
+            class="flex justify-center items-center w-full h-full
+                bg-bg-2 cursor-pointer
+                peer-checked:bg-gray-temp-800
+                peer-checked:hover:bg-gray-temp-900 hover:bg-gray-temp-200 dark:hover:bg-gray-temp-600
+                shadow-[inset_0_-1px_0px_rgba(0,0,0,0.08)] dark:shadow-[inset_0_-1px_0px_rgba(0,0,0,0.125)]
+                peer-checked:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
+        >
+            <Icon
+                name=`color-theme-dark-icon`
+                size="22"
+                desc="Dark mode theme icon"
+                class="moon text-sky-400 dark:text-sky-500 opacity-100 w-full h-[22px] px-2"
+            />
+        </label>
+    </div>
+
+    <div class="h-full w-full flex items-center justify-center self-center
+            rounded-r-lg">
+        <input id="system" type="radio" name={themeToggleInput} value="system" class="hidden peer" />
+        <label
+            id="systemInputLabel"
+            for="system"
+            class="flex justify-center items-center w-full h-full
+                bg-bg-2 rounded-r-lg cursor-pointer
+                peer-checked:bg-gray-temp-100 dark:peer-checked:bg-gray-temp-800
+                peer-checked:hover:bg-gray-temp-200 peer-checked:dark:hover:bg-gray-temp-900
+                hover:bg-gray-temp-200 dark:hover:bg-gray-temp-600
+                shadow-[inset_0_-1px_0px_rgba(0,0,0,0.08)] dark:shadow-[inset_0_-1px_0px_rgba(0,0,0,0.125)]
+                peer-checked:shadow-[inset_0_1px_4px_rgba(0,0,0,0.2)] peer-checked:dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]"
+        >
+            <Icon
+                name=`color-theme-system-icon`
+                size="21"
+                desc="System mode theme icon"
+                class="system text-gray-temp-500 dark:text-gray-temp-400 opacity-100 w-full h-[21px] px-2"
+            />
+        </label>
+    </div>
+</div>
+
+<script src="../scripts/animateColorThemeToggle.ts"></script>

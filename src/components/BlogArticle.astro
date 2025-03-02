@@ -1,0 +1,88 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import { Picture } from 'astro:assets';
+import TableOfContents from './TableOfContents.astro';
+
+type Props = {
+    post: CollectionEntry<'posts'>;
+};
+
+const { post } = Astro.props;
+let hasImage = false;
+if (post.data.image && post.data.imageAlt) {
+    hasImage = true;
+}
+
+let noImageAdditionalClasses = hasImage ? '' : 'rounded-t-3xl';
+
+const { Content, headings } = await render(post);
+---
+
+<section
+    class="blog-post-card
+    grid grid-cols-[100%] justify-items-center items-start
+    gap-x-3
+    sm:mx-4
+    lg:grid-cols-[minmax(5ch,_1fr)_auto_minmax(5ch,_1fr)] lg:justify-items-start"
+>
+    <div class="left-sidebar__empty-grid-column"></div>
+
+    <div class="max-w-[65ch] w-full
+    bg-bg-2 rounded-xl shadow-md
+    mb-6">
+        {
+            hasImage && (
+                <Picture
+                    src={post.data.image!}
+                    alt={post.data.imageAlt ?? ''}
+                    class="rounded-t-xl"
+                    formats={['avif', 'webp']}
+                    loading="eager"
+                    fallbackFormat="jpg"
+                    class="rounded-t-xl mx-auto object-cover "
+                />
+            )
+        }
+        <!-- EH: Hack id:article-card-insets -->
+        <!-- Code fences have a negative margin that reverses the padding provided by the article card. -->
+        <!-- This negative margin must not go beyond the padding provided below. -->
+
+        <!-- EH: Hack id:article-card-image-insets -->
+        <!-- The image takes the full width via a calculation on min-w-[xxx] -->
+        <!-- To calculate the property, take the sum of the negative rem margins -->
+        <!-- i.e. -2rem + -2rem => -4rem, get the absolute val, 4rem, then  -->
+        <!-- set the min-w-[xxx] to 100% plus 4rem using CSS's `calc` func -->
+        <!-- EH: id: blockquote svg styling - Blockquote SVG Styling -->
+        <!-- `prose-blockquote:border-s-0` removes default border that is added to the left side of the blockquote -->
+        <!-- prose-blockquote:pl-[3.25rem] adds space to the left of the quote to make room for quotation-mark svg -->
+        <!-- This left padding will may need to change in the future if the article card's padding or -->
+        <!-- quotations changes. The svg's positioning determined by a script will need to be adjusted too -->
+        <!-- To revert this back to simpler block quote styling, remove the above classes and reintroduce: -->
+        <!-- prose-blockquote:border-s-primary-400 dark:prose-blockquote:border-s-primary-300 -->
+        <!-- And remove script (see other comments with same id for more info) -->
+        <div class={`max-w-full p-8 rounded-b-xl bg-bg-2 ${noImageAdditionalClasses}`}>
+            <article
+                class="article-content
+            prose prose-fg2
+            prose-a:text-fg-primary-link-2
+            prose-blockquote:text-2xl prose-blockquote:font-serif
+            prose-blockquote:text-primary-950 dark:prose-blockquote:text-fg-2
+            prose-blockquote:font-light prose-blockquote:italic prose-blockquote:tracking-[.01em]
+            prose-blockquote:leading-snug prose-blockquote:border-s-0 prose-blockquote:pl-[3.25rem]
+            
+            hover:prose-a:text-fg-primary-link-2-hover focus:prose-a:text-fg-primary-link-2-hover
+            prose-img:rounded-sm prose-img:ml-[-2rem] prose-img:mr-[-2rem] prose-img:min-w-[calc(100%+4rem)]
+            prose-headings:font-serif prose-headings:tracking-wide prose-headings:font-medium"
+            >
+                <Content />
+            </article>
+        </div>
+    </div>
+
+    <TableOfContents headings={headings} />
+
+    <script src="../scripts/tippyTooltipSetup.js"></script>
+</section>
+
+<script src="../scripts/blockQuoteSvgScript.ts"></script>

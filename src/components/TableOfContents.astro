@@ -1,0 +1,78 @@
+---
+import type { MarkdownHeading } from 'astro';
+import type { HeadingHierarchy } from './TableOfContentsHeading.astro';
+import TableOfContentsHeading from './TableOfContentsHeading.astro';
+
+type Props = {
+    headings: MarkdownHeading[];
+};
+
+const { headings } = Astro.props;
+
+function createHeadingHierarchy(headings: MarkdownHeading[]) {
+    const topLevelHeadings: HeadingHierarchy[] = [];
+
+    // Exclude h4 and higher headings
+    const shallowHeadings = headings.filter((heading) => heading.depth <= 3);
+
+    shallowHeadings.forEach((heading) => {
+        const h = {
+            ...heading,
+            subheadings: [],
+        };
+
+        if (h.depth === 2) {
+            // If the current shallow heading is h2, then place it in `topLevelHeadings`
+            topLevelHeadings.push(h);
+        } else {
+            // If the current shallow heading is h3, then grab the parent (h2) and add this h3 as its subheading
+            let parent = topLevelHeadings[topLevelHeadings.length - 1];
+            if (parent) {
+                parent.subheadings.push(h);
+            }
+        }
+    });
+
+    return topLevelHeadings;
+}
+
+const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
+const hasToC = toc.length > 1;
+---
+
+{
+    hasToC && (
+        <nav
+            class="SIDEBAR toc-sidebar
+                max-w-[30ch] mt-[1px] mr-3 py-2 px-4 w-full
+                sticky top-0
+                bg-bg-2 rounded-r-lg rounded-tl-lg shadow-md
+                hidden
+                lg:block
+            "
+            id="table-of-contents"
+        >
+            <small
+                class="
+                block mt-2 mb-3
+                uppercase font-medium text-center text-gray-temp-500
+                text-sm
+                xl:text-[0.925rem] xl:tracking-[.025rem] xl:font-semibold
+                dark:text-gray-temp-300"
+            >
+                Table of Contents
+            </small>
+            {/* Header colors (li's below) are determined by tableOfContents.ts script */}
+            <ul
+                class="
+                    text-[0.925rem]  font-normal
+                    xl:font-medium xl:tracking-[.002rem]"
+            >
+                {toc.map((heading) => (
+                    <TableOfContentsHeading heading={heading} />
+                ))}
+            </ul>
+        </nav>
+    )
+}
+<script src="../scripts/tableOfContents.ts"></script>

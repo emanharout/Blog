@@ -1,0 +1,28 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Tag from './Tag.astro';
+
+type Props = {
+    tags: CollectionEntry<'posts'>['data']['tags'];
+};
+
+const { tags } = Astro.props;
+---
+
+<div
+    class="flex flex-col items-center gap-2
+    max-w-xs mt-2 mb-12 mx-outer-edge py-8 px-4
+    bg-bg-2 outline-primary-600 border border-fg-border-2 rounded-lg shadow-md
+    sm:mx-0
+    md:flex-row md:justify-center md:items-baseline md:max-w-xl
+    md:px-6 md:gap-x-8
+    lg:max-w-3xl lg:px-8
+    xl:max-w-4xl"
+>
+    <h3 class="text-lg font-semibold">TOPICS</h3>
+    <div class="flex flex-wrap justify-center items-center
+    gap-2 py-4
+    md:justify-start">
+        {tags.map((tag) => <Tag tag={tag} />)}
+    </div>
+</div>

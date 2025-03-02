@@ -1,0 +1,332 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        /* This removes the UI-jerking that occurs when the scroll bar appears/disappears while resizing the window */
+        scrollbar-gutter: stable;
+    }
+
+    /* Colors Shared Across Themes */
+    :root,
+    :root.dark,
+    :root.system {
+        /* Spacing */
+
+        /* Horizontal spacing to be applied on left-most and right-most edges */
+        /* so that all content is aligned on the outer edges of any page */
+        --outer-x-padding: 1.5rem;
+        --outer-x-margin: 1.5rem;
+
+        /* COLORS */
+
+        --violet-color-50: 250deg 100% 97.65%;
+        --violet-color-100: 251.43deg 91.3% 95.49%;
+        --violet-color-200: 250.5deg 95.24% 91.76%;
+        --violet-color-300: 252.5deg 94.74% 85.1%;
+        --violet-color-400: 255.14deg 91.74% 76.27%;
+        --violet-color-500: 258.31deg 89.53% 66.27%;
+        --violet-color-600: 262.12deg 83.26% 57.84%;
+        --violet-color-700: 263.39deg 69.96% 50.39%;
+        --violet-color-800: 263.36deg 69.3% 42.16%;
+        --violet-color-900: 263.5deg 67.42% 34.9%;
+        --violet-color-950: 261.18deg 72.65% 22.94%;
+
+        --teal-color-50: 166.2deg 76.5% 96.7%;
+        --teal-color-100: 167.2deg 85.5% 89.2%;
+        --teal-color-200: 168.4deg 83.8% 78.2%;
+        --teal-color-300: 170.6deg 76.9% 64.3%;
+        --teal-color-400: 172.5deg 66% 50.4%;
+        --teal-color-500: 173.4deg 80.4% 40%;
+        --teal-color-600: 174.7deg 83.9% 31.6%;
+        --teal-color-700: 175.3deg 77.4% 26.1%;
+        --teal-color-800: 176.1deg 69.4% 21.8%;
+        --teal-color-900: 175.9deg 60.8% 19%;
+        --teal-color-900: 178.6deg 84.31% 10%;
+
+        /* GRAYS */
+        /* From coolest to warmest  */
+
+        /* Slate - BlueGray */
+        --slate-color-50: 210deg 40% 98%;
+        --slate-color-100: 210deg 40% 96.1%;
+        --slate-color-200: 214.3deg 31.8% 91.4%;
+        --slate-color-300: 212.73deg 26.83% 83.92%;
+        --slate-color-400: 215.2deg 20.2% 65.1%;
+        --slate-color-500: 215.4deg 16.3% 46.9%;
+        --slate-color-600: 215.3deg 19.3% 34.5%;
+        --slate-color-700: 215.3deg 25% 26.7%;
+        --slate-color-800: 217.2deg 32.6% 17.5%;
+        --slate-color-900: 222.2deg 47.4% 11.2%;
+
+        /* Gray - CoolGray */
+        --gray-color-50: 210deg 20% 98%;
+        --gray-color-100: 220deg 14.3% 95.9%;
+        --gray-color-200: 220deg 13% 91%;
+        --gray-color-300: 216deg 12.2% 83.9%;
+        --gray-color-400: 217.9deg 10.6% 64.9%;
+        --gray-color-500: 220deg 8.9% 46.1%;
+        --gray-color-600: 215deg 13.8% 34.1%;
+        --gray-color-700: 216.9deg 19.1% 26.7%;
+        --gray-color-800: 215deg 27.9% 16.9%;
+        --gray-color-900: 220.9deg 39.3% 11%;
+
+        /* Zinc - Gray */
+        --zinc-color-50: 0deg 0% 98%;
+        --zinc-color-100: 240deg 4.8% 95.9%;
+        --zinc-color-200: 240deg 5.9% 90%;
+        --zinc-color-300: 240deg 4.9% 83.9%;
+        --zinc-color-400: 240deg 5% 64.9%;
+        --zinc-color-500: 240deg 3.8% 46.1%;
+        --zinc-color-600: 240deg 5.2% 33.9%;
+        --zinc-color-700: 240deg 5.3% 26.1%;
+        --zinc-color-800: 240deg 3.7% 15.9%;
+        --zinc-color-900: 240deg 5.9% 10%;
+
+        /* Neutral - TrueGray */
+        --neutral-gray-color-50: 0deg 0% 98%;
+        --neutral-gray-color-100: 0deg 0% 96.1%;
+        --neutral-gray-color-200: 0deg 0% 89.8%;
+        --neutral-gray-color-300: 0deg 0% 83.1%;
+        --neutral-gray-color-400: 0deg 0% 63.9%;
+        --neutral-gray-color-500: 0deg 0% 45.1%;
+        --neutral-gray-color-600: 0deg 0% 32.2%;
+        --neutral-gray-color-700: 0deg 0% 25.1%;
+        --neutral-gray-color-800: 0deg 0% 14.9%;
+        --neutral-gray-color-900: 0deg 0% 9%;
+
+        /* Stone - WarmGray */
+        --stone-color-50: 60deg 9.1% 97.8%;
+        --stone-color-100: 60deg 4.8% 95.9%;
+        --stone-color-200: 20deg 5.9% 90%;
+        --stone-color-300: 24deg 5.7% 82.9%;
+        --stone-color-400: 24deg 5.4% 63.9%;
+        --stone-color-500: 25deg 5.3% 44.7%;
+        --stone-color-600: 33.3deg 5.5% 32.4%;
+        --stone-color-700: 30deg 6.3% 25.1%;
+        --stone-color-800: 12deg 6.5% 15.1%;
+        --stone-color-900: 24deg 9.8% 10%;
+    }
+
+    /* DEFAULT THEME COLORS */
+    :root {
+        --primary-color-50: var(--violet-color-50);
+        --primary-color-100: var(--violet-color-100);
+        --primary-color-200: var(--violet-color-200);
+        --primary-color-300: var(--violet-color-300);
+        --primary-color-400: var(--violet-color-400);
+        --primary-color-500: var(--violet-color-500);
+        --primary-color-600: var(--violet-color-600);
+        --primary-color-700: var(--violet-color-700);
+        --primary-color-800: var(--violet-color-800);
+        --primary-color-900: var(--violet-color-900);
+        --primary-color-950: var(--violet-color-950);
+
+        --secondary-color-50: var(--teal-color-50);
+        --secondary-color-100: var(--teal-color-100);
+        --secondary-color-200: var(--teal-color-200);
+        --secondary-color-300: var(--teal-color-300);
+        --secondary-color-400: var(--teal-color-400);
+        --secondary-color-500: var(--teal-color-500);
+        --secondary-color-600: var(--teal-color-600);
+        --secondary-color-700: var(--teal-color-700);
+        --secondary-color-800: var(--teal-color-800);
+        --secondary-color-900: var(--teal-color-900);
+        --secondary-color-950: var(--teal-color-950);
+
+        --background-color-1: var(--slate-color-200);
+        --background-color-2: var(--gray-color-50);
+        /* Primary colored bg that is bright in light mode, and dark in dark mode. */
+        /* Applied to bgs of inline elements: inline code, footnote superscripts */
+        --primary-bg: var(--primary-color-200);
+        --primary-bg-hover: var(--primary-color-100);
+        /* Border around primary-colored bg. */
+        /* Applied to elements with colored bgs (e.g. inline code, superscript links) */
+        --primary-bg-border: var(--primary-color-300);
+        --primary-bg-border-hover: var(--primary-color-300);
+
+        /* Foreground colors used for most text. */
+        /* Has a slight temperature that matches primary color (warm or cool) */
+        --fg-color-1: var(--slate-color-800);
+        --fg-color-2: var(--slate-color-700);
+        --fg-color-border-2: var(--temperature-gray-300);
+
+        /* Light fg on dark color bg */
+        /* Applied to Hero text (on colored bg) */
+        --fg-light: var(--slate-color-100);
+        /* Foreground color that is clearly using the theme's primary color */
+        /* i.e. not so light or dark where the color is lost */
+        /* Applied to Links */
+        --fg-primary-link-2: var(--primary-color-600);
+        --fg-primary-link-2-hover: var(--primary-color-900);
+        /* Foreground color that subtly uses the theme's primary color. */
+        /* light mode - fg is dark on light, primary colored bg */
+        /* dark mode  - fg is light on dark, primary colored bg */
+        /* Applied to inline code, superscripts, and anything with a colored background */
+        --fg-primary-2: var(--primary-color-950);
+
+        --gray-50: var(--gray-color-50);
+        --gray-100: var(--gray-color-100);
+        --gray-200: var(--gray-color-200);
+        --gray-300: var(--gray-color-300);
+        --gray-400: var(--gray-color-400);
+        --gray-500: var(--gray-color-500);
+        --gray-600: var(--gray-color-600);
+        --gray-700: var(--gray-color-700);
+        --gray-800: var(--gray-color-800);
+        --gray-900: var(--gray-color-900);
+
+        --temperature-gray-50: var(--slate-color-50);
+        --temperature-gray-100: var(--slate-color-100);
+        --temperature-gray-200: var(--slate-color-200);
+        --temperature-gray-300: var(--slate-color-300);
+        --temperature-gray-400: var(--slate-color-400);
+        --temperature-gray-500: var(--slate-color-500);
+        --temperature-gray-600: var(--slate-color-600);
+        --temperature-gray-700: var(--slate-color-700);
+        --temperature-gray-800: var(--slate-color-800);
+        --temperature-gray-900: var(--slate-color-900);
+
+        /* SVG ICONS */
+        --x-icon-color: hsl(220, 10%, 20%);
+        --medium-icon-color: hsl(158, 98%, 36%);
+        --email-icon-color: hsl(var(--primary-color-500));
+        --github-icon-color: hsl(220, 10%, 20%);
+        --linkedin-icon-color: hsl(200, 70%, 45%);
+
+        /* FOOTNOTE HEADER */
+
+        #footnote-label {
+            position: relative; /* Ensures the ::before element is positioned relative to the h2 */
+        }
+
+        #footnote-label::before {
+            content: ''; /* Necessary for the pseudo-element to appear */
+            display: block;
+            width: 100%;
+            height: 1px;
+            background-color: hsl(var(--temperature-gray-300));
+            position: absolute;
+            top: -1.1rem; /* Adjust the distance above the h2 */
+        }
+
+        /* FOOTNOTE SUPERSCRIPT */
+
+        .prose sup {
+            position: relative;
+            top: -0.5rem;
+            bottom: 1rem;
+            padding-left: 0.15rem;
+            padding-right: 0.15rem;
+        }
+
+        .prose sup a {
+            font-weight: 400;
+            padding-left: 0.2rem;
+            padding-right: 0.23rem;
+            text-decoration: none;
+
+            color: hsl(var(--fg-primary-2));
+            background-color: hsl(var(--primary-bg));
+            border: 1px solid hsl(var(--primary-bg-border));
+            border-radius: 4px;
+        }
+
+        .prose sup a:hover,
+        .prose sup a:focus {
+            font-weight: 500;
+            background-color: hsl(var(--primary-bg-hover));
+            border: 1px solid hsl(var(--primary-bg-border-hover));
+        }
+
+        .prose a.data-footnote-backref {
+            text-decoration: none;
+        }
+
+        /* TIPPY */
+        /* Tooltips that aren't for footnotes */
+        /* i.e. This is a non-footnoted tip.<span tip="Here is the tooltip popup text!">It does not rely on a footnote.</span> */
+
+        span[tip]:not(:has(sup)) {
+            /* span[tip]:not(sup) { */
+            /* color: hsl(var(--fg-primary-2));
+            background-color: hsl(var(--primary-bg));
+            border: 1px solid hsl(var(--primary-bg-border)); */
+            background-color: hsl(var(--primary-bg));
+            outline: 1px solid hsl(var(--primary-bg-border));
+            font-weight: 500;
+            border-radius: 3px;
+            margin-inline: 2px 2px;
+            padding-inline: 3px 3px;
+            padding-bottom: 2px;
+        }
+    }
+
+    /* DARK MODE THEME COLORS */
+    :root.dark {
+        --primary-color-50: var(--violet-color-50);
+        --primary-color-100: var(--violet-color-100);
+        --primary-color-200: var(--violet-color-200);
+        --primary-color-300: var(--violet-color-300);
+        --primary-color-400: var(--violet-color-400);
+        --primary-color-500: var(--violet-color-500);
+        --primary-color-600: var(--violet-color-600);
+        --primary-color-700: var(--violet-color-700);
+        --primary-color-800: var(--violet-color-800);
+        --primary-color-900: var(--violet-color-900);
+        --primary-color-950: var(--violet-color-950);
+
+        --background-color-1: var(--slate-color-900);
+        --background-color-2: var(--slate-color-700);
+        /* Primary colored bg that is bright in light mode, and dark in dark mode. */
+        /* Applied to bgs of inline elements: inline code, footnote superscripts */
+        --primary-bg: var(--primary-color-700);
+        --primary-bg-hover: var(--primary-color-600);
+        /* Border around primary-colored bg. */
+        /* Applied to elements with colored bgs (e.g. inline code, superscript links) */
+        --primary-bg-border: var(--primary-color-900);
+        --primary-bg-border-hover: var(--primary-color-800);
+
+        /* Foreground colors used for most text. */
+        /* Has a slight temperature that matches primary color (warm or cool) */
+        --fg-color-1: var(--slate-color-300);
+        --fg-color-2: var(--slate-color-200);
+        --fg-color-border-2: var(--temperature-gray-600);
+        /* Light fg on dark color bg */
+        /* Applied to Hero text (on colored bg) */
+        --fg-light: var(--slate-color-100);
+        /* Foreground color that is clearly using the theme's primary color */
+        /* i.e. not so light or dark where the color is lost */
+        /* Used on Links */
+        --fg-primary-link-2: var(--primary-color-400);
+        --fg-primary-link-2-hover: var(--primary-color-300);
+        /* Foreground color that subtly uses the theme's primary color. */
+        /* Applied to inline code, superscripts, and anything with a colored background */
+        /* light mode: fg is dark on light, primary colored bg */
+        /* dark mode: fg is light on dark, primary colored bg */
+        --fg-primary-2: var(--primary-color-100);
+
+        /* SVG ICONS  */
+        --x-icon-color: hsl(220, 10%, 80%);
+        --medium-icon-color: hsl(158, 70%, 35%);
+        --email-icon-color: hsl(var(--primary-color-600));
+        --github-icon-color: hsl(220, 10%, 80%);
+        --linkedin-icon-color: hsl(200, 70%, 40%);
+
+        /* FOOTNOTE SUPERSCRIPT */
+        .prose sup a {
+            color: hsl(var(--fg-primary-2));
+            background-color: hsl(var(--primary-bg));
+            border: 1px solid hsl(var(--primary-bg-border));
+        }
+
+        .prose sup a:hover,
+        .prose sup a:focus {
+            font-weight: 600;
+            background-color: hsl(var(--primary-bg-hover));
+            border: 1px solid hsl(var(--primary-bg-border-hover));
+        }
+    }
+}
