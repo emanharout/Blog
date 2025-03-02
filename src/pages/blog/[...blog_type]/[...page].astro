@@ -65,6 +65,7 @@ if (blogType && isValidBlogType(blogType)) {
 }
 const allTags = filteredBlogPosts.flatMap((post) => post.data.tags);
 const dedupedTags = Array.from(new Set(allTags));
+const shouldShowTagList = dedupedTags.length > 0;
 ---
 
 <MainLayout title="Blog" description="Explore Eman's blog posts.">
@@ -84,9 +85,13 @@ const dedupedTags = Array.from(new Set(allTags));
     }
     <section class="mx-auto px-4
         max-w-screen-2xl">
-        <div class="flex justify-center">
-            <TagList tags={dedupedTags} />
-        </div>
+        {
+            shouldShowTagList && (
+                <div class="flex justify-center">
+                    <TagList tags={dedupedTags} />
+                </div>
+            )
+        }
         <BlogGrid posts={currentPageBlogPosts} />
         <div class="mt-10">
             {paginationRepository.showPagination && <Pagination pageData={paginationRepository} />}
