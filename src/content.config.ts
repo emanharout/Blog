@@ -8,7 +8,7 @@ const postSchema = z.object({
     featured: z.boolean().default(false),
     imageAlt: z.string().optional(),
     title: z.string(),
-    subtitle: z.string(),
+    subtitle: z.string().optional(),
     blog: z.array(z.string()),
 })
 
