@@ -88,6 +88,36 @@ pre.astro-code code {
     outline: 1px solid hsl(var(--primary-bg-border));
 }
 
+/* Style inline code found in article li's */
+.prose section > li code {
+    background-color: hsl(var(--primary-bg));
+    outline: 1px solid hsl(var(--primary-bg-border));
+    font-weight: 500;
+    border-radius: 3px;
+    padding-inline: 3px 3px;
+    padding-bottom: 2px;
+}
+
+.dark .prose section > li code {
+    background-color: hsl(var(--primary-bg));
+    outline: 1px solid hsl(var(--primary-bg-border));
+}
+
+/* Style inline code found in article ul's */
+.prose section > ul code {
+    background-color: hsl(var(--primary-bg));
+    outline: 1px solid hsl(var(--primary-bg-border));
+    font-weight: 500;
+    border-radius: 3px;
+    padding-inline: 3px 3px;
+    padding-bottom: 2px;
+}
+
+.dark .prose section > ul code {
+    background-color: hsl(var(--primary-bg));
+    outline: 1px solid hsl(var(--primary-bg-border));
+}
+
 /* INLINE CODE COLOR */
 /* Note: this also targets the `code` element when it is a child of `pre` */
 /* But since we're not modifying anything that will impact code blocks, this is safe */
