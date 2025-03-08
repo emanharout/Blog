@@ -1,0 +1,76 @@
+---
+author: Eman Harout
+tags:
+  - programming
+  - swift
+date: 2021-04-14
+featured: false
+image: ./images/blog_swift-guard.webp
+imageAlt: Medieval guard.
+title: "Swift’s Guard Statement: Purpose and Usage"
+blog:
+  - programming
+---
+
+<h1>{frontmatter.title}</h1> 
+
+Swift’s `guard` statement is a powerful, well designed feature that promotes clean code when used properly. It is a specialized form of control flow with important advantages. Today we’ll cover the unique characteristics of guard and its proper usage.
+
+To understand the benefits guard offers, we briefly compare it to its parent, the infamous `if` statement. `guard` is similar to an `if` statement with two important distinctions:
+1. **Forced Exits:** guard requires exiting the current scope when the condition is not met.
+2. **Remaining in Current Scope:** guard allows the happy path to proceed in the current scope.
+Let’s examine both and how they contribute to cleaner code.
+
+## Forced Exits
+
+Here we have a function that allows customers over 21 entry to the bar.
+
+```swift
+func enterBar(age: Int) {
+  guard age >= 21 else {
+    // handle forced exit
+    return
+  }
+  
+  // open door
+  // grant entry
+  // close door
+}
+```
+
+Our function is fairly simple. We check if the customer is over 21. If so, we open the door and let them through. If underage, we’re forced to return from the function. There is a good reason for this: guard is guiding us to fail early, preventing further execution of the function. _Just as real guards block trespassers, Swift’s guard blocks unwarranted access deeper into the function!_
+
+But why is it good to fail early? It’s about logical conciseness. You wouldn’t open the door to grant entry, then check for ID; it doesn’t make sense to perform conditional actions without checking the condition first—you’re just delaying the potential failure! It’s far better to identify mandatory conditions, and guard against them early. So remember: fail early and often.
+
+## Remaining in Current Scope
+
+So far we’ve discussed what happens when the condition fails, but there’s an advantage with guards upon passing too. Let’s examine:
+
+```swift
+// Scenario A: If
+if age >= 21 {
+  // new scope
+} else if age >= 18 {
+  // another new scope
+}
+
+// Scenario B: Guard
+guard age >= 21 else {
+  // new scope only upon failure
+  return
+}
+
+// passing-flow remains in original scope
+```
+
+Since `if` can check countless conditionals via `else if`, each condition has its own nested scope. `if` does not understand if a particular condition is a happy path or failure, so it treats them all the same by scoping them all.
+
+Not so with guard. Guard assumes there are two outcomes: failure or passing. It sensibly provides a nested scope only if you fail. When you pass, there’s no newly nested scope at all—you just proceed in the same scope as the guard.
+
+This has important implications. First, this means `guard` should be used if you expect one of two outcomes. Second, it improves code clarity by eliminating the need for a nested scope. Since most our time spent as programmers is in code comprehension, this is a welcomed benefit. No one wants an entire function nested—potentially multiple times—just because a mandatory condition must be met.
+
+When you see an entire function is nested because of a mandatory condition, just swap that `if` for a `guard` instead. Your colleagues (and future self) will thank you.
+
+## Conclusion
+
+To summarize, `guard`s are a specialized form of `if`. Guard comes with two important advantages: forced exits on failure, and remaining in current scope upon passing. Guards are to be used when a condition failing means the function can’t carry out its duties, so it’s sensible to identify mandatory conditions and guard against them as early as possible. Guards also help with code clarity by forgoing a nested scope when the condition is met. Hope you all found this helpful!

@@ -1,0 +1,150 @@
+---
+author: Eman Harout
+tags:
+  - programming
+  - swift
+  - design patterns
+date: 2017-06-24
+featured: false
+image: ./images/blog_adapter.jpg
+imageAlt: Happy Jigsaw pieces that fit into each other.
+title: "Swift Solutions: Adapter Pattern"
+blog:
+  - programming
+---
+
+<h1>{frontmatter.title}</h1> 
+
+The Adapter Pattern is a design pattern that enables objects with similar functionality to work together despite having incompatible interfaces. It allows for integration that results in code that is cleaner and easier to use. Quite literally, it _adapts_ an object so that it uses more familiar APIs.
+
+## Use Cases
+
+The Adapter Pattern should be used when the following are true:
+* A component shares similar functionality with existing objects in your app.
+* Despite sharing similar functionality, the component has an interface that is incompatible with other objects in your app. The component is often from a third party framework.
+* The component’s source code cannot (or should not) be modified.
+* The component needs to integrate with your app.
+
+The Adapter Pattern allows us to take this foreign object and make it play nice with our existing objects. There are two primary approaches to accomplishing this: Swift Extensions and the Dedicated Adapter Class.
+
+Enough with theory! Let us see what the Adapter Pattern looks like in practice :)
+
+## Adapter Pattern: Swift Extension Approach
+
+The Swift Extension is an elegant solution for most simple scenarios.
+
+```swift
+protocol Jumping {
+    func jump()
+}
+	
+class Dog: Jumping {
+    func jump() {
+        print("Jumps Excitedly")
+	}
+}
+	
+class Cat: Jumping {
+    func jump() {
+        print("Pounces")
+    }
+}
+ 
+let dog = Dog()
+let cat = Cat()
+```
+
+Here we have a dog and a cat. They are both able to perform `jump()`. Now let’s say we integrate a third party framework, and have a foreign animal.
+
+### The Adaptee
+
+```swift
+class Frog {
+    func leap() {
+        print("Leaps")
+    }
+}
+
+let frog = Frog()
+```
+
+A few things to note:
+
+1. Our leaping frog object has some similar functionality with our furry friends.
+2. Though it jumps, its interface is different: we have to call `leap()` instead of `jump()` to get the desired functionality.
+
+### The Adapter
+
+```swift
+extension Frog: Jumping {
+    func jump() {
+        leap()
+    }
+}
+```
+
+Here we integrate our component by implementing the Adapter Pattern. We simply conform `Frog` to `Jumping` and create a wrapper function our other objects recognize. We are now able to get the same behavior out of our frog without modifying its existing implementation. We simply _extend_ it with a new wrapper function to abstract away its differences! :)
+
+> “Objects should be open for extension, but closed for modification.”
+
+### Before and After
+
+It is helpful to see how we would work with our objects before and after we adapted our frog’s interface.
+
+**Before:**
+
+```swift
+var animals: [Jumping] = [dog, cat]
+
+func jumpAll(animals: [Jumping], frog: Frog = nil) {
+    for animal in animals {
+        animal.jump()
+    }
+    if let frog = frog {
+        frog.leap()
+    }
+}
+```
+
+
+Here we want to make all our animals jump. Without an implemented adapter, the caller has to have knowledge of the frog’s foreign interface. We cannot treat the component like the rest of our code.
+
+**After:**
+
+```swift
+var animals: [Jumping] = [dog, cat, frog]
+
+func jumpAll(animals: [Jumping]) {
+    for animal in animals {
+        animal.jump()
+    }
+}
+```
+
+With the adapter in place, we can treat the frog like the rest of our objects and include it in our `animals` array. We also get to simplify our function by removing the `frog:` parameter.
+
+Moreover, we can treat the frog like any other native object by simply calling `jump()` on it. The frog is obviously still “leaping” under the hood, but we do not care. The caller no longer needs to have knowledge of _how_ `Frog` jumps.
+
+## Adapter Pattern: The Dedicated Adapter Approach
+
+For more complex scenarios, creating a dedicated adapter class can be helpful.
+
+```swift
+class FrogAdapter: Jumping {
+    private let frog = Frog()
+
+    func jump() {
+        frog.leap()
+    }
+}
+```
+
+Here we create an adapter class that holds the foreign component in a private property.
+
+Extending `Frog` may have exposed more than we would have liked. With a dedicated adapter, the caller is no longer able to manipulate the frog directly; it can only use whatever is exposed by `FrogAdapter`. This allows for better encapsulation of the frog, giving us complete control over what gets exposed to the caller.
+
+And that is pretty much it for both approaches!
+
+## Conclusion
+
+The Adapter Pattern freed us from having to accommodate objects with different interfaces through the unification of their APIs. This greatly increased the clarity and simplicity of our code, enabling us to integrate a foreign object with ease. It is a classic, simple pattern that is highly practical in its usage. Hope you enjoyed learning it!
