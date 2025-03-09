@@ -22,7 +22,7 @@ type Props = {
 const { post } = Astro.props;
 ---
 
-<MainLayout title={post.data.title} description={post.data.subtitle} image={post.data.image?.src}>
+<MainLayout title={post.data.title} description={post.data.subtitle ?? ''} image={post.data.image?.src}>
     <BlogArticle post={post} />
     <script is:inline>
         var refTagger = {
