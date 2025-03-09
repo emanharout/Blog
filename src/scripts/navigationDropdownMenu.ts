@@ -33,11 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
         blogsDropdownMenu.classList.remove('hidden');
         dropdownArrowIcon.classList.add('rotate-180');
         isDropdownMenuOpen = true;
+        blogDropdownNavButton.setAttribute("aria-expanded", "true");
     }
 
     function closeDropdown() {
         blogsDropdownMenu.classList.add('hidden');
         dropdownArrowIcon.classList.remove('rotate-180');
         isDropdownMenuOpen = false;
+        blogDropdownNavButton.setAttribute("aria-expanded", "false");
     }
 });

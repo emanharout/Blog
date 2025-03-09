@@ -43,6 +43,8 @@ const hasToC = toc.length > 1;
 {
     hasToC && (
         <nav
+            role="navigation"
+            aria-labelledby="table-of-contents-title"
             class="SIDEBAR toc-sidebar
                 max-w-[30ch] mt-[1px] mr-3 py-2 px-4 w-full
                 sticky top-0
@@ -53,6 +55,8 @@ const hasToC = toc.length > 1;
             id="table-of-contents"
         >
             <small
+                id="table-of-contents-title" 
+                role="heading" aria-level="2"
                 class="
                 block mt-2 mb-3
                 uppercase font-medium text-center text-gray-temp-500
@@ -64,6 +68,7 @@ const hasToC = toc.length > 1;
             </small>
             {/* Header colors (li's below) are determined by tableOfContents.ts script */}
             <ul
+                role="list"
                 class="
                     text-[0.925rem]  font-normal
                     xl:font-medium xl:tracking-[.002rem]"

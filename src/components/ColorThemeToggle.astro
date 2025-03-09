@@ -4,18 +4,34 @@ const themeToggleInput = 'themeToggleInput';
 import { Icon } from 'astro-icon/components';
 ---
 
+<!-- // EH: WARNING id:theme input labels:  ids of each `label` element is dependent on `lightThemeStorageValue`,
+ darkThemeStorageValue, and `systemThemeStorageValue` , if those change we need to update the ids here. -->
+
 <div
+    role="radiogroup"
+    aria-label="Color Theme Picker"
     class="grid grid-cols-3 h-8 w-full justify-center items-center
         text-sm shadow-md outline outline-1 outline-gray-temp-500/25 dark:outline-gray-temp-800
         rounded-lg bg-bg-1"
 >
     <div class="h-full w-full flex items-center justify-center self-center
         rounded-l-lg">
-        <input id="light" type="radio" name={themeToggleInput} value="light" class="hidden peer" />
+        <input
+            id="light"
+            type="radio"
+            aria-labelledby="lightInputLabel"
+            name={themeToggleInput}
+            value="light"
+            class="hidden peer"
+        />
         <label
             id="lightInputLabel"
             for="light"
-            class="flex justify-center items-center w-full h-full
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+            class="colorThemeLabel
+                flex justify-center items-center w-full h-full
                 rounded-l-lg bg-bg-2 cursor-pointer
                 peer-checked:bg-gray-temp-100
                 peer-checked:hover:bg-gray-temp-200 hover:bg-gray-temp-200 dark:hover:bg-gray-temp-600
@@ -27,16 +43,30 @@ import { Icon } from 'astro-icon/components';
                 size="22"
                 desc="Light mode theme icon"
                 class="sun text-yellow-500 dark:text-yellow-400 opacity-100 w-full h-[22px] px-2"
+                aria-hidden="true"
             />
+            <!-- For A11y Purposes Only -->
+            <span class="sr-only">Light Mode</span>
         </label>
     </div>
 
     <div class="h-full w-full flex items-center justify-center self-center">
-        <input id="dark" type="radio" name={themeToggleInput} value="dark" class="hidden peer" />
+        <input
+            id="dark"
+            type="radio"
+            aria-labelledby="darkInputLabel"
+            name={themeToggleInput}
+            value="dark"
+            class="hidden peer"
+        />
         <label
             id="darkInputLabel"
             for="dark"
-            class="flex justify-center items-center w-full h-full
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+            class="colorThemeLabel
+                flex justify-center items-center w-full h-full
                 bg-bg-2 cursor-pointer
                 peer-checked:bg-gray-temp-800
                 peer-checked:hover:bg-gray-temp-900 hover:bg-gray-temp-200 dark:hover:bg-gray-temp-600
@@ -47,18 +77,32 @@ import { Icon } from 'astro-icon/components';
                 name=`color-theme-dark-icon`
                 size="22"
                 desc="Dark mode theme icon"
+                aria-hidden="true"
                 class="moon text-sky-400 dark:text-sky-500 opacity-100 w-full h-[22px] px-2"
             />
+            <!-- For A11y Purposes Only -->
+            <span class="sr-only">Dark Mode</span>
         </label>
     </div>
 
     <div class="h-full w-full flex items-center justify-center self-center
             rounded-r-lg">
-        <input id="system" type="radio" name={themeToggleInput} value="system" class="hidden peer" />
+        <input
+            id="system"
+            type="radio"
+            aria-labelledby="systemInputLabel"
+            name={themeToggleInput}
+            value="system"
+            class="hidden peer"
+        />
         <label
             id="systemInputLabel"
             for="system"
-            class="flex justify-center items-center w-full h-full
+            role="radio"
+            aria-checked="false"
+            tabindex="0"
+            class="colorThemeLabel
+                flex justify-center items-center w-full h-full
                 bg-bg-2 rounded-r-lg cursor-pointer
                 peer-checked:bg-gray-temp-100 dark:peer-checked:bg-gray-temp-800
                 peer-checked:hover:bg-gray-temp-200 peer-checked:dark:hover:bg-gray-temp-900
@@ -70,10 +114,16 @@ import { Icon } from 'astro-icon/components';
                 name=`color-theme-system-icon`
                 size="21"
                 desc="System mode theme icon"
+                aria-hidden="true"
                 class="system text-gray-temp-500 dark:text-gray-temp-400 opacity-100 w-full h-[21px] px-2"
             />
+            <!-- For A11y Purposes Only -->
+            <span class="sr-only">Theme Matches System</span>
         </label>
     </div>
 </div>
+
+<!-- Dynamic feedback for screen readers -->
+<div **aria-live="polite" class="sr-only" id="theme-selection-feedback"></div>
 
 <script src="../scripts/animateColorThemeToggle.ts"></script>

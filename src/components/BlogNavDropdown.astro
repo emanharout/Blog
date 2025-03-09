@@ -5,6 +5,9 @@ import { PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE } from '../scripts/constants.ts
 
 <button
     id="blog-dropdown-nav-button"
+    aria-haspopup="true"
+    aria-expanded="false"
+    aria-controls="blogs-dropdown-menu"
     class="flex justify-center items-center
                     w-full py-3 pl-4
                     sm:justify-between
@@ -22,32 +25,36 @@ import { PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE } from '../scripts/constants.ts
 </button>
 <div
     id="blogs-dropdown-menu"
+    role="menu"
     class="z-10 w-44 hidden absolute left-0 mt-2
                     font-normal bg-bg-2 rounded-lg border border-fg-border-2
                     shadow-md dark:shadow-gray-temp-900"
 >
-    <ul class="py-2 text-sm text-fg-2" aria-labelledby="dropdownLargeButton">
-        <li>
+    <ul class="py-2 text-sm text-fg-2" aria-labelledby="blog-dropdown-nav-button">
+        <li role="none">
             <a
                 href=`/blog/${WONDER_BLOG_TYPE}`
+                role="menuitem"
                 class="block px-4 py-2
                                 hover:bg-primary-100 dark:hover:bg-primary-950 dark:hover:text-primary-50"
             >
                 Wonder Blog
             </a>
         </li>
-        <li>
+        <li role="none">
             <a
                 href=`/blog/${PROGRAMMING_BLOG_TYPE}`
+                role="menuitem"
                 class="block px-4 py-2
                                 hover:bg-primary-100 dark:hover:bg-primary-950 dark:hover:text-primary-50"
             >
                 Programming Blog
             </a>
         </li>
-        <li>
+        <li role="none">
             <a
                 href="/blog"
+                role="menuitem"
                 class="block px-4 py-2
                                 hover:bg-primary-100 dark:hover:bg-primary-950 dark:hover:text-primary-50"
             >

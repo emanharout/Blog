@@ -5,7 +5,7 @@ import BlogNavDropdown from './BlogNavDropdown.astro';
 ---
 
 <!-- inline-block ensures div shrinks to fit size of ul and dark mode toggle -->
-<nav class="flex justify-between items-center">
+<nav class="flex justify-between items-center" role="navigation" aria-label="Main Navigation">
     <ul
         class="flex flex-col items-start gap-y-1
        h-auto
@@ -26,8 +26,13 @@ import BlogNavDropdown from './BlogNavDropdown.astro';
             after:transition-[width] after:ease-in-out after:duration-300 after:absolute after:bg-primary-600 after:origin-center after:h-[3px] after:w-0 after:bottom-0
             hover:after:w-[50%] after:right-[50%]"
         >
-            <a class="p-3 block text-center
-            sm:w-auto sm:px-3 sm:inline-block" href="/">Home</a>
+            <a
+                href="/"
+                aria-label="Go to Home page"
+                class="p-3 block text-center
+                      sm:w-auto sm:px-3 sm:inline-block"
+                >Home
+            </a>
         </li>
         <li
             id="nav-blog-item"
@@ -56,8 +61,13 @@ import BlogNavDropdown from './BlogNavDropdown.astro';
             after:transition-[width] after:ease-in-out after:duration-300 after:absolute after:bg-primary-600 after:origin-center after:h-[3px] after:w-0 after:bottom-0
             hover:after:w-[50%] after:right-[50%]"
         >
-            <a class="p-3 block text-center
-            sm:w-auto sm:inline-block" href="/about">About</a>
+            <a
+                href="/about"
+                aria-label="Go to 'About Me' page"
+                class="p-3 block text-center
+                      sm:w-auto sm:inline-block"
+                >About
+            </a>
         </li>
         <li
             id="nav-search-item"
@@ -72,13 +82,17 @@ import BlogNavDropdown from './BlogNavDropdown.astro';
             after:transition-[width] after:ease-in-out after:duration-300 after:absolute after:bg-primary-600 after:origin-center after:h-[3px] after:w-0 after:bottom-0
             hover:after:w-[50%] after:right-[50%]"
         >
-            <a class="flex items-center justify-center
-            h-full w-full py-1 px-2" href="/search">
+            <a
+                href="/search"
+                aria-label="Go to Search page"
+                class="flex items-center justify-center
+                      h-full w-full py-1 px-2"
+            >
                 <Icon
                     name="nav-search-icon"
                     size="28"
-                    desc="Dropdown Menu Arrow"
-                    id="navbar-dropdown-menu-arrow-icon"
+                    desc="Search icon"
+                    id="navbar-search-icon"
                     class="h-auto w-auto"
                 />
             </a>

@@ -14,13 +14,15 @@ if (heading.depth === 3) {
 ---
 
 <!-- If h3 heading, then indent -->
-<li class={`leading-snug ${headingDepthSpecificClasses}`} data-slug={`#${heading.slug}`}>
+<li role="listitem" class={`leading-snug ${headingDepthSpecificClasses}`} data-slug={`#${heading.slug}`}>
     <!-- Note: color of links is applied and managed by a script -->
     <!-- EH: id:ToC Default Link Color - In order to avoid a flash of incorrect colors on initial load, -->
     <!-- we set the initial color of the links to the inactive link color specified by the script -->
     <!-- If the script changes, must update the link color below to match -->
     <a
         href={`#${heading.slug}`}
+        role="link"
+        aria-label={`Jump to section: ${heading.text}`}
         class="inline-block
         my-0.5 py-0.5
         text-gray-temp-500 dark:text-gray-temp-400
@@ -32,7 +34,7 @@ if (heading.depth === 3) {
         // If heading has subheadings, then create a sublist (i.e. <ul>)
         // Astro.self just initializes another TableOfContentsHeading component
         heading.subheadings.length > 0 && (
-            <ul>
+            <ul role="list" aria-label={`Subsections of ${heading.text}`}>
                 {heading.subheadings.map((subheading: any) => (
                     <Astro.self heading={subheading} />
                 ))}

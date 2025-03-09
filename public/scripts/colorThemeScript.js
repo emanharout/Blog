@@ -9,6 +9,7 @@
 const themeStorageKey = 'data-theme';
 // EH: WARNING id:'theme constants': 'system' element in this array MUST match values in other files with the same
 // warning (search via warning's id).
+// EH: WARNING id:theme input labels:  ids of each `label` element in `ColorThemeToggle.astro` is dependent on `lightThemeStorageValue`, darkThemeStorageValue, and `systemThemeStorageValue` , if those change we need to update the ids here. Search warning id to find file that contains the label elements.
 const systemThemeStorageValue = 'system';
 const lightThemeStorageValue = 'light';
 const darkThemeStorageValue = 'dark';
@@ -49,14 +50,21 @@ function saveThemeInStorage(theme) {
 
 function deactivateNonActiveThemes(activatedTheme, doc = document) {
     allThemeOptions
-    .filter((theme) => theme !== activatedTheme)
-    .forEach((themeToDeselect) => doc.documentElement.classList.remove(themeToDeselect));
+        .filter((theme) => theme !== activatedTheme)
+        .forEach((themeToDeselect) => doc.documentElement.classList.remove(themeToDeselect));
+    // Deactivate all label's a11y attribute, will activate the only active label later.
+    document.querySelectorAll('label.colorThemeLabel').forEach(label => {
+        label.setAttribute('aria-checked', 'false');
+    });
 }
 
 function setActiveThemeInputElementAsSelected(doc = document) {
     const storedTheme = getStoredThemeOption();
     const themeInput = doc.getElementById(storedTheme);
     if (themeInput) themeInput.checked = true;
+    // EH: WARNING id:theme input labels
+    const labelToMarkChecked = doc.getElementById(`${storedTheme}InputLabel`);
+    if (labelToMarkChecked) labelToMarkChecked.setAttribute('aria-checked', 'true');
 }
 
 function configureTheme(themeOption = undefined, doc = document) {
@@ -80,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleThemeClicked(event) {
         const selectedTheme = event.target.id;
         configureTheme(selectedTheme);
+        // Announce the selection for screen readers
+        document.getElementById('theme-selection-feedback').textContent = `Theme changed to ${event.target.value}`;
     }
     const themeToggleInputs = document.querySelectorAll('[name="themeToggleInput"]');
     themeToggleInputs.forEach((themeInput) => themeInput.addEventListener('change', handleThemeClicked));
