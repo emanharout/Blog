@@ -1,0 +1,211 @@
+---
+author: Eman Harout
+tags:
+  - programming
+  - swift
+date: 2025-04-01
+featured: false
+image: ./images/blog_swift-property-wrappers-gist.jpg
+imageAlt: A wrapped gift smiling.
+title: Swift Property Wrappers Gist
+blog:
+  - programming
+---
+
+<h1>{frontmatter.title}</h1> 
+
+Swift property wrappers provide a way to encapsulate logic for getting an setting properties. Here's a quick tour of their utility.
+
+## Creating a Property Wrapper
+
+Here is an example of how to create and use a property wrapper:
+
+```swift
+// Create
+// [!code word:@propertyWrapper]
+@propertyWrapper
+struct UpperCase {
+    private var storedValue: String
+		// [!code word:wrappedValue:1]
+    var wrappedValue: String {
+        set { storedValue = newValue }
+        get { storedValue.uppercased() }
+    }
+    // [!code word:init]
+    init(wrappedValue: String) {
+        self.storedValue = wrappedValue
+    }
+}
+
+// Use
+struct Address {
+		// [!code word:@UpperCase]
+    @UpperCase public var state: String
+}
+
+let address = Address(state: "California")
+address.state // CALIFORNIA
+```
+1. Annotate the struct with `@propertyWrapper`
+2. Define a `wrappedValue` variable that applies formatting and/or logic.
+3. Add an initializer
+4. Annotate the property with @UpperCase to apply the property wrapper.
+
+Optional: can also use `didSet` instead of `get` and `set`, but this requires repeating formatting/logic in the initializer, since `didSet` does not execute on the initial assignment.
+
+### Initializers and Default Values
+
+There are a few ways to initialize types using property wrappers. For demonstration purposes, I have adjusted the property wrapper like so:
+
+1. Added a new `prefix` property to limit the number of characters to uppercase
+2. Declare three initializers
+
+```swift
+@propertyWrapper
+struct UpperCase {
+    private var storedValue: String
+    private var prefixNumber: Int
+
+    var wrappedValue: String {
+        set { storedValue = newValue }
+        get {
+            let caps = storedValue.uppercased()
+            let prefixed = caps.prefix(prefixNumber)
+            return String(prefixed)
+        }
+    }
+
+    // MARK: - Initializers
+    // [!code word:init]
+    init() {
+        self.prefixNumber = 3
+        self.storedValue = ""
+    }
+
+    init(wrappedValue: String) {
+        self.prefixNumber = 3
+        self.storedValue = wrappedValue
+        print(storedValue)
+    }
+
+    init(wrappedValue: String, prefix: Int) {
+        self.prefixNumber = prefix
+        self.storedValue = wrappedValue
+    }
+}
+```
+
+#### Using init()
+
+```swift
+struct Address {
+    @UpperCase public var state: String
+}
+// [!code word://\ Calls\ init()]
+let address = Address() // Calls init()
+address.state // ""
+```
+
+#### Using init(wrappedValue:)
+
+```swift
+// [!code word://\ Calls\ init(wrappedValue\:)]
+let addressTwo = Address(state: UpperCase(wrappedValue: "Cali")) // Calls init(wrappedValue:)
+addressTwo.state // CAL
+```
+Note we must pass in `UpperCase` instance to set `state`'s value.
+
+Alternatively, we can directly inject a string by modifying `Address`:
+```swift
+struct AddressV2 {
+    // [!code word://\ Calls\ init(wrappedValue\:)]
+    @UpperCase public var state: String = "New York" // Calls init(wrappedValue:)
+}
+
+let addressV2_default = AddressV2() // Calls init(wrappedValue:)
+addressV2_default.state // NEW
+let addressV2_california = AddressV2(state: "California") // Calls init(wrappedValue:)
+addressV2_california.state // CAL
+```
+These examples use `init(wrappedValue:)`.
+
+#### Using init(wrappedValue: prefix:)
+
+```swift
+// [!code word://\ Calls\ init(wrappedValue\:\ prefix\:)]
+struct AddressV3 {
+    @UpperCase(wrappedValue: "CityDefault", prefix: 5)
+    public var city: String // Calls init(wrappedValue: prefix:)
+
+    @UpperCase(prefix: 5)
+    public var state: String = "StateDefault" // Calls init(wrappedValue: prefix:)
+}
+let cityStateAddress = AddressV3() // Calls init(wrappedValue: prefix:)
+cityStateAddress.city // CITYD
+cityStateAddress.state // STATE
+
+```
+Both properties use `init(wrappedValue: prefix:)` to initialize the property wrapper.
+
+## ProjectedValue
+
+A projected value provides added utility to property wrappers.
+
+In this example, we create a `projectedValue` that returns `true` if the original string exceeds the defined prefix length:
+```swift
+@propertyWrapper
+struct UpperCase {
+    private var storedValue: String
+    private var prefixNumber: Int
+    var projectedValue: Bool { storedValue.count > prefixNumber } // [!code highlight]
+
+    var wrappedValue: String {
+        set { storedValue = newValue }
+        get {
+            let caps = storedValue.uppercased()
+            let prefixed = caps.prefix(prefixNumber)
+            return String(prefixed)
+        }
+    }
+
+    init(wrappedValue: String, prefix: Int) {
+        self.prefixNumber = prefix
+        self.storedValue = wrappedValue
+    }
+}
+```
+
+To reference `projectedValue`, we use the `$` symbol before the property name:
+```swift /$state/
+struct Address {
+    @UpperCase public var state: String
+}
+
+var address = Address(state: UpperCase(wrappedValue: "Cali", prefix: 2))
+address.$state // true
+address.state = "C"
+address.$state // false
+```
+
+## Function Parameters
+
+Swift allows for the use of property wrappers in function parameters.
+
+```swift /@UpperCase/
+func toUpperCase(@UpperCase message: String) {
+    print(message)
+}
+
+toUpperCase(message: "new york")
+// prints "NEW"
+```
+
+You can configure the property wrapper with default arguments too:
+```swift /@UpperCase(prefix: 9)/
+func toUpperCase(@UpperCase(prefix: 9) message: String) {
+    print(message)
+}
+
+toUpperCase(message: "california")
+// prints "CALIFORNI"
+```
