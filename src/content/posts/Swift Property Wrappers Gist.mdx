@@ -33,7 +33,7 @@ struct UpperCase {
     }
     // [!code word:init]
     init(wrappedValue: String) {
-        self.storedValue = wrappedValue
+        self.wrappedValue = wrappedValue
     }
 }
 
@@ -79,18 +79,17 @@ struct UpperCase {
     // [!code word:init]
     init() {
         self.prefixNumber = 3
-        self.storedValue = ""
+        self.wrappedValue = ""
     }
 
     init(wrappedValue: String) {
         self.prefixNumber = 3
-        self.storedValue = wrappedValue
-        print(storedValue)
+        self.wrappedValue = wrappedValue
     }
 
     init(wrappedValue: String, prefix: Int) {
         self.prefixNumber = prefix
-        self.storedValue = wrappedValue
+        self.wrappedValue = wrappedValue
     }
 }
 ```
@@ -170,7 +169,7 @@ struct UpperCase {
 
     init(wrappedValue: String, prefix: Int) {
         self.prefixNumber = prefix
-        self.storedValue = wrappedValue
+        self.wrappedValue = wrappedValue
     }
 }
 ```
@@ -185,6 +184,15 @@ var address = Address(state: UpperCase(wrappedValue: "Cali", prefix: 2))
 address.$state // true
 address.state = "C"
 address.$state // false
+```
+
+## Accessing the Property Wrapper
+
+To access the backing storage/property wrapper itself, use underscore:
+
+```swift
+print(state) // prints the string
+print(_state) // prints the property value
 ```
 
 ## Function Parameters
