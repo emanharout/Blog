@@ -1,44 +1,63 @@
-# Astro Starter Kit: Basics
+# emanharout.com
 
-TODO: Rewrite
+Personal site and blog built with Astro, MDX, and Tailwind CSS v4.
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## Project Structure
 
 ```text
 /
 ├── public/
-│   └── favicon.svg
 ├── src/
 │   ├── components/
-│   │   └── Card.astro
+│   ├── content/posts/
 │   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+│   ├── pages/
+│   ├── scripts/
+│   └── styles/
+├── astro.config.mjs
+├── package.json
+└── tsconfig.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Requirements
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- Node.js `>=20.19.0`
+- npm (the version bundled with your Node install is fine)
 
-Any static assets, like images, can be placed in the `public/` directory.
+Use the pinned Node version in this repo:
 
-## 🧞 Commands
+```bash
+nvm use
+```
 
-All commands are run from the root of the project, from a terminal:
+## Commands
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+- `npm install`: Install dependencies
+- `npm run dev` (or `npm start`): Start local dev server at `http://localhost:4321`
+- `npm run build`: Run `astro check` and build production output to `dist/`
+- `npm run preview`: Serve the built site locally
+- `npm run astro -- --help`: Show Astro CLI help
 
-## 👀 Want to learn more?
+## Deployment (Cloudflare Pages)
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Set Cloudflare Pages to use Node `20.19.0` or newer.
+
+Recommended setup:
+
+1. In Cloudflare Pages project settings, set environment variable `NODE_VERSION=20.19.0`.
+2. Keep build command as `npm run build`.
+3. Keep output directory as `dist`.
+
+## Verification Checklist
+
+After significant changes:
+
+1. Run `npm run build`.
+2. Verify key routes in `npm run preview`:
+   - `/`
+   - `/blog`
+   - `/blog/programming`
+   - `/blog/wonder`
+   - `/tags`
+   - `/search`
+3. Spot-check one blog post page and RSS routes.
