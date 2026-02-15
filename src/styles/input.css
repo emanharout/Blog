@@ -1,12 +1,156 @@
 @import "tailwindcss";
-@config "../../tailwind.config.mjs";
 @custom-variant dark (&:where(.dark, .dark *));
+@plugin "@tailwindcss/typography";
+
+@theme {
+    --spacing-outer-edge: 1.5rem;
+
+    --color-primary-50: hsl(var(--primary-color-50));
+    --color-primary-100: hsl(var(--primary-color-100));
+    --color-primary-200: hsl(var(--primary-color-200));
+    --color-primary-300: hsl(var(--primary-color-300));
+    --color-primary-400: hsl(var(--primary-color-400));
+    --color-primary-500: hsl(var(--primary-color-500));
+    --color-primary-600: hsl(var(--primary-color-600));
+    --color-primary-700: hsl(var(--primary-color-700));
+    --color-primary-800: hsl(var(--primary-color-800));
+    --color-primary-900: hsl(var(--primary-color-900));
+    --color-primary-950: hsl(var(--primary-color-950));
+
+    --color-secondary-50: hsl(var(--secondary-color-50));
+    --color-secondary-100: hsl(var(--secondary-color-100));
+    --color-secondary-200: hsl(var(--secondary-color-200));
+    --color-secondary-300: hsl(var(--secondary-color-300));
+    --color-secondary-400: hsl(var(--secondary-color-400));
+    --color-secondary-500: hsl(var(--secondary-color-500));
+    --color-secondary-600: hsl(var(--secondary-color-600));
+    --color-secondary-700: hsl(var(--secondary-color-700));
+    --color-secondary-800: hsl(var(--secondary-color-800));
+    --color-secondary-900: hsl(var(--secondary-color-900));
+    --color-secondary-950: hsl(var(--secondary-color-950));
+
+    --color-bg-1: hsl(var(--background-color-1));
+    --color-bg-2: hsl(var(--background-color-2));
+    --color-bg-primary-2: hsl(var(--primary-bg));
+
+    --color-fg-1: hsl(var(--fg-color-1));
+    --color-fg-2: hsl(var(--fg-color-2));
+    --color-fg-primary-link-2: hsl(var(--fg-primary-link-2));
+    --color-fg-primary-link-2-hover: hsl(var(--fg-primary-link-2-hover));
+    --color-fg-border-2: hsl(var(--fg-color-border-2));
+    --color-fg-light: hsl(var(--fg-light));
+
+    --color-gray-temp-50: hsl(var(--temperature-gray-50));
+    --color-gray-temp-100: hsl(var(--temperature-gray-100));
+    --color-gray-temp-200: hsl(var(--temperature-gray-200));
+    --color-gray-temp-300: hsl(var(--temperature-gray-300));
+    --color-gray-temp-400: hsl(var(--temperature-gray-400));
+    --color-gray-temp-500: hsl(var(--temperature-gray-500));
+    --color-gray-temp-600: hsl(var(--temperature-gray-600));
+    --color-gray-temp-700: hsl(var(--temperature-gray-700));
+    --color-gray-temp-800: hsl(var(--temperature-gray-800));
+    --color-gray-temp-900: hsl(var(--temperature-gray-900));
+
+    --color-gray-neutral-50: hsl(var(--gray-50));
+    --color-gray-neutral-100: hsl(var(--gray-100));
+    --color-gray-neutral-200: hsl(var(--gray-200));
+    --color-gray-neutral-300: hsl(var(--gray-300));
+    --color-gray-neutral-400: hsl(var(--gray-400));
+    --color-gray-neutral-500: hsl(var(--gray-500));
+    --color-gray-neutral-600: hsl(var(--gray-600));
+    --color-gray-neutral-700: hsl(var(--gray-700));
+    --color-gray-neutral-800: hsl(var(--gray-800));
+    --color-gray-neutral-900: hsl(var(--gray-900));
+
+    --font-serif: "Frank Ruhl Libre Variable", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@utility prose-fg1 {
+    --tw-prose-body: hsl(var(--fg-color-1));
+    --tw-prose-headings: hsl(var(--fg-color-1));
+    --tw-prose-lead: hsl(var(--fg-color-1));
+    --tw-prose-links: hsl(var(--fg-color-1));
+    --tw-prose-bold: hsl(var(--fg-color-1));
+    --tw-prose-counters: hsl(var(--fg-color-1));
+    --tw-prose-bullets: hsl(var(--fg-color-1));
+    --tw-prose-hr: hsl(var(--fg-color-1));
+    --tw-prose-quotes: hsl(var(--fg-color-1));
+    --tw-prose-quote-borders: hsl(var(--fg-color-1));
+    --tw-prose-captions: hsl(var(--fg-color-1));
+    --tw-prose-code: hsl(var(--fg-color-1));
+    --tw-prose-pre-code: hsl(var(--fg-color-1));
+    --tw-prose-pre-bg: hsl(var(--fg-color-1));
+    --tw-prose-th-borders: hsl(var(--fg-color-1));
+    --tw-prose-td-borders: hsl(var(--fg-color-1));
+    --tw-prose-invert-body: hsl(var(--fg-color-1));
+    --tw-prose-invert-headings: hsl(var(--fg-color-1));
+    --tw-prose-invert-lead: hsl(var(--fg-color-1));
+    --tw-prose-invert-links: hsl(var(--fg-color-1));
+    --tw-prose-invert-bold: hsl(var(--fg-color-1));
+    --tw-prose-invert-counters: hsl(var(--fg-color-1));
+    --tw-prose-invert-bullets: hsl(var(--fg-color-1));
+    --tw-prose-invert-hr: hsl(var(--fg-color-1));
+    --tw-prose-invert-quotes: hsl(var(--fg-color-1));
+    --tw-prose-invert-quote-borders: hsl(var(--fg-color-1));
+    --tw-prose-invert-captions: hsl(var(--fg-color-1));
+    --tw-prose-invert-code: hsl(var(--fg-color-1));
+    --tw-prose-invert-pre-code: hsl(var(--fg-color-1));
+    --tw-prose-invert-pre-bg: hsl(var(--fg-color-1));
+    --tw-prose-invert-th-borders: hsl(var(--fg-color-1));
+    --tw-prose-invert-td-borders: hsl(var(--fg-color-1));
+}
+
+@utility prose-fg2 {
+    --tw-prose-body: hsl(var(--fg-color-2));
+    --tw-prose-headings: hsl(var(--fg-color-2));
+    --tw-prose-lead: hsl(var(--fg-color-2));
+    --tw-prose-links: hsl(var(--fg-color-2));
+    --tw-prose-bold: hsl(var(--fg-color-2));
+    --tw-prose-counters: hsl(var(--fg-color-2));
+    --tw-prose-bullets: hsl(var(--fg-color-2));
+    --tw-prose-hr: hsl(var(--fg-color-2));
+    --tw-prose-quotes: hsl(var(--fg-color-2));
+    --tw-prose-quote-borders: hsl(var(--fg-color-2));
+    --tw-prose-captions: hsl(var(--fg-color-2));
+    --tw-prose-code: hsl(var(--fg-color-2));
+    --tw-prose-pre-code: hsl(var(--fg-color-2));
+    --tw-prose-pre-bg: hsl(var(--fg-color-2));
+    --tw-prose-th-borders: hsl(var(--fg-color-2));
+    --tw-prose-td-borders: hsl(var(--fg-color-2));
+    --tw-prose-invert-body: hsl(var(--fg-color-2));
+    --tw-prose-invert-headings: hsl(var(--fg-color-2));
+    --tw-prose-invert-lead: hsl(var(--fg-color-2));
+    --tw-prose-invert-links: hsl(var(--fg-color-2));
+    --tw-prose-invert-bold: hsl(var(--fg-color-2));
+    --tw-prose-invert-counters: hsl(var(--fg-color-2));
+    --tw-prose-invert-bullets: hsl(var(--fg-color-2));
+    --tw-prose-invert-hr: hsl(var(--fg-color-2));
+    --tw-prose-invert-quotes: hsl(var(--fg-color-2));
+    --tw-prose-invert-quote-borders: hsl(var(--fg-color-2));
+    --tw-prose-invert-captions: hsl(var(--fg-color-2));
+    --tw-prose-invert-code: hsl(var(--fg-color-2));
+    --tw-prose-invert-pre-code: hsl(var(--fg-color-2));
+    --tw-prose-invert-pre-bg: hsl(var(--fg-color-2));
+    --tw-prose-invert-th-borders: hsl(var(--fg-color-2));
+    --tw-prose-invert-td-borders: hsl(var(--fg-color-2));
+}
 
 @layer base {
     html {
         scroll-behavior: smooth;
         /* This removes the UI-jerking that occurs when the scroll bar appears/disappears while resizing the window */
         scrollbar-gutter: stable;
+    }
+
+    .prose blockquote {
+        font-style: normal;
+        quotes: none;
+    }
+
+    .prose blockquote::before,
+    .prose blockquote::after {
+        content: none;
     }
 
     /* Colors Shared Across Themes */
