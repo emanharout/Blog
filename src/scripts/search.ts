@@ -14,7 +14,7 @@ interface SearchablePostData {
 
 let SEARCHABLE_DATA: SearchablePostData[] | undefined;
 const SEARCH_URL_PARAM_KEY = 'query';
-const searchInputElement = document.querySelector('#searchInput') as HTMLInputElement;
+const searchInputElement = document.querySelector<HTMLInputElement>('#searchInput');
 const spinnerIcon = document.querySelector('#loadingSpinnerIcon');
 let lastSearchResult: FuseResult<SearchablePostData>[] = [];
 
@@ -82,6 +82,7 @@ function setupOnLoad_updateDocWithSearchURLParam() {
 
 // Sets up a callback. It is executed each time the user types a character in the search field.
 function setupOnSearchInput() {
+    if (!searchInputElement) return;
     searchInputElement.addEventListener('input', () => {
         const searchTerm = DOMPurify.sanitize(searchInputElement.value);
         updateUIWithSearchQuery(searchTerm);
@@ -123,7 +124,7 @@ function updatePageURLWithSearchQueryParamValue(searchQueryText: string) {
 
 // Takes user's search query and executes a search.
 async function executeSearch(searchQueryText: string) {
-    setupSearchableDataIfNeeded();
+    await setupSearchableDataIfNeeded();
     if (!FUSE_INSTANCE) return;
     spinnerIcon?.classList.remove('hidden');
     const searchResult = FUSE_INSTANCE.search(searchQueryText);
@@ -142,9 +143,8 @@ function processSearchResult(result: FuseResult<SearchablePostData>[]) {
     
     if (hasSearchResult) {
         if (isSameResultsAsPreviousSearch) return;
-        // Add new line items to DOM
-        const resultsHTML = generateSearchList(result);
-        searchResultsList.innerHTML = resultsHTML;
+        const resultListItems = generateSearchListItems(result);
+        searchResultsList.replaceChildren(...resultListItems);
         
         // Animate hidden line items
         const newLiElements = searchResultsList.querySelectorAll('li');
@@ -198,30 +198,32 @@ async function getSearchableJSONData(): Promise<SearchablePostData[] | undefined
 }
 
 // Takes the results of a search and maps it to user-displayable HTML.
-function generateSearchList(results: FuseResult<SearchablePostData>[]) {
-    return results
-    .map((result) => {
+function generateSearchListItems(results: FuseResult<SearchablePostData>[]) {
+    const listItems = results.map((result) => {
         const { id, title, date } = result.item;
         const dateAsDate = new Date(date);
-        return `<li class="mt-4 opacity-0 translate-y-4">
-                    <a target="_blank" href="/blog/${id}/"
-                        class="
-                            text-fg-primary-link-2 font-medium hover:text-fg-primary-link-2-hover focus:text-fg-primary-link-2-hover
-                        "
-                    >${title}
-                    </a>
-                    <time datetime="${dateAsDate.toISOString()}"
-                        class="text-xs text-gray-temp-400 dark:text-gray-temp-300"
-                    >
-                        ${dateAsDate.toLocaleDateString('en-us', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                        })}
-                    </time>
-                </li>`;
-    })
-    .join('');
+        const listItem = document.createElement('li');
+        listItem.className = 'mt-4 opacity-0 translate-y-4';
+
+        const resultLink = document.createElement('a');
+        resultLink.href = `/blog/${id}/`;
+        resultLink.className = 'text-fg-primary-link-2 font-medium hover:text-fg-primary-link-2-hover focus:text-fg-primary-link-2-hover';
+        resultLink.textContent = title;
+
+        const dateLabel = document.createElement('time');
+        dateLabel.dateTime = dateAsDate.toISOString();
+        dateLabel.className = 'text-xs text-gray-temp-400 dark:text-gray-temp-300';
+        dateLabel.textContent = dateAsDate.toLocaleDateString('en-us', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+
+        listItem.append(resultLink, dateLabel);
+        return listItem;
+    });
+
+    return listItems;
 }
 
 export { 
