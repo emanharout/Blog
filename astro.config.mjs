@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import icon from "astro-icon";
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 import rehypeExternalLinks from 'rehype-external-links';
 import remarkSectionize from 'remark-sectionize';
 import {
@@ -50,6 +51,7 @@ export default defineConfig({
       iconDir: "src/assets/icons",
     }),
     mdx(),
+    sitemap(),
   ],
   vite: {
     plugins: [tailwindcss()],

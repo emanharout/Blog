@@ -6,6 +6,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
+    "preinstall": "node scripts/check-node-version.mjs",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
@@ -16,6 +17,7 @@
     "@astrojs/check": "^0.9.6",
     "@astrojs/mdx": "^4.3.13",
     "@astrojs/rss": "^4.0.15",
+    "@astrojs/sitemap": "^3.7.0",
     "@fontsource-variable/frank-ruhl-libre": "^5.1.0",
     "@fontsource-variable/inter": "^5.1.0",
     "@shikijs/transformers": "^1.24.0",
