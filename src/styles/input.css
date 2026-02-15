@@ -3,8 +3,12 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
+    /* Horizontal spacing to be applied on left-most and right-most edges */
+    /* so that all content is aligned on the outer edges of any page */
+    /* Use like so: class="px-outer-edge" or class="mx-outer-edge" */
     --spacing-outer-edge: 1.5rem;
 
+    /* Primary theme color scale */
     --color-primary-50: hsl(var(--primary-color-50));
     --color-primary-100: hsl(var(--primary-color-100));
     --color-primary-200: hsl(var(--primary-color-200));
@@ -17,6 +21,7 @@
     --color-primary-900: hsl(var(--primary-color-900));
     --color-primary-950: hsl(var(--primary-color-950));
 
+    /* Secondary theme color scale */
     --color-secondary-50: hsl(var(--secondary-color-50));
     --color-secondary-100: hsl(var(--secondary-color-100));
     --color-secondary-200: hsl(var(--secondary-color-200));
@@ -29,17 +34,24 @@
     --color-secondary-900: hsl(var(--secondary-color-900));
     --color-secondary-950: hsl(var(--secondary-color-950));
 
+    /* Temperature Tone BG (warm or cool off-white/black) */
     --color-bg-1: hsl(var(--background-color-1));
     --color-bg-2: hsl(var(--background-color-2));
+    /* Colored BG (uses theme's primary color) */
     --color-bg-primary-2: hsl(var(--primary-bg));
 
+    /* Temperature Tone FG (warm or cool off-white/black) */
     --color-fg-1: hsl(var(--fg-color-1));
     --color-fg-2: hsl(var(--fg-color-2));
+    /* Colored FG (uses theme's primary color) */
     --color-fg-primary-link-2: hsl(var(--fg-primary-link-2));
     --color-fg-primary-link-2-hover: hsl(var(--fg-primary-link-2-hover));
+    /* Border FG used across cards and subtle boundaries */
     --color-fg-border-2: hsl(var(--fg-color-border-2));
+    /* Light color is always off-white; meant for colorful backgrounds */
     --color-fg-light: hsl(var(--fg-light));
 
+    /* Temperature grays match the primary theme's warm/cool tone */
     --color-gray-temp-50: hsl(var(--temperature-gray-50));
     --color-gray-temp-100: hsl(var(--temperature-gray-100));
     --color-gray-temp-200: hsl(var(--temperature-gray-200));
@@ -51,6 +63,7 @@
     --color-gray-temp-800: hsl(var(--temperature-gray-800));
     --color-gray-temp-900: hsl(var(--temperature-gray-900));
 
+    /* Neutral grayscale palette */
     --color-gray-neutral-50: hsl(var(--gray-50));
     --color-gray-neutral-100: hsl(var(--gray-100));
     --color-gray-neutral-200: hsl(var(--gray-200));
@@ -62,10 +75,12 @@
     --color-gray-neutral-800: hsl(var(--gray-800));
     --color-gray-neutral-900: hsl(var(--gray-900));
 
+    /* Project typography families used by font-serif and font-sans */
     --font-serif: "Frank Ruhl Libre Variable", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+/* Prose tone preset mapped to --fg-color-1 for article/content text */
 @utility prose-fg1 {
     --tw-prose-body: hsl(var(--fg-color-1));
     --tw-prose-headings: hsl(var(--fg-color-1));
@@ -101,6 +116,7 @@
     --tw-prose-invert-td-borders: hsl(var(--fg-color-1));
 }
 
+/* Prose tone preset mapped to --fg-color-2 for slightly softer text */
 @utility prose-fg2 {
     --tw-prose-body: hsl(var(--fg-color-2));
     --tw-prose-headings: hsl(var(--fg-color-2));
@@ -143,11 +159,13 @@
         scrollbar-gutter: stable;
     }
 
+    /* Reset blockquote to preferred style and disable automatic quote marks */
     .prose blockquote {
         font-style: normal;
         quotes: none;
     }
 
+    /* Remove opening and closing quote pseudo-elements */
     .prose blockquote::before,
     .prose blockquote::after {
         content: none;
