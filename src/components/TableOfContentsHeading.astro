@@ -35,7 +35,7 @@ if (heading.depth === 3) {
         // Astro.self just initializes another TableOfContentsHeading component
         heading.subheadings.length > 0 && (
             <ul role="list" aria-label={`Subsections of ${heading.text}`}>
-                {heading.subheadings.map((subheading: any) => (
+                {heading.subheadings.map((subheading: HeadingHierarchy) => (
                     <Astro.self heading={subheading} />
                 ))}
             </ul>
