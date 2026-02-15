@@ -41,7 +41,7 @@ import {
   // warning: <span class="line highlighted warning">
   transformerNotationErrorLevel,
 } from '@shikijs/transformers';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -50,8 +50,10 @@ export default defineConfig({
       iconDir: "src/assets/icons",
     }),
     mdx(),
-    tailwind(),
   ],
+  vite: {
+    plugins: [tailwindcss()],
+  },
   markdown: {
     rehypePlugins: [
       [
