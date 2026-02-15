@@ -48,7 +48,8 @@ const { title, description, image = '/favicon.png' } = Astro.props;
         <meta property="twitter:image" content={image} />
         <meta property="twitter:image:alt" content={description} />
 
-        <!-- absolute path to a script at `public/colorThemeScript.js` -->
+        <!-- Keep this inline/public script in <head> so theme class is applied before first paint. -->
+        <!-- This avoids a flash of wrong theme; tradeoff is that this script is not Astro-processed. -->
         <script is:inline src="/scripts/colorThemeScript.js"></script>
         <title>{title}</title>
     </head>

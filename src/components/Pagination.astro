@@ -1,9 +1,10 @@
 ---
 import { Icon } from 'astro-icon/components';
+import type { CollectionEntry } from 'astro:content';
 import type { PaginationRepository } from '../scripts/pagination';
 
 type Props = {
-    pageData: PaginationRepository<any>;
+    pageData: PaginationRepository<CollectionEntry<'posts'>>;
 };
 
 const { pageData } = Astro.props;

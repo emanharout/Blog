@@ -12,35 +12,29 @@ import { getAllPostsSorted, isValidBlogType } from '../../../scripts/utilities.t
 import { PaginationRepository } from '../../../scripts/pagination.ts';
 import { PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE } from '../../../scripts/constants.ts';
 
-// Was getting typescript errors because I was setting `blog_type` key to two types of values:
-// string or undefined. Defining and using this new type resolves all warnings.
-type BlogTypeParams =
-    | { blog_type: string } // For valid blog types
-    | { blog_type: undefined }; // For undefined
+type BlogTypeRoute = typeof PROGRAMMING_BLOG_TYPE | typeof WONDER_BLOG_TYPE;
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
     // Define three routes, each corresponds to a view of the blog:
     // 1) /blog/programming 2) /blog/wonder 3) blog/ (shows both)
-    // EH: TODO: See about removing undefined as a string literal and put actual undefined
-    const blogTypeRoutes = [PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE, 'undefined'];
+    const blogTypeRoutes: BlogTypeRoute[] = [PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE];
     const allPosts = await getAllPostsSorted();
-    let blogsWithPosts = blogTypeRoutes.flatMap((blogTypeRoute) => {
-        if (blogTypeRoute === 'undefined') {
-            return paginate(allPosts, {
-                params: { blog_type: undefined } as BlogTypeParams,
-                pageSize: 12,
-            });
-        } else {
-            const filteredPosts = allPosts.filter((post) => {
-                return post.data.blog.includes(blogTypeRoute);
-            });
-            return paginate(filteredPosts, {
-                params: { blog_type: blogTypeRoute } as BlogTypeParams,
-                pageSize: 12,
-            });
-        }
+    const paginatedPostsByType = blogTypeRoutes.flatMap((blogTypeRoute) => {
+        const filteredPosts = allPosts.filter((post) => {
+            return post.data.blog.includes(blogTypeRoute);
+        });
+        return paginate(filteredPosts, {
+            params: { blog_type: blogTypeRoute },
+            pageSize: 12,
+        });
     });
-    return blogsWithPosts;
+
+    const paginatedAllPosts = paginate(allPosts, {
+        params: { blog_type: undefined },
+        pageSize: 12,
+    });
+
+    return [...paginatedPostsByType, ...paginatedAllPosts];
 }
 
 type Props = {
@@ -51,7 +45,7 @@ const { page }: Props = Astro.props;
 const paginationRepository = new PaginationRepository(page);
 // For some reason Astro sometimes sets `Astro.params.blog_type` to be a page number since [...page] is also
 // part of the path/route for [...blog_type], so we must check the blog type is not a page number before using it.
-const blogType = Astro.params.blog_type;
+const blogType = Astro.params.blog_type as string | undefined;
 const currentPageBlogPosts = page.data as CollectionEntry<'posts'>[];
 const allBlogPosts = await getAllPostsSorted();
 let filteredBlogPosts: CollectionEntry<'posts'>[];

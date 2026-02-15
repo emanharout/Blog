@@ -1,13 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const blogDropdownNavButton = document.getElementById('blog-dropdown-nav-button') as HTMLButtonElement;
-    const blogsDropdownMenu = document.getElementById('blogs-dropdown-menu') as HTMLElement;
-    const dropdownArrowIcon = document.getElementById('navbar-dropdown-menu-arrow-icon') as HTMLElement;
+    const blogDropdownNavButton = document.getElementById('blog-dropdown-nav-button');
+    const blogsDropdownMenu = document.getElementById('blogs-dropdown-menu');
+    const dropdownArrowIcon = document.getElementById('navbar-dropdown-menu-arrow-icon');
+    if (!(blogDropdownNavButton instanceof HTMLButtonElement)) return;
+    if (!(blogsDropdownMenu instanceof HTMLElement)) return;
+    if (!(dropdownArrowIcon instanceof Element)) return;
+    const blogDropdownNavButtonElement = blogDropdownNavButton;
+    const blogsDropdownMenuElement = blogsDropdownMenu;
+    const dropdownArrowIconElement = dropdownArrowIcon;
     let isDropdownMenuOpen = false;
 
     document.addEventListener('click', (event) => {
-        const target = event.target as HTMLElement;
-        const isNavBlogButtonClick = blogDropdownNavButton.contains(target);
-        const isDropdownMenuClick = blogsDropdownMenu.contains(target);
+        const target = event.target as Node | null;
+        const isNavBlogButtonClick = blogDropdownNavButtonElement.contains(target);
+        const isDropdownMenuClick = blogsDropdownMenuElement.contains(target);
 
         if (isNavBlogButtonClick) {
             if (isDropdownMenuOpen) {
@@ -30,16 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function openDropdown() {
-        blogsDropdownMenu.classList.remove('hidden');
-        dropdownArrowIcon.classList.add('rotate-180');
+        blogsDropdownMenuElement.classList.remove('hidden');
+        dropdownArrowIconElement.classList.add('rotate-180');
         isDropdownMenuOpen = true;
-        blogDropdownNavButton.setAttribute("aria-expanded", "true");
+        blogDropdownNavButtonElement.setAttribute("aria-expanded", "true");
     }
 
     function closeDropdown() {
-        blogsDropdownMenu.classList.add('hidden');
-        dropdownArrowIcon.classList.remove('rotate-180');
+        blogsDropdownMenuElement.classList.add('hidden');
+        dropdownArrowIconElement.classList.remove('rotate-180');
         isDropdownMenuOpen = false;
-        blogDropdownNavButton.setAttribute("aria-expanded", "false");
+        blogDropdownNavButtonElement.setAttribute("aria-expanded", "false");
     }
 });
