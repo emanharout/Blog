@@ -1,0 +1,4 @@
+interface:
+  display_name: "Import Posts"
+  short_description: "Publish-ready MD to MDX with frontmatter and file moves"
+  default_prompt: "Duplicate a ready post to MDX, apply frontmatter/title/image transforms, then move/copy post and images to Published and src/content/posts."
