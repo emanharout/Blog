@@ -11,14 +11,16 @@ Run a deterministic publishing flow for files in the Ready-to-Publish folder. Ke
 
 ## Paths
 
+Path base rule: All relative paths in this skill are resolved from the repository root (the command working directory), not from this file's location. So `./` means repo root and `../` means one directory above repo root.
+
 Primary paths (as provided):
 
-- Ready posts: `~/../Posts/Production Content/3 Ready to Publish`
-- Ready images: `~/../Posts/Production Content/3 Ready to Publish/images`
-- Published posts: `~/../Posts/Production Content/4 Published`
-- Published images: `~/../Posts/Production Content/4 Published/images`
-- Astro posts destination: `~/src/content/posts`
-- Astro images destination: `~/src/content/posts/images`
+- Ready posts: `../Posts/Production Content/3 Ready to Publish`
+- Ready images: `../Posts/Production Content/3 Ready to Publish/images`
+- Published posts: `../Posts/Production Content/4 Published`
+- Published images: `../Posts/Production Content/4 Published/images`
+- Astro posts destination: `./src/content/posts`
+- Astro images destination: `./src/content/posts/images`
 
 Use overrides only when the user explicitly provides them.
 
@@ -51,8 +53,8 @@ If a value is missing, keep the frontmatter key and leave its value empty so the
 9. Add footnote tooltip format when requested (see reference file).
 10. Move original `.md` and generated `.mdx` from ready posts to published posts.
 11. Move all related images from ready images to published images.
-12. Copy the final `.mdx` into `~/src/content/posts`.
-13. Copy any referenced images into `~/src/content/posts/images`.
+12. Copy the final `.mdx` into `./src/content/posts`.
+13. Copy any referenced images into `./src/content/posts/images`.
 14. Ensure original and duplicate share the same basename (different extensions only).
 
 ## Required Frontmatter Template
