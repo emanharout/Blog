@@ -44,10 +44,12 @@ Notes:
 
 After content edits are complete:
 
-1. Move original `.md` and new `.mdx` to `~/../Posts/Production Content/4 Published`.
-2. Move related images from `~/../Posts/Production Content/3 Ready to Publish/images` to `~/../Posts/Production Content/4 Published/images`.
-3. Copy `.mdx` to `~/src/content/posts`.
-4. Copy referenced images to `~/src/content/posts/images`.
+Path base rule: Resolve `./` and `../` from repository root (execution working directory), not from this reference file's location.
+
+1. Move original `.md` and new `.mdx` to `../Posts/Production Content/4 Published`.
+2. Move related images from `../Posts/Production Content/3 Ready to Publish/images` to `../Posts/Production Content/4 Published/images`.
+3. Copy `.mdx` to `./src/content/posts`.
+4. Copy referenced images to `./src/content/posts/images`.
 
 ## Verification Checklist
 
