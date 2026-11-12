@@ -8,87 +8,87 @@ import Pagination from '../../../components/Pagination.astro';
 import TagList from '../../../components/TagList.astro';
 import ProgrammingBlogHeader from '../../../components/ProgrammingBlogHeader.astro';
 import WonderBlogHeader from '../../../components/WonderBlogHeader.astro';
-import { getAllPostsSorted, isValidBlogType } from '../../../scripts/utilities.ts';
+import { getAllPostsSorted, getUniqueTags } from '../../../scripts/utilities.ts';
 import { PaginationRepository } from '../../../scripts/pagination.ts';
 import { PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE } from '../../../scripts/constants.ts';
 
-type BlogTypeRoute = typeof PROGRAMMING_BLOG_TYPE | typeof WONDER_BLOG_TYPE;
-
+// Three paginated views: /blog/programming, /blog/wonder, and /blog (all posts).
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-    // Define three routes, each corresponds to a view of the blog:
-    // 1) /blog/programming 2) /blog/wonder 3) blog/ (shows both)
-    const blogTypeRoutes: BlogTypeRoute[] = [PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE];
+    // Defined inside: Astro hoists getStaticPaths, so it can't see module-level constants.
+    const PAGE_SIZE = 12;
     const allPosts = await getAllPostsSorted();
-    const paginatedPostsByType = blogTypeRoutes.flatMap((blogTypeRoute) => {
-        const filteredPosts = allPosts.filter((post) => {
-            return post.data.blog.includes(blogTypeRoute);
-        });
-        return paginate(filteredPosts, {
-            params: { blog_type: blogTypeRoute },
-            pageSize: 12,
+
+    const byBlogType = [PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE].flatMap((blogType) => {
+        const posts = allPosts.filter((post) => post.data.blog.includes(blogType));
+        return paginate(posts, {
+            params: { blog_type: blogType },
+            props: { blogType, tags: getUniqueTags(posts) },
+            pageSize: PAGE_SIZE,
         });
     });
 
-    const paginatedAllPosts = paginate(allPosts, {
+    const all = paginate(allPosts, {
         params: { blog_type: undefined },
-        pageSize: 12,
+        props: { blogType: undefined, tags: getUniqueTags(allPosts) },
+        pageSize: PAGE_SIZE,
     });
 
-    return [...paginatedPostsByType, ...paginatedAllPosts];
+    return [...byBlogType, ...all];
 }
 
 type Props = {
-    page: Page;
+    page: Page<CollectionEntry<'posts'>>;
+    blogType: typeof PROGRAMMING_BLOG_TYPE | typeof WONDER_BLOG_TYPE | undefined;
+    tags: string[];
 };
 
-const { page }: Props = Astro.props;
+const { page, blogType, tags } = Astro.props;
 const paginationRepository = new PaginationRepository(page);
-// For some reason Astro sometimes sets `Astro.params.blog_type` to be a page number since [...page] is also
-// part of the path/route for [...blog_type], so we must check the blog type is not a page number before using it.
-const blogType = Astro.params.blog_type as string | undefined;
-const currentPageBlogPosts = page.data as CollectionEntry<'posts'>[];
-const allBlogPosts = await getAllPostsSorted();
-let filteredBlogPosts: CollectionEntry<'posts'>[];
 
-let isWonderBlog = blogType == WONDER_BLOG_TYPE;
-let isProgrammingBlog = blogType == PROGRAMMING_BLOG_TYPE;
-if (blogType && isValidBlogType(blogType)) {
-    filteredBlogPosts = allBlogPosts.filter((post) => post.data.blog.includes(blogType));
-} else {
-    filteredBlogPosts = allBlogPosts;
-}
-const allTags = filteredBlogPosts.flatMap((post) => post.data.tags);
-const dedupedTags = Array.from(new Set(allTags));
-const shouldShowTagList = dedupedTags.length > 0;
+const blogTitles = {
+    [PROGRAMMING_BLOG_TYPE]: 'Programming Blog',
+    [WONDER_BLOG_TYPE]: 'Wonder Blog',
+};
+const baseTitle = blogType ? blogTitles[blogType] : 'All Posts';
+const title = page.currentPage > 1 ? `${baseTitle} – Page ${page.currentPage}` : baseTitle;
+const descriptions = {
+    [PROGRAMMING_BLOG_TYPE]: "Eman's programming blog: Swift, iOS, and software design.",
+    [WONDER_BLOG_TYPE]: "Eman's Wonder Blog: the paradoxes and possibilities of life, art and science.",
+};
+const description = blogType ? descriptions[blogType] : "Explore all of Eman's blog posts.";
 ---
 
-<MainLayout title="Blog" description="Explore Eman's blog posts.">
+<MainLayout title={title} description={description}>
     {
-        isWonderBlog && (
+        blogType === WONDER_BLOG_TYPE && (
             <Hero heroTitle="Wonder Blog">
                 <WonderBlogHeader />
             </Hero>
         )
     }
     {
-        isProgrammingBlog && (
+        blogType === PROGRAMMING_BLOG_TYPE && (
             <Hero heroTitle="Programming Blog">
                 <ProgrammingBlogHeader />
             </Hero>
         )
     }
-    <section class="mx-auto px-4
-        max-w-screen-2xl">
+    {!blogType && <h1 class="sr-only">{title}</h1>}
+    <section class="container-page container-wide">
         {
-            shouldShowTagList && (
+            tags.length > 0 && (
                 <div class="flex justify-center">
-                    <TagList tags={dedupedTags} />
+                    <TagList tags={tags} />
                 </div>
             )
         }
-        <BlogGrid posts={currentPageBlogPosts} />
-        <div class="mt-10">
-            {paginationRepository.showPagination && <Pagination pageData={paginationRepository} />}
-        </div>
+        <BlogGrid posts={page.data} />
+        {
+            paginationRepository.showPagination && (
+                <div class="mt-10">
+                    <Pagination pageData={paginationRepository} />
+                </div>
+            )
+        }
     </section>
 </MainLayout>

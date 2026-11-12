@@ -1,67 +1,54 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import TagList from '../../components/TagList.astro';
 import BlogGrid from '../../components/BlogGrid.astro';
 import MainLayout from '../../layouts/MainLayout.astro';
-import { toTitleCase, getAllPostsSorted } from '../../scripts/utilities.ts';
-import { ALL_TAGS_TAG } from '../../scripts/constants.ts';
-
-type TagSlugParams = { tag_slug: string } | { tag_slug: undefined };
-// A phantom tag that represents all tags
+import { toTitleCase, getAllPostsSorted, getUniqueTags, slugifyTag } from '../../scripts/utilities.ts';
 
 export const getStaticPaths = async () => {
-    const posts = (await getCollection('posts')) as CollectionEntry<'posts'>[];
-    const allTags = posts.flatMap((post) => post.data.tags);
-    const tags = Array.from(new Set(allTags));
+    const posts = await getAllPostsSorted();
+    const tags = getUniqueTags(posts);
 
-    const paths = tags.map((tag) => {
-        const postsWithTag = posts.filter((post) => post.data.tags.includes(tag));
-        return {
-            params: {
-                tag_slug: tag,
-            } as TagSlugParams,
-            props: {
-                tag,
-                posts: postsWithTag,
-            },
-        };
-    });
-
-    // Add an additional path for the `/tags/` route (empty tag_slug)
-    paths.push({
-        // `undefined` matches mysite.com/tags
-        params: { tag_slug: undefined } as TagSlugParams,
+    const tagPaths = tags.map((tag) => ({
+        params: { tag_slug: slugifyTag(tag) as string | undefined },
         props: {
-            tag: ALL_TAGS_TAG,
-            posts: posts,
+            tag: tag as string | undefined,
+            posts: posts.filter((post) => post.data.tags.includes(tag)),
         },
-    });
-    return paths;
+    }));
+
+    // `undefined` matches mysite.com/tags, which lists every topic and every post.
+    const allTagsPath = {
+        params: { tag_slug: undefined },
+        props: { tag: undefined, posts },
+    };
+
+    return [...tagPaths, allTagsPath];
 };
 
 type Props = {
-    tag: string;
+    // `undefined` when showing all tags.
+    tag: string | undefined;
     posts: CollectionEntry<'posts'>[];
 };
 
 const { tag, posts } = Astro.props;
-const tagCapitalized = toTitleCase(tag);
-const isShowingSingleTag = tag !== ALL_TAGS_TAG;
-const description = isShowingSingleTag ? `Explore posts on ${tagCapitalized}.` : 'Explore posts via topics.';
-
-const allPosts = await getAllPostsSorted();
-const allTagsIncludingDupes = allPosts.flatMap((post) => post.data.tags);
-const allTags = Array.from(new Set(allTagsIncludingDupes));
+const tagTitle = tag ? toTitleCase(tag) : undefined;
+const title = tagTitle ? `Posts on ${tagTitle}` : 'Topics';
+const description = tagTitle ? `Explore posts on ${tagTitle}.` : 'Explore posts via topics.';
+const allTags = getUniqueTags(await getAllPostsSorted());
 ---
 
-<MainLayout title="Blog" description={description}>
-    <section class="mx-auto px-4
-        max-w-screen-2xl">
+<MainLayout title={title} description={description}>
+    <section class="container-page container-wide">
         {
-            isShowingSingleTag ? (
-                <p class="text-center text-fg-1 py-8 font-semibold font-serif text-2xl">{tagCapitalized}</p>
+            tagTitle ? (
+                <h1 class="text-center text-fg-1 py-8 font-semibold font-serif text-2xl">{tagTitle}</h1>
             ) : (
-                <TagList tags={allTags} />
+                <div class="flex justify-center">
+                    <h1 class="sr-only">Topics</h1>
+                    <TagList tags={allTags} />
+                </div>
             )
         }
         <BlogGrid posts={posts} />
