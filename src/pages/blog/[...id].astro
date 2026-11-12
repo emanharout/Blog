@@ -1,9 +1,9 @@
 ---
-import BlogArticle from '../../components/BlogArticle.astro';
-import MainLayout from '../../layouts/MainLayout.astro';
-
+import { getImage } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
+import BlogArticle from '../../components/BlogArticle.astro';
+import MainLayout from '../../layouts/MainLayout.astro';
 
 export async function getStaticPaths() {
     const allBlogPosts: CollectionEntry<'posts'>[] = await getCollection('posts');
@@ -20,9 +20,20 @@ type Props = {
 };
 
 const { post } = Astro.props;
+
+// Social platforms don't reliably support WebP/AVIF, so generate a JPEG card image.
+const socialImage = post.data.image
+    ? (await getImage({ src: post.data.image, width: 1200, format: 'jpg' })).src
+    : undefined;
 ---
 
-<MainLayout title={post.data.title} description={post.data.subtitle ?? ''} image={post.data.image?.src}>
+<MainLayout
+    title={post.data.title}
+    description={post.data.description}
+    image={socialImage}
+    imageAlt={post.data.imageAlt}
+    ogType="article"
+>
     <BlogArticle post={post} />
     <script src="../../scripts/refTagger.ts"></script>
 </MainLayout>

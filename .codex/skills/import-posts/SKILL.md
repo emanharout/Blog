@@ -32,6 +32,7 @@ Accept user-provided values for these frontmatter variables:
 - `date` (`YYYY-MM-DD`)
 - `image`
 - `imageAlt`
+- `description` (one-sentence summary used for meta description, social cards, and RSS)
 - `blog` (allowed: `programming`, `wonder`)
 
 Auto-resolve:
@@ -46,7 +47,7 @@ If a value is missing, keep the frontmatter key and leave its value empty so the
 2. Duplicate it and change duplicate extension to `.mdx`.
 3. Never edit the original `.md` content.
 4. In the `.mdx` duplicate, insert frontmatter using the required template.
-5. Extract the title from the first `#` heading, set `title`, then replace that heading with `<h1>{frontmatter.title}</h1>`.
+5. Extract the title from the first `#` heading, set `title`, then delete that heading line. The site layout renders the title from frontmatter, so the body must not contain an `<h1>`.
 6. Remove cover image markup if present: `![[blog_some-cover-image-file-name.jpg]]` above or below the title.
 7. Convert image wiki links (`![[image-name.jpg]]`) to Markdown image paths under `./images/...`.
 8. Normalize image references in `.mdx` so filenames with spaces become either URL-encoded (`%20`) or underscore-formatted names.
@@ -71,12 +72,11 @@ featured: false
 image: [ADD_IMAGE_REF_./images/blog_intro-to-swift-metatypes.webp]
 imageAlt: [ADD_IMAGE_ALT_A Photoshoot]
 title: [ADD_TITLE_FROM_H1_HEADER]
+description: [ADD_ONE_SENTENCE_SUMMARY]
 blog:
   - programming
   - wonder
 ---
-
-<h1>{frontmatter.title}</h1>
 ```
 
 Apply this fill logic:
@@ -84,7 +84,8 @@ Apply this fill logic:
 - If user values are provided, replace bracket placeholders with real values.
 - If user values are not provided, keep the key but leave value blank.
 - For `blog`, only allow `programming` and/or `wonder`; if unknown or missing, keep `blog:` with no list values.
-- Quote `title` when it contains special characters such as `:`.
+- Quote `title` and `description` when they contain special characters such as `:`.
+- `description` is required by the content schema; a blank value fails `npm run build` until it is filled in.
 
 ## Execution Notes
 

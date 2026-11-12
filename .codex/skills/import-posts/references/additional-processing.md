@@ -5,7 +5,7 @@
 Apply these in order after creating the `.mdx` duplicate.
 
 1. Remove cover image `![[blog_some-cover-image-file-name.jpg]]` near the original H1.
-2. Extract title from first level-1 heading (`# Title`) and replace that heading with `<h1>{frontmatter.title}</h1>`.
+2. Extract title from first level-1 heading (`# Title`) and delete that heading line (the layout renders the title from frontmatter).
 3. Set frontmatter `title` from extracted heading text.
 4. Convert wiki image syntax `![[file name.jpg]]` to Markdown image syntax using `./images/...` paths.
 5. Normalize image references with spaces in filenames:
@@ -57,6 +57,6 @@ Path base rule: Resolve `./` and `../` from repository root (execution working d
 - Duplicate file extension is `.mdx`.
 - Frontmatter exists and keys are present.
 - Title is sourced from first `#` heading.
-- Body uses `<h1>{frontmatter.title}</h1>`.
+- Body contains no `# Title` heading or `<h1>`; the title lives only in frontmatter.
 - No remaining Obsidian wiki image syntax unless user explicitly requests it.
 - Referenced images exist in both Published and Astro image destinations.
