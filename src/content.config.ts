@@ -9,19 +9,21 @@ const postSchema = z.object({
     featured: z.boolean().default(false),
     imageAlt: z.string().optional(),
     title: z.string(),
-    subtitle: z.string().optional(),
+    // One-sentence summary used for the meta description, social cards, RSS and search.
+    description: z.string().min(1),
     blog: z.array(z.string()),
-})
+});
 
 // We add `image` to our `postSchema` here because running `npm run build` gives an error when we access
 // `image` outside of `defineCollection` call.
 const blogPostsCollection = defineCollection({
-    loader: glob({ pattern:  ['**/[^_]*.md', '**/[^_]*.mdx'], base: "./src/content/posts" }), // also seen '**.md' for `pattern:`
-    schema: ({ image }) => postSchema.extend({
-        image: image().optional(),
-    }),
+    loader: glob({ pattern: ['**/[^_]*.md', '**/[^_]*.mdx'], base: './src/content/posts' }),
+    schema: ({ image }) =>
+        postSchema.extend({
+            image: image().optional(),
+        }),
 });
 
- export const collections = {
-    'posts': blogPostsCollection,
+export const collections = {
+    posts: blogPostsCollection,
 };

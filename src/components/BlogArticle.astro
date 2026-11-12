@@ -9,80 +9,74 @@ type Props = {
 };
 
 const { post } = Astro.props;
-let hasImage = false;
-if (post.data.image && post.data.imageAlt) {
-    hasImage = true;
-}
-
-let noImageAdditionalClasses = hasImage ? '' : 'rounded-t-3xl';
+const hasImage = Boolean(post.data.image && post.data.imageAlt);
 
 const { Content, headings } = await render(post);
 ---
 
+<!--
+  Layout: a single centered card on small screens. At `lg` a three-column grid puts the card in the middle and the
+  sticky table of contents on the right (the left column is an empty spacer that keeps the card centered).
+-->
 <section
-    class="blog-post-card
-    grid grid-cols-[100%] justify-items-center items-start
-    gap-x-3
-    sm:mx-4
-    lg:grid-cols-[minmax(5ch,_1fr)_auto_minmax(5ch,_1fr)] lg:justify-items-start"
+    class="grid grid-cols-[100%] justify-items-center items-start gap-x-3
+    sm:px-4
+    lg:grid-cols-[minmax(5ch,1fr)_auto_minmax(5ch,1fr)] lg:justify-items-start"
 >
-    <div class="left-sidebar__empty-grid-column"></div>
+    <div aria-hidden="true"></div>
 
-    <div class="max-w-[65ch] w-full
-    bg-bg-2 rounded-xl shadow-md
-    mb-6">
+    <!--
+      `--article-pad` is the card's inner horizontal padding. Full-bleed children (images here, code blocks in
+      shiki.css) use it as a negative margin to reach the card edges. Change it here and everything stays aligned.
+    -->
+    <div
+        class="w-full max-w-[65ch] mb-6 bg-bg-2 shadow-md sm:rounded-xl overflow-hidden
+        [--article-pad:clamp(1.25rem,5vw,2rem)]"
+    >
         {
             hasImage && (
                 <Picture
                     src={post.data.image!}
                     alt={post.data.imageAlt ?? ''}
-                    class="rounded-t-xl"
                     formats={['avif', 'webp']}
-                    loading="eager"
                     fallbackFormat="jpg"
-                    class="rounded-t-xl mx-auto object-cover "
+                    loading="eager"
+                    fetchpriority="high"
+                    widths={[480, 720, 1040]}
+                    sizes="(min-width: 65ch) 65ch, 100vw"
+                    class="w-full object-cover"
                 />
             )
         }
-        <!-- EH: Hack id:article-card-insets -->
-        <!-- Code fences have a negative margin that reverses the padding provided by the article card. -->
-        <!-- This negative margin must not go beyond the padding provided below. -->
-
-        <!-- EH: Hack id:article-card-image-insets -->
-        <!-- The image takes the full width via a calculation on min-w-[xxx] -->
-        <!-- To calculate the property, take the sum of the negative rem margins -->
-        <!-- i.e. -2rem + -2rem => -4rem, get the absolute val, 4rem, then  -->
-        <!-- set the min-w-[xxx] to 100% plus 4rem using CSS's `calc` func -->
-        <!-- EH: id: blockquote svg styling - Blockquote SVG Styling -->
-        <!-- `prose-blockquote:border-s-0` removes default border that is added to the left side of the blockquote -->
-        <!-- prose-blockquote:pl-[3.25rem] adds space to the left of the quote to make room for quotation-mark svg -->
-        <!-- This left padding will may need to change in the future if the article card's padding or -->
-        <!-- quotations changes. The svg's positioning determined by a script will need to be adjusted too -->
-        <!-- To revert this back to simpler block quote styling, remove the above classes and reintroduce: -->
-        <!-- prose-blockquote:border-s-primary-400 dark:prose-blockquote:border-s-primary-300 -->
-        <!-- And remove script (see other comments with same id for more info) -->
-        <div class={`max-w-full p-8 rounded-b-xl bg-bg-2 ${noImageAdditionalClasses}`}>
+        <div class="px-(--article-pad) py-8">
+            <!--
+              Blockquotes: the default left border is removed and left padding leaves room for the quotation-mark SVG
+              added by blockQuoteSvgScript.ts. If this padding changes, adjust the SVG's position in that script.
+            -->
             <article
                 class="article-content
-            prose prose-fg2
-            prose-a:text-fg-primary-link-2
-            prose-blockquote:text-2xl prose-blockquote:font-serif
-            prose-blockquote:text-primary-950 dark:prose-blockquote:text-fg-2
-            prose-blockquote:font-light prose-blockquote:italic prose-blockquote:tracking-[.01em]
-            prose-blockquote:leading-snug prose-blockquote:border-s-0 prose-blockquote:pl-[3.25rem]
-            
-            hover:prose-a:text-fg-primary-link-2-hover focus:prose-a:text-fg-primary-link-2-hover
-            prose-img:rounded-sm prose-img:ml-[-2rem] prose-img:mr-[-2rem] prose-img:min-w-[calc(100%+4rem)]
-            prose-headings:font-serif prose-headings:tracking-wide prose-headings:font-medium"
+                prose prose-fg2 max-w-none
+                prose-a:text-fg-primary-link-2
+                hover:prose-a:text-fg-primary-link-2-hover focus:prose-a:text-fg-primary-link-2-hover
+                prose-blockquote:text-2xl prose-blockquote:font-serif
+                prose-blockquote:text-primary-950 dark:prose-blockquote:text-fg-2
+                prose-blockquote:font-light prose-blockquote:italic prose-blockquote:tracking-[.01em]
+                prose-blockquote:leading-snug prose-blockquote:border-s-0 prose-blockquote:pl-[3.25rem]
+                prose-img:rounded-sm prose-img:max-w-none
+                prose-img:mx-[calc(-1*var(--article-pad))] prose-img:w-[calc(100%+2*var(--article-pad))]
+                prose-headings:font-serif prose-headings:tracking-wide prose-headings:font-medium"
             >
+                <!-- The title comes from frontmatter; posts contain only body content. -->
+                <h1>{post.data.title}</h1>
+                <TableOfContents headings={headings} variant="inline" />
                 <Content />
             </article>
         </div>
     </div>
 
-    <TableOfContents headings={headings} />
-
-    <script src="../scripts/tippyTooltipSetup.js"></script>
+    <TableOfContents headings={headings} variant="sidebar" />
 </section>
 
+<script src="../scripts/tippyTooltipSetup.js"></script>
 <script src="../scripts/blockQuoteSvgScript.ts"></script>
+<script src="../scripts/tableOfContents.ts"></script>

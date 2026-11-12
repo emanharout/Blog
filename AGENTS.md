@@ -23,7 +23,7 @@ Run from repo root:
 - Use TypeScript/ES module syntax where applicable.
 - Use 2-space indentation in Astro, TS, JS, and config files.
 - Keep component and layout names in PascalCase (e.g., `BlogGridCard.astro`, `MainLayout.astro`).
-- Keep utility/client scripts in camelCase (e.g., `navHighlighter.ts`).
+- Keep utility/client scripts in camelCase (e.g., `navigationDropdownMenu.ts`).
 - Use descriptive route and content filenames; preserve existing slug patterns for posts.
 - Tailwind is the primary styling approach; keep shared styles in `src/styles/input.css`.
 

@@ -1,105 +1,97 @@
 ---
 import { Icon } from 'astro-icon/components';
 import ColorThemeToggle from './ColorThemeToggle.astro';
-import BlogNavDropdown from './BlogNavDropdown.astro';
+import NavItem from './NavItem.astro';
+import { PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE } from '../scripts/constants';
+
+const path = Astro.url.pathname;
+const isHome = path === '/';
+const isBlog = path.startsWith('/blog') || path.startsWith('/tags');
+const isAbout = path.startsWith('/about');
+const isSearch = path.startsWith('/search');
+
+const blogLinks = [
+    { href: `/blog/${WONDER_BLOG_TYPE}`, label: 'Wonder Blog' },
+    { href: `/blog/${PROGRAMMING_BLOG_TYPE}`, label: 'Programming Blog' },
+    { href: '/blog', label: 'All Posts' },
+];
+
+const linkClasses = 'block px-3 py-3 md:py-2';
 ---
 
-<!-- inline-block ensures div shrinks to fit size of ul and dark mode toggle -->
-<nav class="flex justify-between items-center" role="navigation" aria-label="Main Navigation">
-    <ul
-        class="flex flex-col items-start gap-y-1
-       h-auto
-       ml-2 my-4 p-0
-       list-none
-       sm:flex-row sm:justify-center
-       sm:h-12
-       sm:gap-y-0 sm:gap-x-3 sm:my-8"
-    >
-        <li
-            id="nav-home-item"
-            class="w-full
-            rounded hover:bg-bg-2
-            sm:w-auto
-            relative transition-all ease-in-out
-            before:transition-[width] before:ease-in-out before:duration-300 before:absolute before:bg-primary-600 before:origin-center before:h-[3px] before:w-0 before:bottom-0
-            hover:before:w-[50%] before:left-[50%]
-            after:transition-[width] after:ease-in-out after:duration-300 after:absolute after:bg-primary-600 after:origin-center after:h-[3px] after:w-0 after:bottom-0
-            hover:after:w-[50%] after:right-[50%]"
-        >
-            <a
-                href="/"
-                aria-label="Go to Home page"
-                class="p-3 block text-center
-                      sm:w-auto sm:px-3 sm:inline-block"
-                >Home
-            </a>
-        </li>
-        <li
-            id="nav-blog-item"
-            class="w-full relative
-        rounded hover:bg-bg-2
-        sm:w-auto
-            transition-all ease-in-out
-            before:transition-[width] before:ease-in-out before:duration-300 before:absolute before:bg-primary-600 before:origin-center before:h-[3px] before:w-0 before:bottom-0
-            hover:before:w-[50%] before:left-[50%]
-            after:transition-[width] after:ease-in-out after:duration-300 after:absolute after:bg-primary-600 after:origin-center after:h-[3px] after:w-0 after:bottom-0
-            hover:after:w-[50%] after:right-[50%]"
-        >
-            <BlogNavDropdown />
-        </li>
+<!--
+  Below `md` this whole panel is hidden until the menu button in SiteHeader opens it (data-open).
+  At `md` and up it is always visible as a horizontal nav bar.
+-->
+<nav
+    id="site-nav-panel"
+    aria-label="Main"
+    class="hidden basis-full pb-4
+    data-open:block
+    md:block md:basis-auto md:pb-0"
+>
+    <ul class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3 md:py-6">
+        <NavItem active={isHome}>
+            <a href="/" class={linkClasses} aria-current={isHome ? 'page' : undefined}>Home</a>
+        </NavItem>
 
-        <!-- End of Dropdown Menu -->
-
-        <li
-            id="nav-about-item"
-            class="w-full
-            rounded hover:bg-bg-2
-            sm:w-auto
-            relative transition-all ease-in-out
-            before:transition-[width] before:ease-in-out before:duration-300 before:absolute before:bg-primary-600 before:origin-center before:h-[3px] before:w-0 before:bottom-0
-            hover:before:w-[50%] before:left-[50%]
-            after:transition-[width] after:ease-in-out after:duration-300 after:absolute after:bg-primary-600 after:origin-center after:h-[3px] after:w-0 after:bottom-0
-            hover:after:w-[50%] after:right-[50%]"
-        >
-            <a
-                href="/about"
-                aria-label="Go to 'About Me' page"
-                class="p-3 block text-center
-                      sm:w-auto sm:inline-block"
-                >About
-            </a>
-        </li>
-        <li
-            id="nav-search-item"
-            class="flex items-center justify-center
-            py-1
-            sm:mr-2 mb-3 sm:mb-0 sm:py-0
-            rounded hover:bg-bg-2
-            h-full w-full sm:w-auto
-            relative transition-all ease-in-out
-            before:transition-[width] before:ease-in-out before:duration-300 before:absolute before:bg-primary-600 before:origin-center before:h-[3px] before:w-0 before:bottom-0
-            hover:before:w-[50%] before:left-[50%]
-            after:transition-[width] after:ease-in-out after:duration-300 after:absolute after:bg-primary-600 after:origin-center after:h-[3px] after:w-0 after:bottom-0
-            hover:after:w-[50%] after:right-[50%]"
-        >
-            <a
-                href="/search"
-                aria-label="Go to Search page"
-                class="flex items-center justify-center
-                      h-full w-full py-1 px-2"
+        <NavItem active={isBlog}>
+            <div class="flex items-center">
+                <a href="/blog" class={`${linkClasses} grow md:pr-1`} aria-current={path === '/blog' ? 'page' : undefined}>Blog</a>
+                <button
+                    id="blog-submenu-button"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="blog-submenu"
+                    class="px-3 py-3 md:px-2 md:py-2 rounded"
+                >
+                    <span class="sr-only">Show blog sections</span>
+                    <Icon
+                        name="dropdown-menu-arrow"
+                        size="10"
+                        aria-hidden="true"
+                        class="transition-transform [[aria-expanded=true]>&]:rotate-180"
+                    />
+                </button>
+            </div>
+            <ul
+                id="blog-submenu"
+                class="hidden data-open:block
+                pl-4 pb-2 text-sm text-fg-2
+                md:absolute md:left-0 md:top-full md:z-20 md:mt-2 md:w-48 md:pl-0 md:py-2
+                md:bg-bg-2 md:rounded-lg md:border md:border-fg-border-2 md:shadow-md md:dark:shadow-gray-temp-900"
             >
-                <Icon
-                    name="nav-search-icon"
-                    size="28"
-                    desc="Search icon"
-                    id="navbar-search-icon"
-                    class="h-auto w-auto"
-                />
+                {
+                    blogLinks.map(({ href, label }) => (
+                        <li>
+                            <a
+                                href={href}
+                                aria-current={path === href ? 'page' : undefined}
+                                class="block px-4 py-2 rounded md:rounded-none
+                                hover:bg-primary-100 dark:hover:bg-primary-950 dark:hover:text-primary-50
+                                aria-[current=page]:font-semibold"
+                            >
+                                {label}
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </NavItem>
+
+        <NavItem active={isAbout}>
+            <a href="/about" class={linkClasses} aria-current={isAbout ? 'page' : undefined}>About</a>
+        </NavItem>
+
+        <NavItem active={isSearch}>
+            <a href="/search" class="flex items-center gap-3 px-3 py-2.5 md:py-2" aria-current={isSearch ? 'page' : undefined}>
+                <Icon name="nav-search-icon" size="24" aria-hidden="true" />
+                <span class="md:sr-only">Search</span>
             </a>
-        </li>
-        <li class="flex items-center justify-center h-full sm:w-max">
+        </NavItem>
+
+        <li class="px-3 pt-3 md:p-0">
             <ColorThemeToggle />
         </li>
     </ul>
-    <script src="../scripts/navHighlighter.ts"></script>
 </nav>

@@ -1,65 +1,38 @@
 import type { Page } from 'astro';
 
+// Decides which pagination controls to show for a given page.
+// First/last buttons only appear when they'd skip at least one page beyond prev/next.
 class PaginationRepository<T> {
-    private page: Page<T>;
+    showPagination: boolean;
+    currentPageNum: number;
 
-    // Pagination properties
-    showPagination: boolean = true;
-
-    currentPageNum: number
-    currentPageIsLeftmost: boolean = false;
-    currentPageIsRightmost: boolean = false;
-
-    showFirstPage: boolean = false;
+    showFirstPage: boolean;
     firstPageUrl: string | undefined;
-    showPreviousPage: boolean = false;
-    prevPageIsLeftmost: boolean = false;
+    showPreviousPage: boolean;
     prevUrl: string | undefined;
 
-    showNextPage: boolean = false;
-    nextPageIsRightmost: boolean = false;
+    showNextPage: boolean;
     nextUrl: string | undefined;
-    showLastPage: boolean = false;
+    showLastPage: boolean;
     lastPageUrl: string | undefined;
 
     constructor(page: Page<T>) {
-        this.page = page;
+        const pagesBefore = page.currentPage - 1;
+        const pagesAfter = page.lastPage - page.currentPage;
+
+        this.showPagination = page.lastPage > 1;
         this.currentPageNum = page.currentPage;
+
+        this.showFirstPage = pagesBefore >= 2;
         this.firstPageUrl = page.url.first;
-        this.prevUrl = page.url.prev
-        this.nextUrl = page.url.next
-        this.lastPageUrl = page.url.last
+        this.showPreviousPage = pagesBefore >= 1;
+        this.prevUrl = page.url.prev;
 
-        this.updatePaginationProperties();
-    }
-
-    private updatePaginationProperties(): void {
-        if (this.page.lastPage === 1) {
-            this.showPagination = false;
-        } else if (this.page.currentPage >= 3) {
-            this.showFirstPage = true;
-            this.showPreviousPage = true;
-        } else if (this.page.currentPage === 2) {
-            this.showPreviousPage = true;
-            this.prevPageIsLeftmost = true;
-        } else if (this.page.currentPage === 1) {
-            this.currentPageIsLeftmost = true;
-        }
-
-        const numberOfNextPages = this.page.lastPage - this.page.currentPage;
-
-        if (numberOfNextPages >= 2) {
-            this.showNextPage = true;
-            this.showLastPage = true;
-        } else if (numberOfNextPages === 1) {
-            this.showNextPage = true;
-            this.nextPageIsRightmost = true;
-        } else if (numberOfNextPages === 0) {
-            this.currentPageIsRightmost = true;
-        }
+        this.showNextPage = pagesAfter >= 1;
+        this.nextUrl = page.url.next;
+        this.showLastPage = pagesAfter >= 2;
+        this.lastPageUrl = page.url.last;
     }
 }
 
-export { 
-    PaginationRepository
-};
+export { PaginationRepository };
