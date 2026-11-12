@@ -172,16 +172,7 @@
     }
 
     /* Colors Shared Across Themes */
-    :root,
-    :root.dark,
-    :root.system {
-        /* Spacing */
-
-        /* Horizontal spacing to be applied on left-most and right-most edges */
-        /* so that all content is aligned on the outer edges of any page */
-        --outer-x-padding: 1.5rem;
-        --outer-x-margin: 1.5rem;
-
+    :root {
         /* COLORS */
 
         --violet-color-50: 250deg 100% 97.65%;
@@ -427,19 +418,8 @@
     }
 
     /* DARK MODE THEME COLORS */
+    /* Only values that differ from light mode belong here; everything else inherits from :root */
     :root.dark {
-        --primary-color-50: var(--violet-color-50);
-        --primary-color-100: var(--violet-color-100);
-        --primary-color-200: var(--violet-color-200);
-        --primary-color-300: var(--violet-color-300);
-        --primary-color-400: var(--violet-color-400);
-        --primary-color-500: var(--violet-color-500);
-        --primary-color-600: var(--violet-color-600);
-        --primary-color-700: var(--violet-color-700);
-        --primary-color-800: var(--violet-color-800);
-        --primary-color-900: var(--violet-color-900);
-        --primary-color-950: var(--violet-color-950);
-
         --background-color-1: var(--slate-color-900);
         --background-color-2: var(--slate-color-700);
         /* Primary colored bg that is bright in light mode, and dark in dark mode. */
@@ -478,17 +458,10 @@
         --linkedin-icon-color: hsl(200, 70%, 40%);
 
         /* FOOTNOTE SUPERSCRIPT */
-        .prose sup a {
-            color: hsl(var(--fg-primary-2));
-            background-color: hsl(var(--primary-bg));
-            border: 1px solid hsl(var(--primary-bg-border));
-        }
-
+        /* Colors come from the variables above; only the hover weight differs */
         .prose sup a:hover,
         .prose sup a:focus {
             font-weight: 600;
-            background-color: hsl(var(--primary-bg-hover));
-            border: 1px solid hsl(var(--primary-bg-border-hover));
         }
     }
 }
