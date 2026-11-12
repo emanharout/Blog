@@ -1,4 +1,3 @@
-import DOMPurify from 'dompurify';
 import Fuse, { type FuseResult } from 'fuse.js';
 
 // TYPES
@@ -6,8 +5,10 @@ import Fuse, { type FuseResult } from 'fuse.js';
 interface SearchablePostData {
     id: string;
     title: string;
+    description: string;
+    tags: string[];
     date: Date;
-    body?: string;
+    body: string;
 }
 
 // PROPERTIES
@@ -32,8 +33,16 @@ const FUSE_OPTIONS = {
             weight: 1,
         },
         {
+            name: 'description',
+            weight: 0.9,
+        },
+        {
+            name: 'tags',
+            weight: 0.8,
+        },
+        {
             name: 'body',
-            weight: 0.75,
+            weight: 0.5,
         },
     ],
 };
@@ -51,11 +60,8 @@ function setupOnSearchSubmit_updateURLWithSearchQuery() {
         htmlFormElement.addEventListener('submit', (event) => {
             event.preventDefault();
             const formData = new FormData(htmlFormElement);
-            const presanitizedSearchTerm = formData.get('search')?.toString();
-            
-            if (presanitizedSearchTerm) {
-                const searchTerm = DOMPurify.sanitize(presanitizedSearchTerm);
-                if (!searchTerm || searchTerm.length === 0) return;
+            const searchTerm = formData.get('search')?.toString().trim();
+            if (searchTerm) {
                 const url = new URL(`/${SEARCH_URL_PATH}`, window.location.origin);
                 url.searchParams.set(SEARCH_URL_PARAM_KEY, searchTerm);
                 window.location.assign(url.toString());
@@ -69,12 +75,13 @@ function setupOnSearchSubmit_updateURLWithSearchQuery() {
 function setupOnLoad_updateDocWithSearchURLParam() {
     window.addEventListener('DOMContentLoaded', () => {
         const queryURLParamValue = new URLSearchParams(window.location.search).get(SEARCH_URL_PARAM_KEY) ?? '';
-        const sanitizedQueryParamValue = DOMPurify.sanitize(queryURLParamValue);
-        executeSearch(sanitizedQueryParamValue);
-        updateUIWithSearchQuery(sanitizedQueryParamValue);
+        // Query text is only ever written to the page via `textContent`, so it needs no HTML sanitizing.
+        const queryText = queryURLParamValue.trim();
+        executeSearch(queryText);
+        updateUIWithSearchQuery(queryText);
         // Set search input text to value found in URL's `query` parameter
         if (searchInputElement) {
-            searchInputElement.value = sanitizedQueryParamValue;
+            searchInputElement.value = queryText;
             searchInputElement.focus();
         }
     });
@@ -84,7 +91,7 @@ function setupOnLoad_updateDocWithSearchURLParam() {
 function setupOnSearchInput() {
     if (!searchInputElement) return;
     searchInputElement.addEventListener('input', () => {
-        const searchTerm = DOMPurify.sanitize(searchInputElement.value);
+        const searchTerm = searchInputElement.value.trim();
         updateUIWithSearchQuery(searchTerm);
         executeSearch(searchTerm);
         updatePageURLWithSearchQueryParamValue(searchTerm);
@@ -102,13 +109,13 @@ function updateUIWithSearchQuery(searchQueryText: string) {
     const didEnterQuery = searchQueryText.length > 0;
     
     if (didEnterQuery === false) {
-        document.title = searchQueryText = "Eman Harout - Search";
+        document.title = "Search | Eman Harout";
         searchResultListComponent.classList.add('hidden');
         searchResultsList.innerHTML = "";
         searchReadout.textContent = "";
         spinnerIcon?.classList.add('hidden');
     } else {
-        document.title = `Eman Harout - Search results for “${searchQueryText}”`
+        document.title = `Search results for “${searchQueryText}” | Eman Harout`;
         searchReadout.textContent = `Search results for “${searchQueryText}”`
         searchResultListComponent.classList.remove('hidden');
     }
