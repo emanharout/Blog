@@ -1,41 +1,32 @@
 ---
-const { heading } = Astro.props;
 import type { MarkdownHeading } from 'astro';
 
 export interface HeadingHierarchy extends MarkdownHeading {
     subheadings: HeadingHierarchy[];
 }
 
-// Additional tailwind classes to apply for indented headings
-let headingDepthSpecificClasses = '';
-if (heading.depth === 3) {
-    headingDepthSpecificClasses = 'pl-4';
-}
+type Props = {
+    heading: HeadingHierarchy;
+};
+
+const { heading } = Astro.props;
 ---
 
-<!-- If h3 heading, then indent -->
-<li role="listitem" class={`leading-snug ${headingDepthSpecificClasses}`} data-slug={`#${heading.slug}`}>
-    <!-- Note: color of links is applied and managed by a script -->
-    <!-- EH: id:ToC Default Link Color - In order to avoid a flash of incorrect colors on initial load, -->
-    <!-- we set the initial color of the links to the inactive link color specified by the script -->
-    <!-- If the script changes, must update the link color below to match -->
+<!-- h3 headings are indented under their h2 -->
+<li class:list={['leading-snug', { 'pl-4': heading.depth === 3 }]}>
+    <!-- Active-section color is toggled by tableOfContents.ts via the `data-active` attribute. -->
     <a
         href={`#${heading.slug}`}
-        role="link"
-        aria-label={`Jump to section: ${heading.text}`}
-        class="inline-block
-        my-0.5 py-0.5
-        text-gray-temp-500 dark:text-gray-temp-400
-        table-of-content-link"
+        class="table-of-content-link inline-block my-0.5 py-0.5
+        text-gray-temp-500 hover:text-gray-temp-700 dark:text-gray-temp-400 dark:hover:text-gray-temp-300
+        data-active:text-fg-primary-link-2 data-active:hover:text-fg-primary-link-2-hover"
     >
         {heading.text}
     </a>
     {
-        // If heading has subheadings, then create a sublist (i.e. <ul>)
-        // Astro.self just initializes another TableOfContentsHeading component
         heading.subheadings.length > 0 && (
-            <ul role="list" aria-label={`Subsections of ${heading.text}`}>
-                {heading.subheadings.map((subheading: HeadingHierarchy) => (
+            <ul>
+                {heading.subheadings.map((subheading) => (
                     <Astro.self heading={subheading} />
                 ))}
             </ul>

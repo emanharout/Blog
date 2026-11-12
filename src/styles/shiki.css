@@ -38,14 +38,9 @@ pre.astro-code {
     border-top: 2px solid hsl(var(--primary-color-300));
     border-bottom: 2px solid hsl(var(--primary-color-300));
 
-    /* EH: Hack id:article-card-insets */
-    /* 
-        Expands code fence slightly by adding a negative margin.
-        This is done to align the first character in the code block with text outside the code block.
-        Note: This value should always be less than the padding inside the article card.
-        */
-    margin-left: -2rem;
-    margin-right: -2rem;
+    /* Bleed to the edges of the article card. `--article-pad` is defined on the card in BlogArticle.astro. */
+    margin-left: calc(-1 * var(--article-pad, 0px));
+    margin-right: calc(-1 * var(--article-pad, 0px));
 }
 
 pre.astro-code code {
@@ -142,14 +137,9 @@ pre.astro-code code .line {
     display: inline-block;
     width: 100%;
     border-radius: 3px;
-    /* EH: Hack id:article-card-insets */
-    /* 
-        Inside a code block, each line's first character should have their left-edge align with the left edge of
-        text outside the code block. The text to compare against is the padding on the
-        article card.
-         */
-    padding-left: 2rem;
-    padding-right: 2rem;
+    /* Align each line's first character with the article text outside the code block. */
+    padding-left: var(--article-pad, 1rem);
+    padding-right: var(--article-pad, 1rem);
 }
 
 /* ============================================================================================================== */

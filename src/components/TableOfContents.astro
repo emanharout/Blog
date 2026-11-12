@@ -5,79 +5,73 @@ import TableOfContentsHeading from './TableOfContentsHeading.astro';
 
 type Props = {
     headings: MarkdownHeading[];
+    // `sidebar`: sticky panel beside the article, `lg` and up.
+    // `inline`: collapsible block at the top of the article, below `lg`.
+    variant: 'sidebar' | 'inline';
 };
 
-const { headings } = Astro.props;
+const { headings, variant } = Astro.props;
 
+// Nest h3s under their preceding h2; deeper headings are left out.
 function createHeadingHierarchy(headings: MarkdownHeading[]) {
     const topLevelHeadings: HeadingHierarchy[] = [];
 
-    // Exclude h4 and higher headings
-    const shallowHeadings = headings.filter((heading) => heading.depth <= 3);
-
-    shallowHeadings.forEach((heading) => {
-        const h = {
-            ...heading,
-            subheadings: [],
-        };
-
-        if (h.depth === 2) {
-            // If the current shallow heading is h2, then place it in `topLevelHeadings`
-            topLevelHeadings.push(h);
-        } else {
-            // If the current shallow heading is h3, then grab the parent (h2) and add this h3 as its subheading
-            let parent = topLevelHeadings[topLevelHeadings.length - 1];
-            if (parent) {
-                parent.subheadings.push(h);
+    headings
+        .filter((heading) => heading.depth <= 3)
+        .forEach((heading) => {
+            const h = { ...heading, subheadings: [] };
+            if (h.depth === 2) {
+                topLevelHeadings.push(h);
+            } else {
+                topLevelHeadings.at(-1)?.subheadings.push(h);
             }
-        }
-    });
+        });
 
     return topLevelHeadings;
 }
 
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
 const hasToC = toc.length > 1;
+const titleId = `table-of-contents-title-${variant}`;
 ---
 
 {
-    hasToC && (
+    hasToC && variant === 'sidebar' && (
         <nav
-            role="navigation"
-            aria-labelledby="table-of-contents-title"
-            class="SIDEBAR toc-sidebar
-                max-w-[30ch] mt-[1px] mr-3 py-2 px-4 w-full
-                sticky top-0
-                bg-bg-2 rounded-r-lg rounded-tl-lg shadow-md
-                hidden
-                lg:block
-            "
-            id="table-of-contents"
+            aria-labelledby={titleId}
+            class="hidden lg:block sticky top-4
+            w-full max-w-[30ch] mt-[1px] mr-3 py-2 px-4
+            bg-bg-2 rounded-r-lg rounded-tl-lg shadow-md"
         >
-            <small
-                id="table-of-contents-title" 
-                role="heading" aria-level="2"
-                class="
-                block mt-2 mb-3
-                uppercase font-medium text-center text-gray-temp-500
-                text-sm
-                xl:text-[0.925rem] xl:tracking-[.025rem] xl:font-semibold
-                dark:text-gray-temp-300"
+            <h2
+                id={titleId}
+                class="mt-2 mb-3 text-center uppercase font-medium text-sm text-gray-temp-500 dark:text-gray-temp-300
+                xl:text-[0.925rem] xl:tracking-[.025rem] xl:font-semibold"
             >
                 Table of Contents
-            </small>
-            {/* Header colors (li's below) are determined by tableOfContents.ts script */}
-            <ul
-                role="list"
-                class="
-                    text-[0.925rem]  font-normal
-                    xl:font-medium xl:tracking-[.002rem]"
-            >
-                {toc.map((heading) => (
-                    <TableOfContentsHeading heading={heading} />
-                ))}
+            </h2>
+            <ul class="text-[0.925rem] font-normal xl:font-medium xl:tracking-[.002rem]">
+                {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
             </ul>
         </nav>
     )
 }
-<script src="../scripts/tableOfContents.ts"></script>
+{
+    hasToC && variant === 'inline' && (
+        <details class="not-prose group lg:hidden my-6 rounded-lg border border-fg-border-2 bg-bg-1/40">
+            <summary
+                class="flex items-center justify-between cursor-pointer list-none px-4 py-3
+                uppercase text-sm font-medium tracking-wide text-gray-temp-500 dark:text-gray-temp-300
+                [&::-webkit-details-marker]:hidden"
+            >
+                <span id={titleId}>Table of Contents</span>
+                <span aria-hidden="true" class="transition-transform group-open:rotate-180">▾</span>
+            </summary>
+            <nav aria-labelledby={titleId} class="px-4 pb-3">
+                <ul class="text-[0.95rem]">
+                    {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
+                </ul>
+            </nav>
+        </details>
+    )
+}

@@ -5,7 +5,7 @@ import 'tippy.js/animations/shift-away.css';
 document.addEventListener('DOMContentLoaded', () => {
     const tips = document.querySelectorAll('[tip]');
     tips.forEach((tip) => {
-        const isFootnoteTip = tip.parentElement.querySelector('span').innerHTML.trim().startsWith('<sup>')
+        const isFootnoteTip = tip.querySelector('sup') !== null
         let offsetAmount = 10
         if (isFootnoteTip) {
             offsetAmount = 18
