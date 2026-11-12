@@ -1,25 +1,20 @@
 ---
 import BlogGrid from '../components/BlogGrid.astro';
 import HomeHeader from '../components/HomeHeader.astro';
-import type { CollectionEntry } from 'astro:content';
-import { getCollection } from 'astro:content';
 import Hero from '../layouts/Hero.astro';
 import MainLayout from '../layouts/MainLayout.astro';
+import { SITE_DESCRIPTION, SITE_NAME } from '../scripts/constants';
+import { getAllPostsSorted } from '../scripts/utilities';
 
-// Sort chronologically, descending.
-const blogPosts: CollectionEntry<'posts'>[] = (await getCollection('posts')).sort(
-    (a: CollectionEntry<'posts'>, b: CollectionEntry<'posts'>) => {
-        return b.data.date.valueOf() - a.data.date.valueOf();
-    }
-);
+const blogPosts = await getAllPostsSorted();
 ---
 
-<MainLayout title="Welcome to Eman's website." description="A blog that explores topics which spark intrigue.">
+<MainLayout title={SITE_NAME} description={SITE_DESCRIPTION}>
     <Hero heroTitle="Hello, my name is Eman!">
         <HomeHeader />
     </Hero>
-    <section class="mx-auto px-4
-            max-w-md md:max-w-screen-2xl">
+    <section class="container-page container-wide">
+        <h2 class="sr-only">Latest posts</h2>
         <BlogGrid posts={blogPosts} />
     </section>
 </MainLayout>
