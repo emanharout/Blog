@@ -1,8 +1,9 @@
 ---
 import { Icon } from 'astro-icon/components';
+
+const currentYear = new Date().getFullYear();
 ---
 
-<script src="../scripts/getCurrentYear.ts"></script>
 <style lang="css">
     [data-icon='x-social-icon'] {
         color: var(--x-icon-color);
@@ -25,41 +26,37 @@ import { Icon } from 'astro-icon/components';
     }
 </style>
 
-<footer class="main-footer shrink-0 mt-4 p-4
-sm:p-8
-text-center
-bg-bg-1 text-fg-1">
+<footer class="main-footer shrink-0 mt-4 p-4 sm:p-8 text-center bg-bg-1 text-fg-1">
     <ul
         class="flex flex-wrap justify-center gap-x-4
         my-2 mx-auto bg-bg-2 py-2 px-4 max-w-fit
-        rounded-md shadow-md
-        sm:flex-nowrap"
+        rounded-md shadow-md"
     >
         <li>
-            <a href="https://x.com/emanharout" target="_blank" aria-label="Visit my X profile">
-                <Icon name="x-social-icon" size="40" desc="X Icon - Visit my X profile" />
+            <a href="https://x.com/emanharout" target="_blank" rel="noopener noreferrer" aria-label="Visit my X profile">
+                <Icon name="x-social-icon" size="40" aria-hidden="true" />
             </a>
         </li>
         <li>
-            <a href="https://medium.com/@emanharout" target="_blank" aria-label="Visit my Medium page">
-                <Icon name="medium-social-icon" size="40" desc="Medium Icon - Visit my Medium page" />
+            <a href="https://medium.com/@emanharout" target="_blank" rel="noopener noreferrer" aria-label="Visit my Medium page">
+                <Icon name="medium-social-icon" size="40" aria-hidden="true" />
             </a>
         </li>
         <li>
             <a href="mailto:elfin.genies06@icloud.com" aria-label="Email me">
-                <Icon name="email-icon" size="40" desc="Email Icon - Email me" />
+                <Icon name="email-icon" size="40" aria-hidden="true" />
             </a>
         </li>
         <li>
-            <a href="https://github.com/emanharout" target="_blank" aria-label="Visit my Github page">
-                <Icon name="github-social-icon" size="40" desc="Github Icon - View my Github page" />
+            <a href="https://github.com/emanharout" target="_blank" rel="noopener noreferrer" aria-label="Visit my GitHub page">
+                <Icon name="github-social-icon" size="40" aria-hidden="true" />
             </a>
         </li>
         <li>
-            <a href="https://linkedin.com/in/emanharout" target="_blank" aria-label="Visit my LinkedIn">
-                <Icon name="linkedin-social-icon" size="40" desc="LinkedIn Icon - View my LinkedIn" />
+            <a href="https://linkedin.com/in/emanharout" target="_blank" rel="noopener noreferrer" aria-label="Visit my LinkedIn">
+                <Icon name="linkedin-social-icon" size="40" aria-hidden="true" />
             </a>
         </li>
     </ul>
-    <p>Copyright © <span id="footer-copyright-year"></span> Eman Harout</p>
+    <p>Copyright © {currentYear} Eman Harout</p>
 </footer>

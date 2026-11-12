@@ -1,51 +1,47 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const blogDropdownNavButton = document.getElementById('blog-dropdown-nav-button');
-    const blogsDropdownMenu = document.getElementById('blogs-dropdown-menu');
-    const dropdownArrowIcon = document.getElementById('navbar-dropdown-menu-arrow-icon');
-    if (!(blogDropdownNavButton instanceof HTMLButtonElement)) return;
-    if (!(blogsDropdownMenu instanceof HTMLElement)) return;
-    if (!(dropdownArrowIcon instanceof Element)) return;
-    const blogDropdownNavButtonElement = blogDropdownNavButton;
-    const blogsDropdownMenuElement = blogsDropdownMenu;
-    const dropdownArrowIconElement = dropdownArrowIcon;
-    let isDropdownMenuOpen = false;
+// Disclosure behavior for the site header:
+// - The mobile menu button (#site-nav-button) shows/hides the nav panel below `md`.
+// - The chevron next to "Blog" (#blog-submenu-button) shows/hides the blog sections list. On desktop that list is a
+//   dropdown, so it also closes on outside clicks.
+// Escape closes whatever is open and returns focus to the button that opened it.
+// Open state is expressed as `aria-expanded` on the button and a `data-open` attribute on the controlled element,
+// which the markup styles with Tailwind's `data-open:` variant.
 
-    document.addEventListener('click', (event) => {
-        const target = event.target as Node | null;
-        const isNavBlogButtonClick = blogDropdownNavButtonElement.contains(target);
-        const isDropdownMenuClick = blogsDropdownMenuElement.contains(target);
+function setupDisclosure(button: HTMLButtonElement) {
+    const panel = document.getElementById(button.getAttribute('aria-controls') ?? '');
+    if (!panel) return undefined;
 
-        if (isNavBlogButtonClick) {
-            if (isDropdownMenuOpen) {
-                // Navigate to `/blog` and close dropdown.
-                // Occurs when dropdown button is tapped twice consecutively.
+    const setOpen = (open: boolean) => {
+        button.setAttribute('aria-expanded', String(open));
+        panel.toggleAttribute('data-open', open);
+    };
+    const isOpen = () => button.getAttribute('aria-expanded') === 'true';
 
-                // EH: Blog Nav Route Dependency - Depends on file /blog/[...blog_type]/[...page]
-                // When [...blog_type] param is undefined, and page isn't specified, 
-                // it defaults to first page, which is mysite.com/blog
-                window.location.href = '/blog';
-                closeDropdown();
-            } else {
-                // Open dropdown
-                openDropdown();
-            }
-        } else if (!isDropdownMenuClick) {
-            // Close dropdown if the click was outside the menu and button
-            closeDropdown();
-        }
-    });
+    button.addEventListener('click', () => setOpen(!isOpen()));
+    return { button, panel, setOpen, isOpen };
+}
 
-    function openDropdown() {
-        blogsDropdownMenuElement.classList.remove('hidden');
-        dropdownArrowIconElement.classList.add('rotate-180');
-        isDropdownMenuOpen = true;
-        blogDropdownNavButtonElement.setAttribute("aria-expanded", "true");
+const menuButton = document.getElementById('site-nav-button');
+const submenuButton = document.getElementById('blog-submenu-button');
+
+const menu = menuButton instanceof HTMLButtonElement ? setupDisclosure(menuButton) : undefined;
+const submenu = submenuButton instanceof HTMLButtonElement ? setupDisclosure(submenuButton) : undefined;
+
+document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    if (submenu?.isOpen()) {
+        submenu.setOpen(false);
+        submenu.button.focus();
+    } else if (menu?.isOpen()) {
+        menu.setOpen(false);
+        menu.button.focus();
     }
+});
 
-    function closeDropdown() {
-        blogsDropdownMenuElement.classList.add('hidden');
-        dropdownArrowIconElement.classList.remove('rotate-180');
-        isDropdownMenuOpen = false;
-        blogDropdownNavButtonElement.setAttribute("aria-expanded", "false");
+document.addEventListener('click', (event) => {
+    if (!submenu?.isOpen()) return;
+    const target = event.target as Node | null;
+    const desktop = window.matchMedia('(min-width: 48rem)').matches;
+    if (desktop && !submenu.button.contains(target) && !submenu.panel.contains(target)) {
+        submenu.setOpen(false);
     }
 });
