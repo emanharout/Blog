@@ -1,6 +1,6 @@
-const REQUIRED_MAJOR = 20;
-const REQUIRED_MINOR = 19;
-const REQUIRED_PATCH = 0;
+const REQUIRED_MAJOR = 22;
+const REQUIRED_MINOR = 23;
+const REQUIRED_PATCH = 4;
 
 function parseVersion(versionString) {
   const normalized = versionString.replace(/^v/, "");

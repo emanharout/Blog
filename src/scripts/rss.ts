@@ -2,7 +2,7 @@
 import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
-import { getContainerRenderer as getMDXRenderer } from '@astrojs/mdx';
+import { getContainerRenderer as getMDXRenderer } from '@astrojs/mdx/container-renderer';
 import { loadRenderers } from 'astro:container';
 import { render, type CollectionEntry } from 'astro:content';
 import { SITE_DESCRIPTION, SITE_NAME } from './constants';

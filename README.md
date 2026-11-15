@@ -21,7 +21,7 @@ Personal site and blog built with Astro, MDX, and Tailwind CSS v4.
 
 ## Requirements
 
-- Node.js `>=20.19.0`
+- Node.js `>=22.23.4`
 - npm (the version bundled with your Node install is fine)
 
 Use the pinned Node version in this repo:
@@ -40,11 +40,11 @@ nvm use
 
 ## Deployment (Cloudflare Pages)
 
-Set Cloudflare Pages to use Node `20.19.0` or newer.
+Set Cloudflare Pages to use Node `22.23.4` or newer.
 
 Recommended setup:
 
-1. In Cloudflare Pages project settings, set environment variable `NODE_VERSION=20.19.0`.
+1. In Cloudflare Pages project settings, set environment variable `NODE_VERSION=22.23.4`.
 2. Keep build command as `npm run build`.
 3. Keep output directory as `dist`.
 

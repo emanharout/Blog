@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import icon from "astro-icon";
 import mdx from '@astrojs/mdx';
+import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import rehypeExternalLinks from 'rehype-external-links';
 import remarkSectionize from 'remark-sectionize';
@@ -57,15 +58,19 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   markdown: {
-    rehypePlugins: [
-      [
-        rehypeExternalLinks,
-        {
-          target: '_blank', // Open links in a new tab
-          rel: ['nofollow', 'noopener', 'noreferrer'], // Security attributes
-        },
+    // Astro 7 defaults to the Sätteri processor; keep remark/rehype for our plugins.
+    processor: unified({
+      remarkPlugins: [remarkSectionize],
+      rehypePlugins: [
+        [
+          rehypeExternalLinks,
+          {
+            target: '_blank', // Open links in a new tab
+            rel: ['nofollow', 'noopener', 'noreferrer'], // Security attributes
+          },
+        ],
       ],
-    ],
+    }),
     syntaxHighlight: 'shiki',
     shikiConfig: {
       defaultColor: false,
@@ -83,7 +88,8 @@ export default defineConfig({
         transformerNotationErrorLevel(),
       ],
     },
-    remarkPlugins: [remarkSectionize],
   },
   site: 'https://emanharout.com',
+  // Astro 7 changed the default to 'jsx', which strips whitespace between inline elements.
+  compressHTML: true,
 });
