@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import icon from "astro-icon";
 import mdx from '@astrojs/mdx';
 import { unified } from '@astrojs/markdown-remark';
@@ -58,6 +58,42 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  // Self-hosted from the @fontsource-variable packages (no network needed at build time).
+  // Rendered and preloaded by <Font /> in RootLayout.astro, and used by Tailwind's `font-serif` and
+  // `font-sans` via src/styles/input.css. Astro also generates metric-matched fallback fonts, which
+  // reduces layout shift while the web fonts load.
+  //
+  // Only the Latin subset is included: posts don't use other scripts, and `local` variants can't be
+  // tagged by subset, so adding more files would make <Font preload /> preload all of them.
+  // (Astro 7.4's `npm` provider would pick subsets itself, but fails to read files from node_modules.)
+  fonts: [
+    {
+      provider: fontProviders.local(),
+      name: 'Frank Ruhl Libre Variable',
+      options: {
+        variants: [{
+          src: ['@fontsource-variable/frank-ruhl-libre/files/frank-ruhl-libre-latin-wght-normal.woff2'],
+          weight: '300 900',
+          style: 'normal',
+        }],
+      },
+      cssVariable: '--font-frank-ruhl-libre',
+      fallbacks: ['ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
+    },
+    {
+      provider: fontProviders.local(),
+      name: 'Inter Variable',
+      options: {
+        variants: [{
+          src: ['@fontsource-variable/inter/files/inter-latin-wght-normal.woff2'],
+          weight: '100 900',
+          style: 'normal',
+        }],
+      },
+      cssVariable: '--font-inter',
+      fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+    },
+  ],
   markdown: {
     // Astro 7 defaults to the Sätteri processor; keep remark/rehype for our plugins.
     processor: unified({
