@@ -72,9 +72,10 @@
     --color-gray-temp-800: hsl(var(--temperature-gray-800));
     --color-gray-temp-900: hsl(var(--temperature-gray-900));
 
-    /* Project typography families used by font-serif and font-sans */
-    --font-serif: "Frank Ruhl Libre Variable", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    /* Project typography families used by font-serif and font-sans. */
+    /* The variables come from the `fonts` config in astro.config.mjs and already include fallbacks. */
+    --font-serif: var(--font-frank-ruhl-libre);
+    --font-sans: var(--font-inter), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 /* LAYOUT PRIMITIVES */
