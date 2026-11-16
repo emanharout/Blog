@@ -37,10 +37,11 @@ import {
   // <span class="line focused">
   transformerNotationFocus,
 
-  // [!code error] or [!code warning]
+  // [!code error], [!code warning] or [!code info]
   // <pre class="has-highlighted">
   // error: <span class="line highlighted error">
   // warning: <span class="line highlighted warning">
+  // info: <span class="line highlighted info">
   transformerNotationErrorLevel,
 } from '@shikijs/transformers';
 import tailwindcss from '@tailwindcss/vite';
