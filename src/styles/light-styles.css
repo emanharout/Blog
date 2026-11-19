@@ -159,6 +159,38 @@
         --orb-gloss: 0.4;
     }
 
+    /* BLUE HOUR: like First Light but later, just after dusk. Deeper periwinkle blues, a dusky lavender, pearly glass, more stars. */
+    :root[data-design='aero'][data-light-style='bluehour']:not(.dark) {
+        background-color: hsl(228 34% 90%);
+        --style-primary-h: 226;
+        --style-primary-s: 40%;
+        --style-secondary-h: 255;
+        --style-secondary-s: 22%;
+        --aero-name-green: #384b8a;
+
+        --fg-color-1: 228 30% 15%;
+        --fg-color-2: 228 12% 30%;
+        --background-color-2: 228 40% 99% / 0.9;
+
+        --glass-opacity: 0.58;
+        --glass-blur: 18px;
+        --glass-gloss-alpha: 0.25;
+        --glass-edge-alpha: 0.8;
+        --glass-rim: 0.8;
+        --glass-boost: 130%;
+        --glass-tint-top: 220 40% 99.5%;
+        --glass-tint-bottom: 230 35% 97.5%;
+        --glass-fade: 0.78;
+        --glass-highlight-alpha: 0.95;
+        --glass-shadow-color: 230 35% 28%;
+        --glass-shadow-alpha: 0.18;
+        --glass-contact-alpha: 0.04;
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0.4;
+    }
+
     /* CELESTIAL ATLAS: an old star chart by daylight. Aged cream, navy ink and brass; engraved rings and constellations (the daytime twin of the night sky). */
     :root[data-design='aero'][data-light-style='atlas']:not(.dark) {
         background-color: hsl(42 38% 94%);
@@ -184,68 +216,6 @@
         --glass-highlight-alpha: 0.7;
         --glass-shadow-color: 35 30% 22%;
         --glass-shadow-alpha: 0.15;
-        --glass-contact-alpha: 0.05;
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
-    /* CHAPEL LIGHT: sun through stained glass onto pale limestone. Soft jewel-toned pools of light; ultramarine and garnet. */
-    :root[data-design='aero'][data-light-style='chapel']:not(.dark) {
-        background-color: hsl(38 25% 93%);
-        --style-primary-h: 228;
-        --style-primary-s: 40%;
-        --style-secondary-h: 350;
-        --style-secondary-s: 35%;
-        --aero-name-green: #324385;
-
-        --fg-color-1: 228 28% 15%;
-        --fg-color-2: 30 8% 29%;
-        --background-color-2: 40 30% 99% / 0.9;
-
-        --glass-opacity: 0.6;
-        --glass-blur: 16px;
-        --glass-gloss-alpha: 0.2;
-        --glass-edge-alpha: 0.7;
-        --glass-rim: 0.6;
-        --glass-boost: 125%;
-        --glass-tint-top: 40 40% 99.5%;
-        --glass-tint-bottom: 38 25% 97.5%;
-        --glass-fade: 0.8;
-        --glass-highlight-alpha: 0.9;
-        --glass-shadow-color: 30 25% 22%;
-        --glass-shadow-alpha: 0.16;
-        --glass-contact-alpha: 0.05;
-
-        --orb-fill: 0;
-        --orb-gloss: 0.3;
-    }
-
-    /* SUMI-E: ink-wash painting on washi paper. Charcoal ink, misty mountains, one vermilion sun (and a vermilion name, like a seal). */
-    :root[data-design='aero'][data-light-style='sumie']:not(.dark) {
-        background-color: hsl(45 30% 96%);
-        --style-primary-h: 215;
-        --style-primary-s: 12%;
-        --style-secondary-h: 8;
-        --style-secondary-s: 62%;
-        --aero-name-green: #ae3629;
-
-        --fg-color-1: 215 15% 13%;
-        --fg-color-2: 215 6% 30%;
-        --background-color-2: 45 35% 99% / 0.92;
-
-        --glass-opacity: 0.8;
-        --glass-blur: 4px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.45;
-        --glass-rim: 0;
-        --glass-boost: 100%;
-        --glass-tint-top: 45 35% 99.5%;
-        --glass-tint-bottom: 45 25% 98%;
-        --glass-fade: 0.95;
-        --glass-highlight-alpha: 0.5;
-        --glass-shadow-color: 215 15% 20%;
-        --glass-shadow-alpha: 0.12;
         --glass-contact-alpha: 0.05;
 
         --orb-fill: 0;
@@ -410,38 +380,6 @@
         --orb-gloss: 0;
     }
 
-    /* ILLUMINATED · LAPIS: cool white vellum with a lapis blue rule and a fine gold inner line; lapis name, gilt tags. */
-    :root[data-design='aero'][data-light-style='illuminated-lapis']:not(.dark) {
-        background-color: hsl(220 20% 96.5%);
-        --style-primary-h: 222;
-        --style-primary-s: 55%;
-        --style-secondary-h: 40;
-        --style-secondary-s: 45%;
-        --aero-name-green: #29488e;
-
-        --fg-color-1: 222 25% 13%;
-        --fg-color-2: 222 8% 29%;
-        --background-color-2: 220 25% 99% / 0.94;
-
-        --glass-opacity: 0.88;
-        --glass-blur: 4px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.6;
-        --glass-rim: 0.25;
-        --glass-boost: 100%;
-        --glass-tint-top: 220 25% 99.5%;
-        --glass-tint-bottom: 222 20% 98%;
-        --glass-fade: 0.97;
-        --glass-highlight-alpha: 0.65;
-        --glass-shadow-color: 222 25% 22%;
-        --glass-shadow-alpha: 0.13;
-        --glass-contact-alpha: 0.05;
-        --glass-border: hsl(222 45% 45% / calc(var(--glass-edge-alpha) * 0.4 * var(--glass-intensity)));
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
     /* ILLUMINATED · RULED PAGE: no frame; faint manuscript ruling lines and double margin rules, gold corner ornaments, a rubric-red name. */
     :root[data-design='aero'][data-light-style='illuminated-ruled']:not(.dark) {
         background-color: hsl(40 22% 96%);
@@ -474,49 +412,18 @@
         --orb-gloss: 0;
     }
 
-    /* CELESTIAL ATLAS · ARMILLARY: cooler, paler paper with an engraved armillary sphere (its rings turn imperceptibly) and scattered stars. */
+    /* CELESTIAL ATLAS · ARMILLARY: warm ivory, sepia ink and brass; an engraved armillary sphere (its rings turn imperceptibly) and scattered stars. */
     :root[data-design='aero'][data-light-style='atlas-armillary']:not(.dark) {
-        background-color: hsl(215 25% 95.5%);
-        --style-primary-h: 222;
-        --style-primary-s: 45%;
-        --style-secondary-h: 40;
-        --style-secondary-s: 45%;
-        --aero-name-green: #2d4376;
-
-        --fg-color-1: 222 30% 14%;
-        --fg-color-2: 222 10% 30%;
-        --background-color-2: 215 30% 99% / 0.92;
-
-        --glass-opacity: 0.86;
-        --glass-blur: 6px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.6;
-        --glass-rim: 0.3;
-        --glass-boost: 100%;
-        --glass-tint-top: 215 30% 99.5%;
-        --glass-tint-bottom: 218 25% 98%;
-        --glass-fade: 0.95;
-        --glass-highlight-alpha: 0.7;
-        --glass-shadow-color: 222 25% 22%;
-        --glass-shadow-alpha: 0.14;
-        --glass-contact-alpha: 0.05;
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
-    /* CELESTIAL ATLAS · PLANISPHERE: a rotating star wheel. Soft cream, indigo and copper; an hour ring with numerals, star field and constellations. */
-    :root[data-design='aero'][data-light-style='atlas-planisphere']:not(.dark) {
-        background-color: hsl(38 22% 95.5%);
-        --style-primary-h: 230;
+        background-color: hsl(38 30% 95%);
+        --style-primary-h: 26;
         --style-primary-s: 40%;
-        --style-secondary-h: 18;
+        --style-secondary-h: 40;
         --style-secondary-s: 50%;
-        --aero-name-green: #313d77;
+        --aero-name-green: #6f462a;
 
-        --fg-color-1: 230 28% 14%;
-        --fg-color-2: 30 8% 29%;
-        --background-color-2: 38 25% 99% / 0.92;
+        --fg-color-1: 26 28% 13%;
+        --fg-color-2: 26 10% 29%;
+        --background-color-2: 40 32% 99% / 0.92;
 
         --glass-opacity: 0.86;
         --glass-blur: 6px;
@@ -524,11 +431,11 @@
         --glass-edge-alpha: 0.6;
         --glass-rim: 0.3;
         --glass-boost: 100%;
-        --glass-tint-top: 40 30% 99.5%;
-        --glass-tint-bottom: 38 22% 98%;
+        --glass-tint-top: 40 35% 99.5%;
+        --glass-tint-bottom: 38 28% 98%;
         --glass-fade: 0.95;
         --glass-highlight-alpha: 0.7;
-        --glass-shadow-color: 30 25% 22%;
+        --glass-shadow-color: 28 30% 22%;
         --glass-shadow-alpha: 0.14;
         --glass-contact-alpha: 0.05;
 
@@ -536,17 +443,48 @@
         --orb-gloss: 0;
     }
 
-    /* BAUHAUS · ALBERS: nested squares after Josef Albers, warm ochre and terracotta below, cool blues above; matte panels. */
-    :root[data-design='aero'][data-light-style='bauhaus-albers']:not(.dark) {
-        background-color: hsl(38 28% 96%);
-        --style-primary-h: 212;
-        --style-primary-s: 35%;
-        --style-secondary-h: 14;
-        --style-secondary-s: 50%;
-        --aero-name-green: #9b4a31;
+    /* CELESTIAL ATLAS · PLANISPHERE: a rotating star wheel. Warm parchment, sepia and copper; an hour ring with numerals, star field and constellations. */
+    :root[data-design='aero'][data-light-style='atlas-planisphere']:not(.dark) {
+        background-color: hsl(36 32% 94.5%);
+        --style-primary-h: 18;
+        --style-primary-s: 48%;
+        --style-secondary-h: 32;
+        --style-secondary-s: 40%;
+        --aero-name-green: #8c422c;
 
-        --fg-color-1: 212 25% 14%;
-        --fg-color-2: 212 8% 30%;
+        --fg-color-1: 20 28% 13%;
+        --fg-color-2: 22 10% 29%;
+        --background-color-2: 38 34% 99% / 0.92;
+
+        --glass-opacity: 0.86;
+        --glass-blur: 6px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 100%;
+        --glass-tint-top: 38 38% 99.5%;
+        --glass-tint-bottom: 35 30% 98%;
+        --glass-fade: 0.95;
+        --glass-highlight-alpha: 0.7;
+        --glass-shadow-color: 22 30% 22%;
+        --glass-shadow-alpha: 0.14;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* BAUHAUS · CIRCLES: overlapping translucent circles after Kandinsky around the edges; warm off-white, brick, ochre and mustard. */
+    :root[data-design='aero'][data-light-style='bauhaus-circles']:not(.dark) {
+        background-color: hsl(38 28% 96%);
+        --style-primary-h: 12;
+        --style-primary-s: 48%;
+        --style-secondary-h: 40;
+        --style-secondary-s: 55%;
+        --aero-name-green: #914430;
+
+        --fg-color-1: 20 25% 13%;
+        --fg-color-2: 20 8% 29%;
         --background-color-2: 38 28% 99% / 0.94;
 
         --glass-opacity: 0.88;
@@ -555,42 +493,11 @@
         --glass-edge-alpha: 0.6;
         --glass-rim: 0.3;
         --glass-boost: 105%;
-        --glass-tint-top: 38 28% 99.5%;
-        --glass-tint-bottom: 38 22% 98.5%;
+        --glass-tint-top: 38 30% 99.5%;
+        --glass-tint-bottom: 36 24% 98.5%;
         --glass-fade: 1;
         --glass-highlight-alpha: 0.6;
-        --glass-shadow-color: 25 25% 20%;
-        --glass-shadow-alpha: 0.1;
-        --glass-contact-alpha: 0.06;
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
-    /* BAUHAUS · CIRCLES: overlapping translucent circles after Kandinsky around the edges; cool off-white, deep blue and mustard. */
-    :root[data-design='aero'][data-light-style='bauhaus-circles']:not(.dark) {
-        background-color: hsl(210 15% 96.5%);
-        --style-primary-h: 220;
-        --style-primary-s: 50%;
-        --style-secondary-h: 42;
-        --style-secondary-s: 55%;
-        --aero-name-green: #294b8e;
-
-        --fg-color-1: 220 30% 14%;
-        --fg-color-2: 220 10% 30%;
-        --background-color-2: 210 18% 99% / 0.94;
-
-        --glass-opacity: 0.88;
-        --glass-blur: 10px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.6;
-        --glass-rim: 0.3;
-        --glass-boost: 105%;
-        --glass-tint-top: 210 20% 99.5%;
-        --glass-tint-bottom: 212 16% 98.5%;
-        --glass-fade: 1;
-        --glass-highlight-alpha: 0.6;
-        --glass-shadow-color: 220 25% 20%;
+        --glass-shadow-color: 20 25% 20%;
         --glass-shadow-alpha: 0.1;
         --glass-contact-alpha: 0.06;
 
