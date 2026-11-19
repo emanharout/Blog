@@ -1,0 +1,383 @@
+---
+// Fixed, decorative sky behind an aero page. Light mode: a bright sky with a sun glow, soft green hills and a few
+// glassy bubbles. Dark mode: a navy night sky with a faint Milky Way, a moon, a twinkling starfield and the occasional
+// shooting star. Colors and strengths come from the --aero-* knobs in src/styles/input.css.
+//
+// Stars are drawn as box-shadows of three tiny elements (one per size). Positions come from a seeded PRNG so every
+// build renders the same sky, and use vw/vh so they spread across any viewport without changing size. They extend
+// below the fold so the scroll parallax never uncovers an empty strip.
+
+function seededRandom(seed: number) {
+    // mulberry32
+    return () => {
+        seed |= 0;
+        seed = (seed + 0x6d2b79f5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+type Props = {
+    shootingStars?: boolean;
+};
+
+const { shootingStars: showShootingStars = true } = Astro.props;
+
+const random = seededRandom(2025);
+
+function starShadows(count: number, minAlpha: number, maxAlpha: number): string {
+    return Array.from({ length: count }, () => {
+        const x = (random() * 100).toFixed(2);
+        // Bias stars toward the top of the sky
+        const y = (Math.pow(random(), 1.35) * 125).toFixed(2);
+        const alpha = (minAlpha + random() * (maxAlpha - minAlpha)).toFixed(2);
+        // A few stars get a faint warm or cool tint
+        const tint = random();
+        const color = tint < 0.12 ? `255 236 210` : tint < 0.24 ? `200 220 255` : `255 255 255`;
+        return `${x}vw ${y}vh rgb(${color} / ${alpha})`;
+    }).join(', ');
+}
+
+const smallStars = starShadows(160, 0.35, 0.75);
+const mediumStars = starShadows(50, 0.55, 0.95);
+const largeStars = starShadows(16, 0.8, 1);
+
+// Bubbles: [left %, top %, size rem, float delay s]
+const bubbles: [number, number, number, number][] = [
+    [6, 62, 5.5, 0],
+    [12, 24, 2.25, -6],
+    [88, 70, 4.5, -3],
+    [93, 34, 2, -9],
+    [72, 86, 2.75, -12],
+    [30, 104, 3.25, -4],
+];
+
+// Shooting stars: [left %, top %, angle deg, cycle s, delay s]. Each streaks once per cycle; uneven cycles keep them
+// from falling into a noticeable rhythm.
+const shootingStars: [number, number, number, number, number][] = [
+    [78, 8, -28, 23, -4],
+    [42, 4, -36, 31, -17],
+];
+---
+
+<div class="aero-sky" aria-hidden="true">
+    <div class="day">
+        <div class="sun"></div>
+        <svg class="hills" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path class="hill-back" d="M0 190 C 240 110 480 120 720 170 S 1200 230 1440 140 V320 H0 Z"></path>
+            <path class="hill-front" d="M0 260 C 300 190 560 210 820 250 S 1260 280 1440 220 V320 H0 Z"></path>
+        </svg>
+        <div class="layer bubbles">
+            {
+                bubbles.map(([left, top, size, delay]) => (
+                    <span
+                        class="bubble"
+                        style={`left:${left}%; top:${top}%; width:${size}rem; height:${size}rem; animation-delay:${delay}s`}
+                    />
+                ))
+            }
+        </div>
+    </div>
+    <div class="night">
+        <div class="layer milky-way-layer"><div class="milky-way"></div></div>
+        <div class="layer starfield">
+            <div class="stars small" style={`box-shadow: ${smallStars}`}></div>
+            <div class="stars medium" style={`box-shadow: ${mediumStars}`}></div>
+            <div class="stars large" style={`box-shadow: ${largeStars}`}></div>
+        </div>
+        {
+            showShootingStars &&
+            shootingStars.map(([left, top, angle, cycle, delay]) => (
+                <span
+                    class="shooting-star"
+                    style={`left:${left}%; top:${top}%; --angle:${angle}deg; --cycle:${cycle}s; --delay:${delay}s`}
+                />
+            ))
+        }
+        <div class="layer moon-layer"><div class="moon"></div></div>
+    </div>
+</div>
+
+<script>
+    // Scroll parallax: layers drift up a little slower than the page. Each layer's speed is set in CSS; this only
+    // publishes the scroll position. Skipped entirely for reduced motion.
+    const sky = document.querySelector<HTMLElement>('.aero-sky');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    if (sky) {
+        let queued = false;
+        const update = () => {
+            queued = false;
+            sky.style.setProperty('--sky-scroll', reduceMotion.matches ? '0' : String(window.scrollY));
+        };
+        window.addEventListener(
+            'scroll',
+            () => {
+                if (!queued) {
+                    queued = true;
+                    requestAnimationFrame(update);
+                }
+            },
+            { passive: true },
+        );
+        reduceMotion.addEventListener('change', update);
+        update();
+    }
+</script>
+
+<style>
+    .aero-sky {
+        --sky-scroll: 0;
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .day,
+    .night {
+        position: absolute;
+        inset: 0;
+        transition: opacity 600ms ease;
+    }
+
+    /* Parallax layers. --speed is the fraction of the scroll distance a layer moves. */
+    .layer {
+        position: absolute;
+        inset: 0;
+        transform: translate3d(0, calc(var(--sky-scroll) * var(--speed) * var(--aero-parallax) * -1px), 0);
+        will-change: transform;
+    }
+
+    /* DAY */
+    .day {
+        background:
+            radial-gradient(
+                60rem 40rem at 105% -10%,
+                hsl(var(--aero-sun-h) 100% 80% / var(--aero-sun-strength)),
+                transparent 60%
+            ),
+            radial-gradient(50rem 36rem at -10% 10%, hsl(var(--aero-sky-h) 95% 75% / 0.45), transparent 60%),
+            linear-gradient(
+                180deg,
+                hsl(calc(var(--aero-sky-h) + 3) 90% 84%) 0%,
+                hsl(calc(var(--aero-sky-h) - 2) 85% 92%) 45%,
+                hsl(calc(var(--aero-leaf-h) + 18) 60% 93%) 100%
+            );
+    }
+
+    .sun {
+        position: absolute;
+        top: -9rem;
+        right: -7rem;
+        width: 22rem;
+        height: 22rem;
+        border-radius: 50%;
+        opacity: calc(var(--aero-sun-strength) / 0.55);
+        background: radial-gradient(
+            circle,
+            hsl(calc(var(--aero-sun-h) + 4) 100% 92% / 0.95) 0%,
+            hsl(calc(var(--aero-sun-h) + 2) 100% 75% / 0.45) 35%,
+            transparent 70%
+        );
+    }
+
+    .hills {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: min(38vh, 22rem);
+        opacity: var(--aero-hills);
+    }
+    .hill-back {
+        fill: hsl(calc(var(--aero-leaf-h) - 10) 60% 74% / 0.45);
+    }
+    .hill-front {
+        fill: hsl(calc(var(--aero-leaf-h) - 25) 55% 66% / 0.42);
+    }
+
+    .bubbles {
+        --speed: 0.12;
+        opacity: var(--aero-bubbles);
+    }
+
+    .bubble {
+        position: absolute;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 32% 28%, hsl(0 0% 100% / 0.95) 0 5%, hsl(0 0% 100% / 0.25) 13%, transparent 32%),
+            radial-gradient(
+                circle at 50% 50%,
+                transparent 56%,
+                hsl(var(--aero-sky-h) 90% 70% / 0.2) 72%,
+                hsl(0 0% 100% / 0.6) 100%
+            );
+        box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.35);
+        animation: float 18s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-1.25rem);
+        }
+    }
+
+    /* NIGHT */
+    .night {
+        opacity: 0;
+        background:
+            radial-gradient(
+                70rem 45rem at 50% -15%,
+                hsl(var(--aero-night-h) 60% calc(var(--aero-night-l) + 15%) / 0.9),
+                transparent 70%
+            ),
+            radial-gradient(40rem 30rem at 90% 0%, hsl(calc(var(--aero-night-h) - 7) 60% 70% / 0.08), transparent 70%),
+            linear-gradient(
+                180deg,
+                hsl(calc(var(--aero-night-h) + 4) 64% calc(var(--aero-night-l) + 4%)) 0%,
+                hsl(calc(var(--aero-night-h) + 6) 68% var(--aero-night-l)) 55%,
+                hsl(calc(var(--aero-night-h) + 8) 70% calc(var(--aero-night-l) - 2%)) 100%
+            );
+    }
+
+    .milky-way-layer {
+        --speed: 0.03;
+    }
+    .milky-way {
+        position: absolute;
+        inset: -30% -20%;
+        background: radial-gradient(ellipse 45% 9% at 50% 50%, hsl(var(--aero-night-h) 70% 85% / 0.07), transparent 100%);
+        transform: rotate(-24deg);
+    }
+
+    .starfield {
+        --speed: 0.05;
+        opacity: var(--aero-stars);
+    }
+
+    .stars {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: 50%;
+    }
+    .stars.small {
+        width: 1px;
+        height: 1px;
+    }
+    .stars.medium {
+        width: 1.5px;
+        height: 1.5px;
+        animation: twinkle 5s ease-in-out infinite;
+    }
+    .stars.large {
+        width: 2px;
+        height: 2px;
+        filter: drop-shadow(0 0 3px hsl(210 100% 90% / 0.8));
+        animation: twinkle 7s ease-in-out -2s infinite;
+    }
+
+    @keyframes twinkle {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.45;
+        }
+    }
+
+    /* Moon: sits where the sun glows by day, softly shaded on one side */
+    .moon-layer {
+        --speed: 0.02;
+    }
+    .moon {
+        position: absolute;
+        top: 5.5rem;
+        right: max(1.25rem, 5vw);
+        width: 3.25rem;
+        height: 3.25rem;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 62% 38%, hsl(220 20% 70% / 0.35) 0 9%, transparent 10%),
+            radial-gradient(circle at 40% 64%, hsl(220 20% 70% / 0.3) 0 7%, transparent 8%),
+            radial-gradient(circle at 70% 70%, hsl(220 20% 72% / 0.25) 0 5%, transparent 6%),
+            radial-gradient(circle at 35% 35%, hsl(45 60% 97%), hsl(var(--aero-night-h) 25% 84%) 75%);
+        box-shadow:
+            inset -0.85rem 0.35rem 0.7rem hsl(calc(var(--aero-night-h) + 6) 60% 12% / 0.6),
+            0 0 1.75rem 0.25rem hsl(var(--aero-night-h) 100% 90% / calc(0.22 * var(--aero-moon-glow))),
+            0 0 7rem 2.5rem hsl(var(--aero-night-h) 90% 80% / calc(0.07 * var(--aero-moon-glow)));
+    }
+
+    /* Shooting stars: a short bright streak that crosses the sky once per cycle */
+    .shooting-star {
+        position: absolute;
+        width: 0;
+        height: 0;
+        transform: rotate(var(--angle));
+        opacity: var(--aero-shooting-stars);
+    }
+    .shooting-star::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 7rem;
+        height: 1.5px;
+        border-radius: 9999px;
+        background: linear-gradient(90deg, hsl(0 0% 100%), hsl(var(--aero-night-h) 100% 85% / 0.5) 30%, transparent);
+        filter: drop-shadow(0 0 4px hsl(0 0% 100% / 0.7));
+        opacity: 0;
+    }
+
+    @keyframes shoot {
+        0% {
+            opacity: 0;
+            transform: translateX(0);
+        }
+        0.6% {
+            opacity: 1;
+        }
+        3.2% {
+            opacity: 0;
+            transform: translateX(-26rem);
+        }
+        100% {
+            opacity: 0;
+            transform: translateX(-26rem);
+        }
+    }
+
+    :global(.dark) .day {
+        opacity: 0;
+    }
+    :global(.dark) .night {
+        opacity: 1;
+    }
+    /* Only run the shooting stars while the night sky is showing */
+    :global(.dark) .shooting-star::before {
+        animation: shoot var(--cycle) linear var(--delay) infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .bubble,
+        .stars,
+        :global(.dark) .shooting-star::before {
+            animation: none;
+        }
+        .layer {
+            transform: none;
+        }
+        .day,
+        .night {
+            transition: none;
+        }
+    }
+</style>

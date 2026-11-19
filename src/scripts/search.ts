@@ -219,7 +219,7 @@ function generateSearchListItems(results: FuseResult<SearchablePostData>[]) {
 
         const dateLabel = document.createElement('time');
         dateLabel.dateTime = dateAsDate.toISOString();
-        dateLabel.className = 'text-xs text-gray-temp-400 dark:text-gray-temp-300';
+        dateLabel.className = 'ml-2 text-xs text-fg-2/70';
         dateLabel.textContent = dateAsDate.toLocaleDateString('en-us', {
             year: 'numeric',
             month: 'short',

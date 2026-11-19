@@ -34,6 +34,20 @@
         document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
     }
 
+    // A user-initiated switch cross-fades the whole page (CSS in src/styles/input.css) where the View Transitions
+    // API is available; otherwise, or with reduced motion, it switches instantly.
+    function applyThemeSmoothly(option) {
+        const root = document.documentElement;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!document.startViewTransition || reduceMotion) {
+            applyTheme(option);
+            return;
+        }
+        root.classList.add('theme-switching');
+        const transition = document.startViewTransition(() => applyTheme(option));
+        transition.finished.finally(() => root.classList.remove('theme-switching'));
+    }
+
     function syncPicker(option) {
         document.querySelectorAll('input[name="theme"]').forEach((input) => {
             input.checked = input.value === option;
@@ -44,7 +58,7 @@
 
     // Follow OS changes live while 'system' is selected.
     darkQuery.addEventListener('change', () => {
-        if (readStoredOption() === 'system') applyTheme('system');
+        if (readStoredOption() === 'system') applyThemeSmoothly('system');
     });
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -54,7 +68,7 @@
         document.querySelectorAll('input[name="theme"]').forEach((input) => {
             input.addEventListener('change', () => {
                 storeOption(input.value);
-                applyTheme(input.value);
+                applyThemeSmoothly(input.value);
                 if (feedback) feedback.textContent = `Theme changed to ${input.dataset.label ?? input.value}`;
             });
         });

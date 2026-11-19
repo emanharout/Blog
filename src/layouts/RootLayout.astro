@@ -15,9 +15,11 @@ interface Props {
     image?: string;
     imageAlt?: string;
     ogType?: 'website' | 'article';
+    // Opt-in page design. 'aero' swaps the theme roles for the glass / Frutiger Aero look (see src/styles/input.css).
+    design?: 'aero';
 }
 
-const { title, description, image = '/favicon.png', imageAlt, ogType = 'website' } = Astro.props;
+const { title, description, image = '/favicon.png', imageAlt, ogType = 'website', design } = Astro.props;
 
 const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -27,7 +29,7 @@ const socialImageAlt = imageAlt ?? description;
 ---
 
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="en" class="h-full" data-design={design}>
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

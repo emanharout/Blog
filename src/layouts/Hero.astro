@@ -6,13 +6,16 @@ type Props = {
 const { heroTitle } = Astro.props;
 ---
 
-<!-- Full-bleed colored band. Stacks on mobile; title and copy sit side by side from `sm`. -->
-<section class="bg-primary-700 text-fg-light mb-8">
+<!-- Glass panel matching the home page intro. Stacks on mobile; title and copy sit side by side from `sm`. -->
+<section class="container-page container-content mb-8 pt-4 sm:pt-10">
     <div
-        class="container-page container-content grid gap-4 py-8
-        sm:grid-cols-2 sm:items-start sm:gap-8 sm:py-10"
+        class="glass grid gap-4 rounded-[1.75rem] px-6 py-8 text-fg-2
+        sm:grid-cols-2 sm:items-start sm:gap-8 sm:rounded-[2.25rem] sm:px-12 sm:py-10"
     >
-        <h1 class="font-serif text-4xl text-balance text-center sm:text-right sm:justify-self-end sm:max-w-[24rem]">
+        <h1
+            class="font-serif text-4xl text-balance text-center text-fg-1
+            sm:text-right sm:justify-self-end sm:max-w-[24rem]"
+        >
             {heroTitle}
         </h1>
         <div class="text-pretty space-y-4 max-w-prose">

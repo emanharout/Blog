@@ -1,0 +1,281 @@
+---
+// Dev-only design tuner (rendered by MainLayout only when `import.meta.env.DEV`). Sliders adjust the --aero-* and
+// --glass-* knobs from src/styles/input.css live, separately for light and dark mode. Changes are kept in this
+// browser's localStorage; "Copy values" copies them as CSS so they can be made permanent in input.css.
+
+type Theme = 'light' | 'dark';
+type Knob = {
+    name: string;
+    label: string;
+    min: number;
+    max: number;
+    step: number;
+    unit?: string;
+    themes: Theme[];
+    // Optional live color preview
+    swatch?: string;
+};
+
+const both: Theme[] = ['light', 'dark'];
+
+const groups: { title: string; knobs: Knob[] }[] = [
+    {
+        title: 'Colors',
+        knobs: [
+            { name: 'aero-sky-h', label: 'Sky blue', min: 180, max: 235, step: 1, themes: ['light'], swatch: 'hsl(var(--azure-color-500))' },
+            { name: 'aero-leaf-h', label: 'Green', min: 80, max: 175, step: 1, themes: ['light'], swatch: 'hsl(var(--leaf-color-500))' },
+            { name: 'aero-sun-h', label: 'Sunshine', min: 25, max: 60, step: 1, themes: ['light'], swatch: 'hsl(var(--sun-color-400))' },
+            { name: 'aero-sun-strength', label: 'Sun glow', min: 0, max: 1, step: 0.05, themes: ['light'] },
+            { name: 'aero-hills', label: 'Hills', min: 0, max: 1, step: 0.05, themes: ['light'] },
+            { name: 'aero-bubbles', label: 'Bubbles', min: 0, max: 1, step: 0.05, themes: ['light'] },
+            { name: 'aero-night-h', label: 'Navy hue', min: 200, max: 265, step: 1, themes: ['dark'], swatch: 'hsl(var(--night-color-600))' },
+            { name: 'aero-night-l', label: 'Sky brightness', min: 2, max: 16, step: 0.5, unit: '%', themes: ['dark'], swatch: 'hsl(var(--aero-night-h) 68% var(--aero-night-l))' },
+            { name: 'aero-dusk-h', label: 'Dusk hue', min: 215, max: 290, step: 1, themes: ['dark'], swatch: 'hsl(var(--dusk-color-500))' },
+            { name: 'aero-stars', label: 'Stars', min: 0, max: 1, step: 0.05, themes: ['dark'] },
+            { name: 'aero-moon-glow', label: 'Moon glow', min: 0, max: 2.5, step: 0.05, themes: ['dark'] },
+            { name: 'aero-shooting-stars', label: 'Shooting stars', min: 0, max: 1, step: 0.05, themes: ['dark'] },
+        ],
+    },
+    {
+        title: 'Glass',
+        knobs: [
+            { name: 'glass-opacity', label: 'Opacity', min: 0, max: 1, step: 0.01, themes: both },
+            { name: 'glass-reading-opacity', label: 'Post panel opacity', min: 0, max: 1, step: 0.01, themes: both },
+            { name: 'glass-blur', label: 'Frost (blur)', min: 0, max: 40, step: 1, unit: 'px', themes: both },
+            { name: 'glass-gloss-alpha', label: 'Shine', min: 0, max: 1, step: 0.01, themes: both },
+            { name: 'glass-edge-alpha', label: 'Edge', min: 0, max: 1, step: 0.01, themes: both },
+        ],
+    },
+    {
+        title: 'Motion',
+        knobs: [{ name: 'aero-parallax', label: 'Scroll depth', min: 0, max: 3, step: 0.1, themes: both }],
+    },
+];
+---
+
+<div id="aero-tuner" class="fixed bottom-4 left-4 z-50 font-sans text-sm text-fg-1">
+    <button
+        id="aero-tuner-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="aero-tuner-panel"
+        class="flex items-center gap-2 rounded-full border border-fg-border-2 bg-bg-2 px-3.5 py-2 font-medium shadow-lg
+        backdrop-blur-xl hover:bg-bg-2/90"
+    >
+        <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"></path>
+            <circle cx="16" cy="6" r="2"></circle>
+            <circle cx="10" cy="12" r="2"></circle>
+            <circle cx="18" cy="18" r="2"></circle>
+        </svg>
+        Tune design
+    </button>
+
+    <div
+        id="aero-tuner-panel"
+        hidden
+        class="absolute bottom-full left-0 mb-2 w-[min(20rem,calc(100vw-2rem))] max-h-[min(36rem,calc(100vh-6rem))]
+        overflow-y-auto rounded-2xl border border-fg-border-2 bg-bg-2 p-4 shadow-xl backdrop-blur-2xl"
+    >
+        <div class="flex items-baseline justify-between gap-2">
+            <h2 class="font-semibold">Design tuner</h2>
+            <span class="text-xs text-fg-2">Tuning <strong id="aero-tuner-theme">light</strong> mode</span>
+        </div>
+        <p class="mt-1 text-xs text-fg-2">
+            Switch the site theme to tune the other mode. Only visible in local development.
+        </p>
+
+        {
+            groups.map(({ title, knobs }) => (
+                <fieldset class="mt-4">
+                    <legend class="mb-1 text-xs font-semibold uppercase tracking-wider text-fg-2">{title}</legend>
+                    {knobs.map((knob) => (
+                        <label class="aero-tuner-row mt-2 block" data-themes={knob.themes.join(' ')}>
+                            <span class="flex items-center justify-between gap-2">
+                                <span class="flex items-center gap-2">
+                                    {knob.swatch && (
+                                        <span
+                                            class="inline-block size-3 rounded-full ring-1 ring-black/10 dark:ring-white/20"
+                                            style={`background: ${knob.swatch}`}
+                                            aria-hidden="true"
+                                        />
+                                    )}
+                                    {knob.label}
+                                </span>
+                                <output class="tabular-nums text-xs text-fg-2" data-output-for={knob.name} />
+                            </span>
+                            <input
+                                type="range"
+                                class="mt-1 w-full accent-primary-600"
+                                min={knob.min}
+                                max={knob.max}
+                                step={knob.step}
+                                data-knob={knob.name}
+                                data-unit={knob.unit ?? ''}
+                            />
+                        </label>
+                    ))}
+                </fieldset>
+            ))
+        }
+
+        <div class="mt-5 flex flex-wrap gap-2">
+            <button
+                id="aero-tuner-copy"
+                type="button"
+                class="rounded-full bg-primary-700 px-3.5 py-1.5 font-medium text-white hover:bg-primary-600"
+            >
+                Copy values
+            </button>
+            <button
+                id="aero-tuner-reset"
+                type="button"
+                class="rounded-full border border-fg-border-2 px-3.5 py-1.5 hover:bg-white/30 dark:hover:bg-white/10"
+            >
+                Reset this mode
+            </button>
+        </div>
+        <p id="aero-tuner-status" class="mt-2 min-h-4 text-xs text-fg-2" aria-live="polite"></p>
+    </div>
+</div>
+
+<script>
+    type Theme = 'light' | 'dark';
+    type Overrides = Record<Theme, Record<string, string>>;
+
+    const STORAGE_KEY = 'aero-tuner';
+    // Selectors outrank the defaults in input.css, and the light one never applies in dark mode.
+    const SELECTORS: Record<Theme, string> = {
+        light: "html:root[data-design='aero']:not(.dark)",
+        dark: "html:root.dark[data-design='aero']",
+    };
+
+    const root = document.documentElement;
+    const panel = document.getElementById('aero-tuner-panel');
+    const toggle = document.getElementById('aero-tuner-toggle');
+    const themeLabel = document.getElementById('aero-tuner-theme');
+    const status = document.getElementById('aero-tuner-status');
+    const rows = document.querySelectorAll<HTMLElement>('.aero-tuner-row');
+    const inputs = document.querySelectorAll<HTMLInputElement>('#aero-tuner input[data-knob]');
+
+    function load(): { overrides: Overrides; open: boolean } {
+        try {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
+            return {
+                overrides: { light: saved.overrides?.light ?? {}, dark: saved.overrides?.dark ?? {} },
+                open: Boolean(saved.open),
+            };
+        } catch {
+            return { overrides: { light: {}, dark: {} }, open: false };
+        }
+    }
+
+    const state = load();
+
+    function save() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch {
+            // Storage unavailable; tweaks just won't survive a reload.
+        }
+    }
+
+    const styleEl = document.createElement('style');
+    styleEl.id = 'aero-tuner-overrides';
+    document.head.append(styleEl);
+
+    function cssFor(theme: Theme, indent = '    '): string {
+        const entries = Object.entries(state.overrides[theme]);
+        if (entries.length === 0) return '';
+        return `${SELECTORS[theme]} {\n${entries.map(([name, value]) => `${indent}--${name}: ${value};`).join('\n')}\n}`;
+    }
+
+    function writeStyles() {
+        styleEl.textContent = [cssFor('light'), cssFor('dark')].filter(Boolean).join('\n');
+    }
+
+    const currentTheme = (): Theme => (root.classList.contains('dark') ? 'dark' : 'light');
+
+    function format(value: string, unit: string): string {
+        const n = parseFloat(value);
+        if (Number.isNaN(n)) return value;
+        return `${Number.isInteger(n) ? n : n.toFixed(2).replace(/0$/, '')}${unit}`;
+    }
+
+    // Show only the knobs for the current theme and fill them with the live values.
+    function refresh() {
+        const theme = currentTheme();
+        if (themeLabel) themeLabel.textContent = theme;
+        rows.forEach((row) => {
+            row.hidden = !(row.dataset.themes ?? '').split(' ').includes(theme);
+        });
+        const computed = getComputedStyle(root);
+        inputs.forEach((input) => {
+            const name = input.dataset.knob!;
+            const value = computed.getPropertyValue(`--${name}`).trim();
+            input.value = String(parseFloat(value));
+            const output = document.querySelector(`[data-output-for="${name}"]`);
+            if (output) output.textContent = format(value, input.dataset.unit ?? '');
+        });
+    }
+
+    inputs.forEach((input) => {
+        input.addEventListener('input', () => {
+            const name = input.dataset.knob!;
+            const value = `${input.value}${input.dataset.unit ?? ''}`;
+            state.overrides[currentTheme()][name] = value;
+            writeStyles();
+            save();
+            const output = document.querySelector(`[data-output-for="${name}"]`);
+            if (output) output.textContent = format(value, input.dataset.unit ?? '');
+        });
+    });
+
+    function setOpen(open: boolean) {
+        state.open = open;
+        if (panel) panel.hidden = !open;
+        toggle?.setAttribute('aria-expanded', String(open));
+        save();
+        if (open) refresh();
+    }
+
+    toggle?.addEventListener('click', () => setOpen(!state.open));
+
+    document.getElementById('aero-tuner-reset')?.addEventListener('click', () => {
+        const theme = currentTheme();
+        state.overrides[theme] = {};
+        writeStyles();
+        save();
+        refresh();
+        if (status) status.textContent = `Reset ${theme} mode to the defaults.`;
+    });
+
+    document.getElementById('aero-tuner-copy')?.addEventListener('click', async () => {
+        const blocks = (['light', 'dark'] as Theme[])
+            .map((theme) => {
+                const css = cssFor(theme);
+                return css && `/* ${theme} mode */\n${css}`;
+            })
+            .filter(Boolean);
+        if (blocks.length === 0) {
+            if (status) status.textContent = 'Nothing to copy yet: all values are the defaults.';
+            return;
+        }
+        const text = `/* Aero design tuner values */\n${blocks.join('\n\n')}`;
+        try {
+            await navigator.clipboard.writeText(text);
+            if (status) status.textContent = 'Copied. Paste it to Claude to make these the defaults.';
+        } catch {
+            console.log(text);
+            if (status) status.textContent = "Couldn't copy; the values were printed to the browser console.";
+        }
+    });
+
+    // Follow theme switches
+    new MutationObserver(() => {
+        if (state.open) refresh();
+    }).observe(root, { attributes: true, attributeFilter: ['class'] });
+
+    writeStyles();
+    setOpen(state.open);
+</script>
