@@ -7,9 +7,11 @@ type Theme = 'light' | 'dark';
 type Knob = {
     name: string;
     label: string;
-    min: number;
-    max: number;
-    step: number;
+    // Sliders by default; 'color' shows a color picker (value is a hex color)
+    type?: 'range' | 'color';
+    min?: number;
+    max?: number;
+    step?: number;
     unit?: string;
     themes: Theme[];
     // Shared knobs set the same value in light and dark mode
@@ -24,6 +26,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
     {
         title: 'Colors',
         knobs: [
+            { name: 'aero-name-green', label: 'Name green', type: 'color', themes: ['light'] },
             { name: 'aero-sky-h', label: 'Sky blue', min: 180, max: 235, step: 1, themes: ['light'], swatch: 'hsl(var(--azure-color-500))' },
             { name: 'aero-leaf-h', label: 'Lawn green', min: 80, max: 175, step: 1, themes: ['light'], swatch: 'hsl(var(--leaf-color-500))' },
             { name: 'aero-sun-h', label: 'Sunshine', min: 25, max: 60, step: 1, themes: ['light'], swatch: 'hsl(var(--sun-color-400))' },
@@ -118,8 +121,13 @@ const groups: { title: string; knobs: Knob[] }[] = [
                                 <output class="tabular-nums text-xs text-fg-2" data-output-for={knob.name} />
                             </span>
                             <input
-                                type="range"
-                                class="mt-1 w-full accent-primary-600"
+                                type={knob.type ?? 'range'}
+                                class:list={[
+                                    'mt-1',
+                                    knob.type === 'color'
+                                        ? 'h-8 w-full cursor-pointer rounded border border-fg-border-2 bg-transparent'
+                                        : 'w-full accent-primary-600',
+                                ]}
                                 min={knob.min}
                                 max={knob.max}
                                 step={knob.step}
@@ -211,6 +219,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
     const currentTheme = (): Theme => (root.classList.contains('dark') ? 'dark' : 'light');
 
     function format(value: string, unit: string): string {
+        if (value.startsWith('#')) return value;
         const n = parseFloat(value);
         if (Number.isNaN(n)) return value;
         return `${Number.isInteger(n) ? n : n.toFixed(2).replace(/0$/, '')}${unit}`;
@@ -220,14 +229,18 @@ const groups: { title: string; knobs: Knob[] }[] = [
     function refresh() {
         const theme = currentTheme();
         if (themeLabel) themeLabel.textContent = theme;
+        // Only this mode's options (plus shared ones) are shown; sections with nothing left are hidden too
         rows.forEach((row) => {
             row.hidden = !(row.dataset.themes ?? '').split(' ').includes(theme);
+        });
+        document.querySelectorAll<HTMLFieldSetElement>('#aero-tuner fieldset').forEach((group) => {
+            group.hidden = !group.querySelector('.aero-tuner-row:not([hidden])');
         });
         const computed = getComputedStyle(root);
         inputs.forEach((input) => {
             const name = input.dataset.knob!;
             const value = computed.getPropertyValue(`--${name}`).trim();
-            input.value = String(parseFloat(value));
+            input.value = input.type === 'color' ? value : String(parseFloat(value));
             const output = document.querySelector(`[data-output-for="${name}"]`);
             if (output) output.textContent = format(value, input.dataset.unit ?? '');
         });

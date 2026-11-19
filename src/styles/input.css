@@ -273,9 +273,9 @@
         --aero-sky-depth: 0.1;
         --aero-lawn: 1;
         /* 0 = crisp rolling arches, 1 = soft, edgeless mist */
-        --aero-lawn-softness: 0.4;
+        --aero-lawn-softness: 0.55;
         /* How far up the page the lawn rises (1 = default height) */
-        --aero-lawn-height: 1;
+        --aero-lawn-height: 1.45;
         --aero-night-h: 222;
         --aero-night-l: 7%;
         --aero-dusk-h: 238;
@@ -486,6 +486,9 @@
         --fg-color-border-2: calc(var(--aero-sky-h) + 7) 25% 55% / 0.22;
         --fg-light: 0deg 0% 100%;
         --accent-color: var(--leaf-color-600);
+        /* The green of "Eman" in the home heading and the quote mark (tunable with a color picker) */
+        --aero-name-green: #407d48;
+        --color-accent: var(--aero-name-green);
 
         /* Glass knobs (tunable): calmer, less shine, hairline edges */
         --glass-opacity: 0.62;
@@ -554,6 +557,7 @@
         --fg-primary-link-2: var(--night-color-300);
         --fg-primary-link-2-hover: var(--night-color-100);
         --accent-color: 45deg 100% 94%;
+        --color-accent: hsl(var(--accent-color));
         --email-icon-color: hsl(var(--night-color-400));
         --x-icon-color: hsl(220, 10%, 80%);
         --github-icon-color: hsl(220, 10%, 80%);
