@@ -108,8 +108,12 @@
 /*
  * GLASS SURFACE
  * Frosted panel with a soft gloss on its top half. All values come from the --glass-* roles, which only the aero
- * design defines (light and dark differ), so use it on aero pages. The background is built here rather than in a
- * role so a panel can set its own --glass-opacity (see `glass-reading`).
+ * design defines (light and dark differ), so use it on aero pages. The background and shadows are built here rather
+ * than in a role so a panel can set its own --glass-opacity (see `glass-reading`).
+ *
+ * --glass-intensity scales everything that makes it read as glass (shine, top highlight, edge, rim light, shadow and
+ * color boost) at once; 0 leaves a flat tinted panel. --glass-rim adds a bright inner edge and glow,
+ * --glass-shadow-depth sets how far the panel floats, and --glass-boost how much it saturates what's behind it.
  */
 @utility glass {
     position: relative;
@@ -120,9 +124,20 @@
         hsl(var(--glass-tint-bottom) / calc(var(--glass-opacity) * var(--glass-fade)))
     );
     border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
-    backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+    --glass-lift: calc(var(--glass-shadow-depth) * var(--glass-intensity));
+    box-shadow:
+        /* Top highlight */
+        inset 0 1px 0 hsl(0 0% 100% / calc(var(--glass-highlight-alpha) * var(--glass-intensity))),
+        /* Rim light: a bright inner edge and a soft inner glow */
+        inset 0 0 0 1px hsl(0 0% 100% / calc(var(--glass-rim) * 0.45 * var(--glass-intensity))),
+        inset 0 0 1.5rem hsl(0 0% 100% / calc(var(--glass-rim) * 0.22 * var(--glass-intensity))),
+        /* Contact shadow and float shadow */
+        0 1px 2px hsl(var(--glass-shadow-color) / calc(var(--glass-contact-alpha) * var(--glass-lift))),
+        0 calc(var(--glass-shadow-y) * var(--glass-lift)) calc(var(--glass-shadow-blur) * var(--glass-lift))
+            var(--glass-shadow-spread) hsl(var(--glass-shadow-color) / calc(var(--glass-shadow-alpha) * var(--glass-lift)));
+    -webkit-backdrop-filter: blur(var(--glass-blur))
+        saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+    backdrop-filter: blur(var(--glass-blur)) saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
 
     &::before {
         content: '';
@@ -503,12 +518,23 @@
         --glass-tint-top: 42 45% 99%;
         --glass-tint-bottom: var(--aero-sky-h) 35% 98%;
         --glass-fade: 0.75;
-        --glass-border: hsl(calc(var(--aero-sky-h) + 7) 25% 55% / calc(var(--glass-edge-alpha) * 0.3));
-        --glass-gloss: hsl(0 0% 100% / var(--glass-gloss-alpha));
-        --glass-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / 0.9),
-            0 1px 2px hsl(calc(var(--aero-sky-h) + 7) 30% 20% / 0.06),
-            0 22px 44px -26px hsl(calc(var(--aero-sky-h) + 7) 40% 25% / 0.24);
+        /* Glass strength knobs (tunable) */
+        --glass-intensity: 1;
+        --glass-rim: 0;
+        --glass-shadow-depth: 1;
+        --glass-boost: 160%;
+
+        --glass-border: hsl(
+            calc(var(--aero-sky-h) + 7) 25% 55% / calc(var(--glass-edge-alpha) * 0.3 * var(--glass-intensity))
+        );
+        --glass-gloss: hsl(0 0% 100% / calc(var(--glass-gloss-alpha) * var(--glass-intensity)));
+        --glass-highlight-alpha: 0.9;
+        --glass-shadow-color: calc(var(--aero-sky-h) + 7) 40% 25%;
+        --glass-contact-alpha: 0.06;
+        --glass-shadow-alpha: 0.24;
+        --glass-shadow-y: 22px;
+        --glass-shadow-blur: 44px;
+        --glass-shadow-spread: -26px;
 
         /* Social icons in ink, sage and blue instead of loud brand colors */
         --x-icon-color: hsl(var(--fg-color-1));
@@ -579,11 +605,21 @@
         --glass-tint-top: var(--aero-night-h) 55% 20%;
         --glass-tint-bottom: calc(var(--aero-night-h) + 4) 60% 12%;
         --glass-fade: 0.9;
-        --glass-border: hsl(0 0% 100% / var(--glass-edge-alpha));
-        --glass-gloss: hsl(var(--aero-night-h) 90% 92% / var(--glass-gloss-alpha));
-        --glass-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.8)),
-            0 24px 48px -24px hsl(calc(var(--aero-night-h) + 8) 80% 2% / 0.85);
+        /* Glass strength knobs (tunable) */
+        --glass-intensity: 1;
+        --glass-rim: 0;
+        --glass-shadow-depth: 1;
+        --glass-boost: 160%;
+
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * var(--glass-intensity)));
+        --glass-gloss: hsl(var(--aero-night-h) 90% 92% / calc(var(--glass-gloss-alpha) * var(--glass-intensity)));
+        --glass-highlight-alpha: calc(var(--glass-edge-alpha) * 0.8);
+        --glass-shadow-color: calc(var(--aero-night-h) + 8) 80% 2%;
+        --glass-contact-alpha: 0;
+        --glass-shadow-alpha: 0.85;
+        --glass-shadow-y: 24px;
+        --glass-shadow-blur: 48px;
+        --glass-shadow-spread: -24px;
     }
 }
 

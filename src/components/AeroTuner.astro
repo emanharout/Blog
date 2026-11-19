@@ -52,6 +52,10 @@ const groups: { title: string; knobs: Knob[] }[] = [
     {
         title: 'Glass',
         knobs: [
+            { name: 'glass-intensity', label: 'Glass intensity', min: 0, max: 2, step: 0.05, themes: both },
+            { name: 'glass-rim', label: 'Rim light', min: 0, max: 1, step: 0.05, themes: both },
+            { name: 'glass-shadow-depth', label: 'Shadow depth', min: 0, max: 2.5, step: 0.05, themes: both },
+            { name: 'glass-boost', label: 'Color boost', min: 100, max: 300, step: 5, unit: '%', themes: both },
             { name: 'glass-opacity', label: 'Opacity', min: 0, max: 1, step: 0.01, themes: both },
             { name: 'glass-reading-opacity', label: 'Post panel opacity', min: 0, max: 1, step: 0.01, themes: both },
             { name: 'glass-blur', label: 'Frost (blur)', min: 0, max: 40, step: 1, unit: 'px', themes: both },
