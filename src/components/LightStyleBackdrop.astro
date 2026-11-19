@@ -22,38 +22,7 @@ const dawnStars = Array.from({ length: 34 }, () => {
     return `${x}vw ${y}vh rgb(255 255 255 / ${alpha})`;
 }).join(', ');
 
-// Fern fronds built from leaflets along a curved stem (quadratic Bézier from p0 via p1 to p2)
 type Point = [number, number];
-function frond(p0: Point, p1: Point, p2: Point, leaflets: number, maxLength: number) {
-    const at = (t: number): Point => [
-        (1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t ** 2 * p2[0],
-        (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t ** 2 * p2[1],
-    ];
-    const tangent = (t: number): Point => [
-        2 * (1 - t) * (p1[0] - p0[0]) + 2 * t * (p2[0] - p1[0]),
-        2 * (1 - t) * (p1[1] - p0[1]) + 2 * t * (p2[1] - p1[1]),
-    ];
-    const leaves = [];
-    for (let i = 1; i <= leaflets; i++) {
-        const t = i / (leaflets + 1);
-        const [x, y] = at(t);
-        const [tx, ty] = tangent(t);
-        const stemAngle = (Math.atan2(ty, tx) * 180) / Math.PI;
-        const length = maxLength * (1 - t * 0.8);
-        for (const side of [-1, 1]) {
-            const angle = stemAngle + side * 58;
-            const rad = (angle * Math.PI) / 180;
-            leaves.push({
-                cx: (x + (Math.cos(rad) * length) / 2).toFixed(1),
-                cy: (y + (Math.sin(rad) * length) / 2).toFixed(1),
-                rx: (length / 2).toFixed(1),
-                ry: (length * 0.17).toFixed(1),
-                angle: angle.toFixed(1),
-            });
-        }
-    }
-    return { stem: `M${p0[0]} ${p0[1]} Q${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`, leaves };
-}
 
 // Celestial Atlas: an engraved celestial sphere (rings with degree ticks) and a few constellations, in a 1440x900 chart
 const sphere = { cx: 70, cy: 860, r: 440 };
@@ -69,6 +38,58 @@ const constellations: { stars: Point[]; lines: [number, number][] }[] = [
     { stars: [[640, 760], [700, 805], [760, 772], [822, 826], [884, 780]], lines: [[0, 1], [1, 2], [2, 3], [3, 4]] },
     // A hunter
     { stars: [[1060, 520], [1215, 508], [1110, 615], [1145, 606], [1180, 597], [1080, 730], [1205, 712]], lines: [[0, 1], [0, 2], [1, 4], [2, 3], [3, 4], [2, 5], [4, 6]] },
+];
+
+// Celestial Atlas · Armillary: an armillary sphere (1440x900 view) and a scatter of engraved stars
+const armillary = { cx: 1235, cy: 690, r: 285, tilt: -18 };
+const armillaryTicks = Array.from({ length: 36 }, (_, i) => {
+    const a = (i * 10 * Math.PI) / 180;
+    const inner = armillary.r - (i % 3 === 0 ? 12 : 6);
+    return `M${(armillary.cx + Math.cos(a) * inner).toFixed(1)} ${(armillary.cy + Math.sin(a) * inner).toFixed(1)} L${(armillary.cx + Math.cos(a) * armillary.r).toFixed(1)} ${(armillary.cy + Math.sin(a) * armillary.r).toFixed(1)}`;
+}).join(' ');
+const axisAngle = (armillary.tilt * Math.PI) / 180;
+const armillaryAxis = [-1, 1]
+    .map((side) => `${(armillary.cx + side * Math.sin(axisAngle) * armillary.r * 1.2).toFixed(1)} ${(armillary.cy - side * Math.cos(axisAngle) * armillary.r * 1.2).toFixed(1)}`)
+    .join(' L');
+const engravedRandom = seededRandom(23);
+const engravedStars = Array.from({ length: 46 }, () => ({
+    x: (engravedRandom() * 560).toFixed(1),
+    y: (Math.pow(engravedRandom(), 1.2) * 430).toFixed(1),
+    r: (0.9 + Math.pow(engravedRandom(), 3) * 2.6).toFixed(2),
+}));
+
+// Celestial Atlas · Planisphere: a star wheel with an hour ring, star field and two constellations (1440x900 view)
+const wheel = { cx: 1300, cy: 850, r: 430 };
+const wheelTicks = Array.from({ length: 96 }, (_, i) => {
+    const a = (i * 3.75 * Math.PI) / 180;
+    const inner = wheel.r - (i % 4 === 0 ? 12 : 6);
+    return `M${(wheel.cx + Math.cos(a) * inner).toFixed(1)} ${(wheel.cy + Math.sin(a) * inner).toFixed(1)} L${(wheel.cx + Math.cos(a) * wheel.r).toFixed(1)} ${(wheel.cy + Math.sin(a) * wheel.r).toFixed(1)}`;
+}).join(' ');
+const romanHours = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'].map((label, i) => {
+    const a = ((i * 30 - 90) * Math.PI) / 180;
+    return { label, x: (wheel.cx + Math.cos(a) * (wheel.r - 27)).toFixed(1), y: (wheel.cy + Math.sin(a) * (wheel.r - 27) + 4).toFixed(1) };
+});
+const wheelRandom = seededRandom(41);
+const wheelStars = Array.from({ length: 110 }, () => {
+    const a = wheelRandom() * Math.PI * 2;
+    const d = Math.sqrt(wheelRandom()) * (wheel.r - 50);
+    return { x: (wheel.cx + Math.cos(a) * d).toFixed(1), y: (wheel.cy + Math.sin(a) * d).toFixed(1), r: (0.8 + Math.pow(wheelRandom(), 3) * 2.8).toFixed(2) };
+});
+const wheelConstellations: { stars: Point[]; lines: [number, number][] }[] = [
+    { stars: [[960, 560], [1030, 548], [1090, 572], [1140, 608], [1150, 672], [1232, 682], [1248, 618]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]] },
+    { stars: [[1150, 470], [1205, 505], [1255, 478], [1305, 520], [1360, 488]], lines: [[0, 1], [1, 2], [2, 3], [3, 4]] },
+];
+
+// Bauhaus · Circles: translucent circles around the edges [left %, top %, size rem, color, parallax speed]
+const bauhausCircles: [number, number, number, string, number][] = [
+    [-6, -8, 22, '212 45% 70% / 0.32', 0.02],
+    [8, 14, 7, '8 55% 68% / 0.38', 0.06],
+    [86, 4, 15, '45 70% 70% / 0.42', 0.03],
+    [93, 30, 5, '220 40% 30% / 0.5', 0.08],
+    [-4, 66, 12, '45 70% 72% / 0.4', 0.05],
+    [3, 80, 5.5, '170 30% 55% / 0.36', 0.09],
+    [84, 72, 24, '8 50% 72% / 0.26', 0.02],
+    [90, 62, 8, '212 45% 62% / 0.32', 0.07],
 ];
 
 // Chapel Light: two lancet windows of colored panes (projected, so blurred and skewed) and a rose window
@@ -88,10 +109,6 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
     };
 });
 
-// Cyanotype: white fern prints on Prussian blue paper (300x380 print)
-const cyanFernA = frond([60, 360], [90, 180], [240, 40], 14, 70);
-const cyanFernB = frond([255, 20], [200, 150], [70, 335], 12, 62);
-
 // Dappled Light: two clusters of leaf shadows (1440x900 view)
 const leafRandom = seededRandom(31);
 function leafCluster(cx: number, cy: number, spread: number, count: number) {
@@ -110,86 +127,7 @@ function leafCluster(cx: number, cy: number, spread: number, count: number) {
 const leavesRight = leafCluster(1330, 60, 360, 75);
 const leavesLeft = leafCluster(90, 260, 260, 45);
 
-// Cartographer: concentric, irregular contour rings around a few summits (1440x900 view)
-function contours(cx: number, cy: number, maxRadius: number, rings: number, seed: number) {
-    const phase = seededRandom(seed);
-    const [p1, p2, p3] = [phase() * 6.28, phase() * 6.28, phase() * 6.28];
-    return Array.from({ length: rings }, (_, k) => {
-        const radius = (maxRadius * (k + 1)) / rings;
-        const drift = k * 0.12;
-        const points = Array.from({ length: 90 }, (_, i) => {
-            const t = (i / 90) * Math.PI * 2;
-            const r = radius * (1 + 0.16 * Math.sin(3 * t + p1 + drift) + 0.09 * Math.sin(5 * t + p2 - drift) + 0.05 * Math.sin(7 * t + p3));
-            return `${(cx + Math.cos(t) * r * 1.2).toFixed(1)} ${(cy + Math.sin(t) * r).toFixed(1)}`;
-        });
-        return { d: `M${points.join(' L')} Z`, index: (k + 1) % 5 === 0 };
-    });
-}
-const contourLines = [...contours(1300, 140, 430, 15, 3), ...contours(110, 830, 380, 13, 8), ...contours(980, 900, 170, 6, 13)];
-const graticule = [
-    ...Array.from({ length: 10 }, (_, i) => `M${i * 160} 0 V900`),
-    ...Array.from({ length: 6 }, (_, i) => `M0 ${i * 160} H1440`),
-].join(' ');
-
-// Sea Glass: gentle wave crests (1600 wide so they can drift sideways)
-const waveCrests = [36, 74, 112, 150].map((y, i) => {
-    const amplitude = 5 + i * 1.5;
-    const points = Array.from({ length: 81 }, (_, j) => {
-        const x = j * 20;
-        return `${x} ${(y + Math.sin((x / (220 + i * 30)) * Math.PI * 2 + i) * amplitude).toFixed(1)}`;
-    });
-    return `M${points.join(' L')}`;
-});
-
-// Kintsugi: gold seams that wander in from the edges and occasionally branch (1440x900 view)
-const crackRandom = seededRandom(19);
-function crack(x: number, y: number, heading: number, steps: number): string[] {
-    const paths: string[] = [];
-    let d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
-    for (let i = 0; i < steps; i++) {
-        heading += (crackRandom() - 0.5) * 1.1;
-        const length = 20 + crackRandom() * 26;
-        x += Math.cos(heading) * length;
-        y += Math.sin(heading) * length;
-        d += ` L${x.toFixed(1)} ${y.toFixed(1)}`;
-        if (crackRandom() < 0.16 && steps - i > 4) {
-            paths.push(...crack(x, y, heading + (crackRandom() < 0.5 ? -1 : 1) * (0.6 + crackRandom() * 0.5), Math.floor(4 + crackRandom() * 5)));
-        }
-    }
-    return [d, ...paths];
-}
-const seams = [
-    ...crack(0, 120, 0.35, 14),
-    ...crack(330, 0, 1.25, 9),
-    ...crack(1440, 260, Math.PI - 0.25, 13),
-    ...crack(1160, 900, -1.9, 10),
-    ...crack(0, 700, -0.3, 11),
-];
 ---
-
-<!-- MORNING MIST: layered hills fading into haze, a veiled sun. Nothing moves. -->
-<div class="ls-layer ls-mist">
-    <div class="ls-mist-sun"></div>
-    <svg class="ls-mist-hills" viewBox="0 0 1440 400" preserveAspectRatio="none">
-        <defs>
-            {
-                [
-                    ['far', '212 22% 82%'],
-                    ['mid', '208 20% 78%'],
-                    ['near', '200 16% 75%'],
-                ].map(([id, color]) => (
-                    <linearGradient id={`ls-mist-${id}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0" style={`stop-color: hsl(${color}); stop-opacity: 0.85`} />
-                        <stop offset="1" style="stop-color: hsl(205 22% 95%); stop-opacity: 0.2" />
-                    </linearGradient>
-                ))
-            }
-        </defs>
-        <path fill="url(#ls-mist-far)" d="M0 150 C 220 90 420 100 640 140 S 1100 70 1440 120 V400 H0 Z"></path>
-        <path fill="url(#ls-mist-mid)" d="M0 230 C 260 170 520 190 760 225 S 1180 170 1440 210 V400 H0 Z"></path>
-        <path fill="url(#ls-mist-near)" d="M0 310 C 300 265 640 285 900 300 S 1300 270 1440 290 V400 H0 Z"></path>
-    </svg>
-</div>
 
 <!-- PORCELAIN: no decoration, just an even, slightly cool light from above. -->
 <div class="ls-layer ls-porcelain"></div>
@@ -330,42 +268,6 @@ const seams = [
     <div class="ls-parallax" style="--speed: 0.04"><div class="ls-bh ls-bh-line"></div><div class="ls-bh ls-bh-dot"></div></div>
 </div>
 
-<!-- CYANOTYPE: two sun prints of ferns, Prussian blue with brushed edges, laid at the corners of cream paper. -->
-<div class="ls-layer ls-cyanotype">
-    <svg width="0" height="0" aria-hidden="true" style="position: absolute">
-        <filter id="ls-brushed" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="9" result="noise"></feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="16"></feDisplacementMap>
-        </filter>
-        <radialGradient id="ls-cyan-paper">
-            <stop offset="0" style="stop-color: hsl(208 60% 38%)"></stop>
-            <stop offset="1" style="stop-color: hsl(212 65% 27%)"></stop>
-        </radialGradient>
-    </svg>
-    {
-        [
-            ['ls-print-a', cyanFernA],
-            ['ls-print-b', cyanFernB],
-        ].map(([className, fern]) => (
-            <svg class:list={['ls-print', className as string]} viewBox="0 0 300 380">
-                <rect x="12" y="12" width="276" height="356" fill="url(#ls-cyan-paper)" filter="url(#ls-brushed)" />
-                <g class="ls-print-fern">
-                    <path d={(fern as typeof cyanFernA).stem} />
-                    {(fern as typeof cyanFernA).leaves.map((leaf) => (
-                        <ellipse
-                            cx={leaf.cx}
-                            cy={leaf.cy}
-                            rx={leaf.rx}
-                            ry={leaf.ry}
-                            transform={`rotate(${leaf.angle} ${leaf.cx} ${leaf.cy})`}
-                        />
-                    ))}
-                </g>
-            </svg>
-        ))
-    }
-</div>
-
 <!-- DAPPLED LIGHT: soft leaf shadows on warm plaster, swaying slightly in a breeze. -->
 <div class="ls-layer ls-dappled">
     <svg class="ls-leaf-shadows" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
@@ -395,8 +297,12 @@ const seams = [
     </svg>
 </div>
 
-<!-- ILLUMINATED: a gilt double rule around the page with small corner ornaments, on vellum. -->
+<!--
+  ILLUMINATED (and its Pale Vellum, Lapis and Ruled Page variants): a double rule around the page with small corner
+  ornaments on vellum. Variants change the colors through custom properties; Ruled Page swaps the frame for ruling.
+-->
 <div class="ls-layer ls-illuminated">
+    <div class="ls-ruling"></div>
     <div class="ls-gilt-frame">
         {
             ['tl', 'tr', 'bl', 'br'].map((corner) => (
@@ -414,69 +320,103 @@ const seams = [
     </div>
 </div>
 
-<!-- CARTOGRAPHER: contour lines around a few summits, a faint graticule and a compass rose. -->
-<div class="ls-layer ls-cartographer">
+<!-- CELESTIAL ATLAS · ARMILLARY: an engraved armillary sphere at the lower right and scattered stars at the upper left. -->
+<div class="ls-layer ls-armillary">
     <div class="ls-parallax" style="--speed: 0.03">
-        <svg class="ls-map" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-            <path class="ls-graticule" d={graticule}></path>
-            {contourLines.map((line) => <path d={line.d} class:list={[{ 'ls-index-contour': line.index }]} />)}
+        <svg class="ls-chart" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <g class="ls-armillary-rings">
+                <circle cx={armillary.cx} cy={armillary.cy} r={armillary.r}></circle>
+                <circle cx={armillary.cx} cy={armillary.cy} r={armillary.r - 14}></circle>
+                <path d={armillaryTicks}></path>
+                <ellipse cx={armillary.cx} cy={armillary.cy} rx={armillary.r - 14} ry={(armillary.r - 14) * 0.32} transform={`rotate(${armillary.tilt} ${armillary.cx} ${armillary.cy})`}></ellipse>
+                <ellipse class="ls-ecliptic-band" cx={armillary.cx} cy={armillary.cy} rx={armillary.r - 16} ry={(armillary.r - 16) * 0.42} transform={`rotate(22 ${armillary.cx} ${armillary.cy})`}></ellipse>
+                <ellipse cx={armillary.cx} cy={armillary.cy} rx={armillary.r - 16} ry={(armillary.r - 16) * 0.42} transform={`rotate(22 ${armillary.cx} ${armillary.cy})`} class="ls-dashed"></ellipse>
+                <ellipse cx={armillary.cx} cy={armillary.cy} rx={(armillary.r - 14) * 0.3} ry={armillary.r - 14} transform={`rotate(${armillary.tilt} ${armillary.cx} ${armillary.cy})`}></ellipse>
+                <path d={`M${armillaryAxis}`}></path>
+                <circle class="ls-armillary-globe" cx={armillary.cx} cy={armillary.cy} r="24"></circle>
+            </g>
+            <g class="ls-engraved-stars">
+                {engravedStars.map((star) => <circle cx={star.x} cy={star.y} r={star.r} />)}
+            </g>
+            <g class="ls-constellation">
+                {[[140, 150], [205, 200], [268, 160], [335, 216], [400, 168]].map(([x, y], i, all) => (
+                    <>
+                        {i > 0 && <line x1={all[i - 1][0]} y1={all[i - 1][1]} x2={x} y2={y} />}
+                        <circle cx={x} cy={y} r={i % 2 === 0 ? 3.6 : 2.6} />
+                    </>
+                ))}
+            </g>
         </svg>
     </div>
-    <svg class="ls-compass" viewBox="-60 -60 120 120">
-        <circle r="44"></circle>
-        <circle r="38" class="ls-compass-thin"></circle>
-        <path class="ls-compass-star" d="M0 -54 L7 -7 L54 0 L7 7 L0 54 L-7 7 L-54 0 L-7 -7 Z"></path>
-        <path class="ls-compass-star ls-compass-minor" d="M0 0 L26 -26 L5 -5 Z M0 0 L26 26 L5 5 Z M0 0 L-26 26 L-5 5 Z M0 0 L-26 -26 L-5 -5 Z"></path>
-        <text y="-56" text-anchor="middle">N</text>
-    </svg>
 </div>
 
-<!-- FIELD NOTEBOOK: dot-grid paper and a red ribbon bookmark. -->
-<div class="ls-layer ls-notebook">
-    <div class="ls-ribbon"></div>
+<!-- CELESTIAL ATLAS · PLANISPHERE: a star wheel at the lower right with an hour ring, star field and constellations. -->
+<div class="ls-layer ls-planisphere">
+    <div class="ls-parallax" style="--speed: 0.03">
+        <svg class="ls-chart" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <g class="ls-wheel">
+                <circle cx={wheel.cx} cy={wheel.cy} r={wheel.r}></circle>
+                <circle cx={wheel.cx} cy={wheel.cy} r={wheel.r - 44}></circle>
+                <path d={wheelTicks}></path>
+                <circle cx={wheel.cx} cy={wheel.cy} r={(wheel.r - 44) * 0.66} class="ls-dashed"></circle>
+                <circle cx={wheel.cx} cy={wheel.cy} r={(wheel.r - 44) * 0.33} class="ls-dashed"></circle>
+                <circle cx={wheel.cx - 60} cy={wheel.cy - 40} r={(wheel.r - 44) * 0.78} class="ls-ecliptic"></circle>
+                {romanHours.map((hour) => (
+                    <text x={hour.x} y={hour.y} text-anchor="middle">
+                        {hour.label}
+                    </text>
+                ))}
+                <g class="ls-wheel-stars">
+                    {wheelStars.map((star) => <circle cx={star.x} cy={star.y} r={star.r} />)}
+                </g>
+                {
+                    wheelConstellations.map(({ stars, lines }) => (
+                        <g class="ls-constellation">
+                            {lines.map(([a, b]) => (
+                                <line x1={stars[a][0]} y1={stars[a][1]} x2={stars[b][0]} y2={stars[b][1]} />
+                            ))}
+                            {stars.map(([x, y], i) => (
+                                <circle cx={x} cy={y} r={i % 3 === 0 ? 4 : 2.8} />
+                            ))}
+                        </g>
+                    ))
+                }
+            </g>
+        </svg>
+    </div>
 </div>
 
-<!-- SEA GLASS: pale sky, a quiet band of sea, sand, and wave lines lapping softly. -->
-<div class="ls-layer ls-seaglass">
-    <svg class="ls-waves" viewBox="0 0 1440 200" preserveAspectRatio="none">
-        <g class="ls-wave-drift">
-            {waveCrests.map((d, i) => <path d={d} class:list={['ls-wave', { 'ls-wave-foam': i === waveCrests.length - 1 }]} />)}
-        </g>
-    </svg>
+<!-- BAUHAUS · ALBERS: nested squares after Josef Albers' "Homage to the Square". -->
+<div class="ls-layer ls-albers">
+    <div class="ls-parallax" style="--speed: 0.03">
+        <div class="ls-albers-square ls-albers-warm"><div><div><div></div></div></div></div>
+    </div>
+    <div class="ls-parallax" style="--speed: 0.07">
+        <div class="ls-albers-square ls-albers-cool"><div><div><div></div></div></div></div>
+    </div>
 </div>
 
-<!-- KINTSUGI: ivory stoneware with fine gold seams wandering in from the edges. -->
+<!-- BAUHAUS · CIRCLES: overlapping translucent circles after Kandinsky, kept to the edges, and two fine lines. -->
+<div class="ls-layer ls-circles">
+    {
+        bauhausCircles.map(([left, top, size, color, speed]) => (
+            <div class="ls-parallax" style={`--speed: ${speed}`}>
+                <div
+                    class="ls-circle"
+                    style={`left: ${left}%; top: ${top}%; width: ${size}rem; height: ${size}rem; background: hsl(${color})`}
+                />
+            </div>
+        ))
+    }
+    <div class="ls-parallax" style="--speed: 0.05">
+        <div class="ls-circle-line" style="left: 4%; top: 46%; width: 22vw; rotate: -28deg"></div>
+        <div class="ls-circle-line" style="right: 3%; top: 22%; width: 14vw; rotate: 34deg"></div>
+    </div>
+</div>
+
+<!-- KINTSUGI: plain ivory stoneware with a fine speckle; no decoration. -->
 <div class="ls-layer ls-kintsugi">
-    <svg class="ls-seams" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-        <defs>
-            <linearGradient id="ls-gold" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" style="stop-color: hsl(44 70% 62%)"></stop>
-                <stop offset="0.5" style="stop-color: hsl(38 70% 44%)"></stop>
-                <stop offset="1" style="stop-color: hsl(46 75% 64%)"></stop>
-            </linearGradient>
-            <filter id="ls-gold-glow" x="-10%" y="-10%" width="120%" height="120%">
-                <feGaussianBlur stdDeviation="2.5" result="glow"></feGaussianBlur>
-                <feMerge>
-                    <feMergeNode in="glow"></feMergeNode>
-                    <feMergeNode in="SourceGraphic"></feMergeNode>
-                </feMerge>
-            </filter>
-        </defs>
-        <g filter="url(#ls-gold-glow)">
-            {seams.map((d) => <path d={d} />)}
-        </g>
-    </svg>
     <div class="ls-speckle"></div>
-</div>
-
-<!-- DUNES: layered dunes in warm sand with fine ripples, under a pale apricot sky. -->
-<div class="ls-layer ls-dunes">
-    <svg class="ls-dune-field" viewBox="0 0 1440 420" preserveAspectRatio="none">
-        <path class="ls-dune-far" d="M0 170 C 200 120 380 110 560 150 C 760 195 900 110 1100 100 C 1250 92 1350 130 1440 150 V420 H0 Z"></path>
-        <path class="ls-dune-mid" d="M0 260 C 180 220 330 200 520 235 C 700 268 860 210 1040 205 C 1200 200 1330 235 1440 250 V420 H0 Z"></path>
-        <path class="ls-dune-near" d="M0 340 C 240 300 460 290 700 320 C 920 348 1130 300 1440 318 V420 H0 Z"></path>
-        <path class="ls-ripples" d="M120 372 C 300 352 480 350 640 366 M260 392 C 420 376 600 374 760 388 M860 360 C 1000 342 1160 338 1320 350 M940 386 C 1080 372 1220 370 1380 378"></path>
-    </svg>
 </div>
 
 <style is:global>
@@ -486,22 +426,23 @@ const seams = [
         display: none;
         overflow: hidden;
     }
-    :root[data-light-style='mist'] .ls-mist,
-    :root[data-light-style='porcelain'] .ls-porcelain,
+:root[data-light-style='porcelain'] .ls-porcelain,
     :root[data-light-style='watercolor'] .ls-watercolor,
     :root[data-light-style='firstlight'] .ls-firstlight,
     :root[data-light-style='atlas'] .ls-atlas,
+    :root[data-light-style='atlas-armillary'] .ls-armillary,
+    :root[data-light-style='atlas-planisphere'] .ls-planisphere,
     :root[data-light-style='chapel'] .ls-chapel,
     :root[data-light-style='sumie'] .ls-sumie,
     :root[data-light-style='bauhaus'] .ls-bauhaus,
-    :root[data-light-style='cyanotype'] .ls-cyanotype,
+    :root[data-light-style='bauhaus-albers'] .ls-albers,
+    :root[data-light-style='bauhaus-circles'] .ls-circles,
     :root[data-light-style='dappled'] .ls-dappled,
     :root[data-light-style='illuminated'] .ls-illuminated,
-    :root[data-light-style='cartographer'] .ls-cartographer,
-    :root[data-light-style='notebook'] .ls-notebook,
-    :root[data-light-style='seaglass'] .ls-seaglass,
-    :root[data-light-style='kintsugi'] .ls-kintsugi,
-    :root[data-light-style='dunes'] .ls-dunes {
+    :root[data-light-style='illuminated-pale'] .ls-illuminated,
+    :root[data-light-style='illuminated-lapis'] .ls-illuminated,
+    :root[data-light-style='illuminated-ruled'] .ls-illuminated,
+    :root[data-light-style='kintsugi'] .ls-kintsugi {
         display: block;
     }
 
@@ -509,31 +450,6 @@ const seams = [
         position: absolute;
         inset: 0;
         transform: translate3d(0, calc(var(--sky-scroll, 0) * var(--speed) * var(--aero-parallax) * -1px), 0);
-    }
-
-    /* MORNING MIST */
-    .ls-mist {
-        background: linear-gradient(180deg, hsl(212 30% 88%) 0%, hsl(210 26% 92%) 45%, hsl(205 20% 95%) 100%);
-    }
-    .ls-mist-sun {
-        position: absolute;
-        top: 9vh;
-        right: 14vw;
-        width: 6rem;
-        height: 6rem;
-        border-radius: 50%;
-        opacity: calc(0.75 * var(--style-deco));
-        background: radial-gradient(circle, hsl(45 55% 97%) 0 42%, hsl(45 45% 95% / 0.5) 50%, transparent 72%);
-        filter: blur(1px);
-    }
-    .ls-mist-hills {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: min(46vh, 26rem);
-        opacity: var(--style-deco);
-        filter: blur(1.5px);
     }
 
     /* PORCELAIN */
@@ -741,37 +657,6 @@ const seams = [
         background: hsl(215 30% 22% / 0.55);
     }
 
-    /* CYANOTYPE */
-    .ls-cyanotype {
-        background: linear-gradient(180deg, hsl(46 38% 96%) 0%, hsl(43 32% 94%) 100%);
-    }
-    .ls-print {
-        position: absolute;
-        height: auto;
-        opacity: calc(0.5 * var(--style-deco));
-        filter: drop-shadow(0 6px 14px hsl(30 30% 20% / 0.12));
-    }
-    .ls-print-a {
-        left: -5.5rem;
-        bottom: -5rem;
-        width: min(18rem, 36vw);
-        rotate: -7deg;
-    }
-    .ls-print-b {
-        top: 4.5rem;
-        right: -4.5rem;
-        width: min(17rem, 34vw);
-        rotate: 8deg;
-    }
-    .ls-print-fern {
-        fill: hsl(45 60% 97% / 0.88);
-    }
-    .ls-print-fern path {
-        fill: none;
-        stroke: hsl(45 60% 97% / 0.88);
-        stroke-width: 2.5;
-    }
-
     /* DAPPLED LIGHT */
     .ls-dappled {
         background:
@@ -805,30 +690,96 @@ const seams = [
         }
     }
 
-    /* ILLUMINATED */
+    /* ILLUMINATED (shared by its variants; colors come from the custom properties below) */
     .ls-illuminated {
+        --ls-vellum-top: hsl(42 48% 94%);
+        --ls-vellum-bottom: hsl(39 42% 92%);
+        --ls-mottle-a: hsl(38 45% 88% / 0.35);
+        --ls-mottle-b: hsl(34 40% 86% / 0.3);
+        --ls-rule-outer: 1.5px solid hsl(42 60% 46% / 0.55);
+        --ls-rule-inner: 0.75px solid hsl(42 60% 46% / 0.45);
+        --ls-ornament: hsl(42 62% 48% / 0.7);
         background:
-            radial-gradient(50rem 30rem at 20% 20%, hsl(38 45% 88% / 0.35), transparent 70%),
-            radial-gradient(40rem 30rem at 85% 80%, hsl(34 40% 86% / 0.3), transparent 70%),
-            linear-gradient(180deg, hsl(42 48% 94%) 0%, hsl(39 42% 92%) 100%);
+            radial-gradient(50rem 30rem at 20% 20%, var(--ls-mottle-a), transparent 70%),
+            radial-gradient(40rem 30rem at 85% 80%, var(--ls-mottle-b), transparent 70%),
+            linear-gradient(180deg, var(--ls-vellum-top) 0%, var(--ls-vellum-bottom) 100%);
     }
     .ls-gilt-frame {
         position: absolute;
         inset: 14px;
-        border: 1.5px solid hsl(42 60% 46% / 0.55);
+        border: var(--ls-rule-outer);
         opacity: var(--style-deco);
     }
     .ls-gilt-frame::after {
         content: '';
         position: absolute;
         inset: 5px;
-        border: 0.75px solid hsl(42 60% 46% / 0.45);
+        border: var(--ls-rule-inner);
     }
     .ls-ornament {
         position: absolute;
         width: 3rem;
         height: 3rem;
-        fill: hsl(42 62% 48% / 0.7);
+        fill: var(--ls-ornament);
+    }
+    .ls-ruling {
+        display: none;
+    }
+
+    /* Pale Vellum: less yellow, finer and lighter gilt */
+    :root[data-light-style='illuminated-pale'] .ls-illuminated {
+        --ls-vellum-top: hsl(42 30% 96.5%);
+        --ls-vellum-bottom: hsl(40 24% 95%);
+        --ls-mottle-a: hsl(38 30% 90% / 0.25);
+        --ls-mottle-b: hsl(34 25% 89% / 0.2);
+        --ls-rule-outer: 1px solid hsl(40 42% 52% / 0.42);
+        --ls-rule-inner: 0.5px solid hsl(40 42% 52% / 0.32);
+        --ls-ornament: hsl(40 45% 52% / 0.5);
+    }
+
+    /* Lapis: cool white vellum, lapis outer rule, fine gold inner rule */
+    :root[data-light-style='illuminated-lapis'] .ls-illuminated {
+        --ls-vellum-top: hsl(220 22% 97.5%);
+        --ls-vellum-bottom: hsl(222 18% 95.5%);
+        --ls-mottle-a: hsl(220 25% 92% / 0.3);
+        --ls-mottle-b: hsl(40 25% 92% / 0.2);
+        --ls-rule-outer: 1.5px solid hsl(222 50% 42% / 0.42);
+        --ls-rule-inner: 0.75px solid hsl(42 50% 50% / 0.5);
+        --ls-ornament: hsl(222 50% 42% / 0.55);
+    }
+
+    /* Ruled Page: faint ruling lines and double margin rules instead of a frame; gold corner ornaments remain */
+    :root[data-light-style='illuminated-ruled'] .ls-illuminated {
+        --ls-vellum-top: hsl(42 26% 96.5%);
+        --ls-vellum-bottom: hsl(40 22% 95%);
+        --ls-mottle-a: hsl(38 25% 90% / 0.2);
+        --ls-mottle-b: hsl(34 22% 89% / 0.15);
+        --ls-rule-outer: 0 solid transparent;
+        --ls-rule-inner: 0 solid transparent;
+        --ls-ornament: hsl(40 50% 50% / 0.55);
+    }
+    :root[data-light-style='illuminated-ruled'] .ls-ruling {
+        display: block;
+        position: absolute;
+        inset: 0;
+        opacity: var(--style-deco);
+        background: repeating-linear-gradient(180deg, transparent 0 27px, hsl(10 35% 55% / 0.09) 27px 28px);
+    }
+    :root[data-light-style='illuminated-ruled'] .ls-ruling::before,
+    :root[data-light-style='illuminated-ruled'] .ls-ruling::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        border-inline: 1px solid hsl(10 40% 50% / 0.2);
+    }
+    /* Margin rules sit just outside the content column, or near the page edges on narrow screens */
+    :root[data-light-style='illuminated-ruled'] .ls-ruling::before {
+        left: max(0.6rem, calc(50% - 33.5rem));
+    }
+    :root[data-light-style='illuminated-ruled'] .ls-ruling::after {
+        right: max(0.6rem, calc(50% - 33.5rem));
     }
     .ls-ornament-tl {
         top: -1px;
@@ -850,165 +801,11 @@ const seams = [
         scale: -1 -1;
     }
 
-    /* CARTOGRAPHER */
-    .ls-cartographer {
-        background:
-            radial-gradient(120% 90% at 50% 45%, transparent 62%, hsl(35 30% 82% / 0.4) 100%),
-            linear-gradient(180deg, hsl(44 38% 95%) 0%, hsl(40 32% 93%) 100%);
-    }
-    .ls-map {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        fill: none;
-        stroke: hsl(188 28% 32% / 0.15);
-        stroke-width: 1;
-        opacity: var(--style-deco);
-    }
-    .ls-map .ls-index-contour {
-        stroke: hsl(188 30% 30% / 0.24);
-        stroke-width: 1.6;
-    }
-    .ls-graticule {
-        stroke: hsl(8 40% 40% / 0.08);
-        stroke-dasharray: 2 6;
-    }
-    .ls-compass {
-        position: absolute;
-        right: max(0.75rem, 1.5vw);
-        bottom: 4vh;
-        width: 5.5rem;
-        height: 5.5rem;
-        opacity: calc(0.5 * var(--style-deco));
-        fill: none;
-        stroke: hsl(188 30% 30% / 0.5);
-        stroke-width: 1;
-    }
-    .ls-compass-thin {
-        stroke-dasharray: 1 3;
-    }
-    .ls-compass-star {
-        fill: hsl(188 30% 30% / 0.25);
-    }
-    .ls-compass-minor {
-        fill: hsl(8 45% 45% / 0.3);
-        stroke: none;
-    }
-    .ls-compass text {
-        fill: hsl(188 30% 30% / 0.7);
-        stroke: none;
-        font: 600 10px var(--font-serif);
-    }
-
-    /* FIELD NOTEBOOK */
-    .ls-notebook {
-        background:
-            radial-gradient(circle, hsl(222 15% 50% / calc(0.26 * var(--style-deco))) 1.1px, transparent 1.6px) 0 0 / 22px
-                22px,
-            linear-gradient(180deg, hsl(46 42% 96.5%) 0%, hsl(43 36% 95%) 100%);
-    }
-    .ls-ribbon {
-        position: absolute;
-        top: -0.5rem;
-        right: max(1.5rem, 5vw);
-        width: 1.25rem;
-        height: 36vh;
-        opacity: var(--style-deco);
-        background: linear-gradient(
-            90deg,
-            hsl(356 55% 34%) 0%,
-            hsl(358 58% 44%) 35%,
-            hsl(2 60% 52%) 55%,
-            hsl(358 58% 42%) 80%,
-            hsl(356 55% 34%) 100%
-        );
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 0.8rem), 0 100%);
-        filter: drop-shadow(1px 3px 3px hsl(0 30% 20% / 0.25));
-        transform-origin: 50% 0;
-        animation: ls-ribbon-sway 9s ease-in-out infinite alternate;
-    }
-    @keyframes ls-ribbon-sway {
-        from {
-            rotate: -0.6deg;
-        }
-        to {
-            rotate: 0.7deg;
-        }
-    }
-
-    /* SEA GLASS */
-    .ls-seaglass {
-        background: linear-gradient(
-            180deg,
-            hsl(198 45% 91%) 0%,
-            hsl(192 38% 94%) 44%,
-            hsl(184 34% 89%) 68%,
-            hsl(180 30% 90%) 80%,
-            hsl(42 40% 91%) 88%,
-            hsl(38 38% 89%) 100%
-        );
-    }
-    .ls-waves {
-        position: absolute;
-        left: 0;
-        bottom: 6vh;
-        width: 100%;
-        height: min(22vh, 12rem);
-        opacity: var(--style-deco);
-        overflow: visible;
-    }
-    .ls-wave {
-        fill: none;
-        stroke: hsl(0 0% 100% / 0.75);
-        stroke-width: 1.6;
-        vector-effect: non-scaling-stroke;
-    }
-    .ls-wave:nth-child(odd) {
-        stroke: hsl(184 35% 40% / 0.16);
-    }
-    .ls-wave-foam {
-        stroke: hsl(0 0% 100% / 0.9);
-        stroke-width: 2.2;
-    }
-    .ls-wave-drift {
-        animation: ls-lap 13s ease-in-out infinite alternate;
-    }
-    @keyframes ls-lap {
-        from {
-            transform: translate(-40px, 0);
-        }
-        to {
-            transform: translate(0, 4px);
-        }
-    }
-
     /* KINTSUGI */
     .ls-kintsugi {
         background:
             radial-gradient(60rem 36rem at 50% 0%, hsl(40 30% 97% / 0.8), transparent 70%),
             linear-gradient(180deg, hsl(40 22% 94%) 0%, hsl(38 18% 91.5%) 100%);
-    }
-    .ls-seams {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        fill: none;
-        stroke: url(#ls-gold);
-        stroke-width: 2.2;
-        stroke-linejoin: round;
-        stroke-linecap: round;
-        opacity: calc(0.8 * var(--style-deco));
-        animation: ls-gleam 12s ease-in-out infinite alternate;
-    }
-    @keyframes ls-gleam {
-        from {
-            opacity: calc(0.8 * var(--style-deco));
-        }
-        to {
-            opacity: calc(0.62 * var(--style-deco));
-        }
     }
     .ls-speckle {
         position: absolute;
@@ -1018,43 +815,136 @@ const seams = [
         background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.26 0 0 0 0 0.2 0 0 0 9 -6.2'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
     }
 
-    /* DUNES */
-    .ls-dunes {
+    /* CELESTIAL ATLAS · ARMILLARY */
+    .ls-armillary {
         background:
-            radial-gradient(50rem 26rem at 80% 10%, hsl(38 90% 92% / 0.7), transparent 70%),
-            linear-gradient(180deg, hsl(26 50% 94%) 0%, hsl(32 50% 93%) 45%, hsl(30 45% 90%) 100%);
+            radial-gradient(120% 90% at 50% 40%, transparent 60%, hsl(215 22% 86% / 0.45) 100%),
+            linear-gradient(180deg, hsl(215 28% 96.5%) 0%, hsl(218 22% 94%) 100%);
     }
-    .ls-dune-field {
+    .ls-armillary-rings {
+        transform-origin: 1235px 690px;
+        animation: ls-turn 720s linear infinite;
+    }
+    .ls-ecliptic-band {
+        stroke: hsl(40 55% 45% / 0.12);
+        stroke-width: 12;
+    }
+    .ls-armillary-globe {
+        fill: hsl(222 30% 32% / 0.08);
+    }
+    .ls-engraved-stars circle {
+        fill: hsl(222 30% 32% / 0.4);
+        stroke: none;
+    }
+
+    /* CELESTIAL ATLAS · PLANISPHERE */
+    .ls-planisphere {
+        background:
+            radial-gradient(120% 90% at 50% 40%, transparent 60%, hsl(34 22% 85% / 0.4) 100%),
+            linear-gradient(180deg, hsl(40 25% 96.5%) 0%, hsl(37 20% 94.5%) 100%);
+    }
+    .ls-planisphere .ls-chart {
+        stroke: hsl(230 30% 32% / 0.28);
+    }
+    .ls-wheel {
+        transform-origin: 1300px 850px;
+        animation: ls-turn 900s linear infinite reverse;
+    }
+    .ls-ecliptic {
+        stroke: hsl(18 55% 45% / 0.22);
+        stroke-dasharray: 1 5;
+        stroke-width: 2;
+    }
+    .ls-wheel text {
+        fill: hsl(230 30% 32% / 0.48);
+        stroke: none;
+        font: 500 15px var(--font-serif);
+        letter-spacing: 0.05em;
+    }
+    .ls-wheel-stars circle {
+        fill: hsl(230 30% 30% / 0.46);
+        stroke: none;
+    }
+    .ls-planisphere .ls-constellation circle {
+        fill: hsl(18 55% 45% / 0.55);
+    }
+
+    /* BAUHAUS · ALBERS */
+    .ls-albers {
+        background: linear-gradient(180deg, hsl(38 30% 96.5%) 0%, hsl(36 24% 95%) 100%);
+    }
+    .ls-albers-square,
+    .ls-albers-square div {
         position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        height: min(56vh, 32rem);
+        background: var(--c);
+    }
+    /* Each nested square is centered horizontally and sits low, as in Albers' paintings */
+    .ls-albers-square div {
+        width: 76%;
+        height: 76%;
+        left: 12%;
+        top: 17%;
+    }
+    .ls-albers-square {
+        opacity: calc(0.55 * var(--style-deco));
+    }
+    .ls-albers-warm {
+        right: -5rem;
+        bottom: -6rem;
+        width: 27rem;
+        height: 27rem;
+        --c: hsl(38 60% 84%);
+    }
+    .ls-albers-warm > div {
+        --c: hsl(30 58% 76%);
+    }
+    .ls-albers-warm > div > div {
+        --c: hsl(20 52% 68%);
+    }
+    .ls-albers-warm > div > div > div {
+        --c: hsl(12 46% 60%);
+    }
+    .ls-albers-cool {
+        left: -3rem;
+        top: 5.5rem;
+        width: 13rem;
+        height: 13rem;
+        --c: hsl(205 35% 86%);
+    }
+    .ls-albers-cool > div {
+        --c: hsl(210 35% 78%);
+    }
+    .ls-albers-cool > div > div {
+        --c: hsl(215 35% 70%);
+    }
+    .ls-albers-cool > div > div > div {
+        --c: hsl(220 35% 62%);
+    }
+
+    /* BAUHAUS · CIRCLES */
+    .ls-circles {
+        background: linear-gradient(180deg, hsl(210 16% 97%) 0%, hsl(212 14% 95.5%) 100%);
+    }
+    .ls-circle {
+        position: absolute;
+        border-radius: 50%;
+        mix-blend-mode: multiply;
         opacity: var(--style-deco);
     }
-    .ls-dune-far {
-        fill: hsl(32 42% 87%);
-    }
-    .ls-dune-mid {
-        fill: hsl(28 42% 83%);
-    }
-    .ls-dune-near {
-        fill: hsl(24 40% 79%);
-    }
-    .ls-ripples {
-        fill: none;
-        stroke: hsl(22 35% 62% / 0.35);
-        stroke-width: 1.2;
-        vector-effect: non-scaling-stroke;
+    .ls-circle-line {
+        position: absolute;
+        height: 1px;
+        background: hsl(220 30% 25% / 0.3);
+        opacity: var(--style-deco);
+        transform-origin: 0 50%;
     }
 
     @media (prefers-reduced-motion: reduce) {
         .ls-leaves-right,
         .ls-leaves-left,
-        .ls-ribbon,
-        .ls-wave-drift,
-        .ls-seams,
         .ls-sphere,
+        .ls-armillary-rings,
+        .ls-wheel,
         .ls-chapel-light,
         .ls-dawn-stars {
             animation: none;

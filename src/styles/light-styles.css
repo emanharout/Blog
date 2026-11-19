@@ -65,37 +65,6 @@
         --logo-bottom: hsl(var(--primary-color-700));
     }
 
-    /* MORNING MIST: pale grey-blue haze, slate ink, a touch of sage. Almost no decoration. */
-    :root[data-design='aero'][data-light-style='mist']:not(.dark) {
-        background-color: hsl(210 22% 93%);
-        --style-primary-h: 212;
-        --style-primary-s: 30%;
-        --style-secondary-h: 160;
-        --style-secondary-s: 16%;
-        --aero-name-green: #446074;
-
-        --fg-color-1: 212 28% 17%;
-        --fg-color-2: 212 14% 31%;
-        --background-color-2: 210 25% 98% / 0.9;
-
-        --glass-opacity: 0.62;
-        --glass-blur: 16px;
-        --glass-gloss-alpha: 0.08;
-        --glass-edge-alpha: 0.7;
-        --glass-rim: 0.5;
-        --glass-boost: 110%;
-        --glass-tint-top: 210 25% 99.5%;
-        --glass-tint-bottom: 210 20% 97%;
-        --glass-fade: 0.85;
-        --glass-highlight-alpha: 0.7;
-        --glass-shadow-color: 212 25% 25%;
-        --glass-shadow-alpha: 0.14;
-        --glass-contact-alpha: 0.05;
-
-        --orb-fill: 0;
-        --orb-gloss: 0.2;
-    }
-
     /* PORCELAIN: gallery white, ink and one cobalt accent. No decoration; material and type only. */
     :root[data-design='aero'][data-light-style='porcelain']:not(.dark) {
         background-color: hsl(220 20% 97%);
@@ -314,37 +283,6 @@
         --orb-gloss: 0;
     }
 
-    /* CYANOTYPE: Anna Atkins-style sun prints. Cream paper with Prussian blue prints of ferns at the corners; sepia secondary. */
-    :root[data-design='aero'][data-light-style='cyanotype']:not(.dark) {
-        background-color: hsl(45 35% 95%);
-        --style-primary-h: 208;
-        --style-primary-s: 62%;
-        --style-secondary-h: 28;
-        --style-secondary-s: 30%;
-        --aero-name-green: #1d507c;
-
-        --fg-color-1: 208 35% 14%;
-        --fg-color-2: 208 12% 30%;
-        --background-color-2: 45 40% 99% / 0.93;
-
-        --glass-opacity: 0.9;
-        --glass-blur: 4px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.5;
-        --glass-rim: 0;
-        --glass-boost: 100%;
-        --glass-tint-top: 45 40% 99.5%;
-        --glass-tint-bottom: 45 30% 98%;
-        --glass-fade: 0.97;
-        --glass-highlight-alpha: 0.6;
-        --glass-shadow-color: 208 30% 20%;
-        --glass-shadow-alpha: 0.13;
-        --glass-contact-alpha: 0.05;
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
     /* DAPPLED LIGHT: sunlight through leaves onto warm plaster (komorebi). Olive and terracotta; shadows sway gently. */
     :root[data-design='aero'][data-light-style='dappled']:not(.dark) {
         background-color: hsl(38 40% 94%);
@@ -409,101 +347,7 @@
         --orb-gloss: 0;
     }
 
-    /* CARTOGRAPHER: a survey map. Parchment, deep teal and brick red; contour lines, a faint graticule and a compass rose. */
-    :root[data-design='aero'][data-light-style='cartographer']:not(.dark) {
-        background-color: hsl(42 35% 94%);
-        --style-primary-h: 188;
-        --style-primary-s: 42%;
-        --style-secondary-h: 8;
-        --style-secondary-s: 45%;
-        --aero-name-green: #265c64;
-
-        --fg-color-1: 190 30% 13%;
-        --fg-color-2: 30 10% 29%;
-        --background-color-2: 42 40% 99% / 0.93;
-
-        --glass-opacity: 0.86;
-        --glass-blur: 6px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.6;
-        --glass-rim: 0.2;
-        --glass-boost: 100%;
-        --glass-tint-top: 44 45% 99%;
-        --glass-tint-bottom: 42 35% 97.5%;
-        --glass-fade: 0.95;
-        --glass-highlight-alpha: 0.6;
-        --glass-shadow-color: 30 30% 22%;
-        --glass-shadow-alpha: 0.15;
-        --glass-contact-alpha: 0.05;
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
-    /* FIELD NOTEBOOK: a dot-grid notebook. Cream paper, ink blue, and a red ribbon bookmark. */
-    :root[data-design='aero'][data-light-style='notebook']:not(.dark) {
-        background-color: hsl(45 40% 96%);
-        --style-primary-h: 225;
-        --style-primary-s: 50%;
-        --style-secondary-h: 2;
-        --style-secondary-s: 55%;
-        --aero-name-green: #253b7e;
-
-        --fg-color-1: 225 30% 14%;
-        --fg-color-2: 225 8% 30%;
-        --background-color-2: 45 45% 99% / 0.95;
-
-        --glass-opacity: 0.94;
-        --glass-blur: 2px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.55;
-        --glass-rim: 0;
-        --glass-boost: 100%;
-        --glass-tint-top: 45 50% 99.5%;
-        --glass-tint-bottom: 45 40% 98.5%;
-        --glass-fade: 1;
-        --glass-highlight-alpha: 0.5;
-        --glass-shadow-color: 30 25% 25%;
-        --glass-shadow-alpha: 0.12;
-        --glass-contact-alpha: 0.08;
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
-    /* SEA GLASS: a calm shoreline. Pale sky, quiet sea and sand; panels like frosted aqua sea glass. */
-    :root[data-design='aero'][data-light-style='seaglass']:not(.dark) {
-        background-color: hsl(190 30% 93%);
-        --style-primary-h: 182;
-        --style-primary-s: 35%;
-        --style-secondary-h: 25;
-        --style-secondary-s: 40%;
-        --aero-name-green: #2b6264;
-
-        --fg-color-1: 195 30% 14%;
-        --fg-color-2: 195 10% 30%;
-        --background-color-2: 180 30% 99% / 0.9;
-
-        --glass-opacity: 0.55;
-        --glass-blur: 18px;
-        --glass-gloss-alpha: 0.15;
-        --glass-edge-alpha: 0.7;
-        --glass-rim: 0.6;
-        --glass-boost: 120%;
-        --glass-tint-top: 170 40% 97.5%;
-        --glass-tint-bottom: 182 35% 94.5%;
-        --glass-fade: 0.85;
-        --glass-highlight-alpha: 0.9;
-        --glass-shadow-color: 185 30% 22%;
-        --glass-shadow-alpha: 0.15;
-        --glass-contact-alpha: 0.05;
-        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.85 * var(--glass-intensity)));
-
-        --orb-fill: 0;
-        --orb-gloss: 0.3;
-    }
-
-    /* KINTSUGI: ivory stoneware mended with gold. Charcoal indigo, bronze, and fine gold seams at the edges. */
+    /* KINTSUGI: plain ivory stoneware with a fine speckle. Charcoal indigo and bronze; no decoration. */
     :root[data-design='aero'][data-light-style='kintsugi']:not(.dark) {
         background-color: hsl(40 20% 93%);
         --style-primary-h: 220;
@@ -534,34 +378,223 @@
         --orb-gloss: 0.3;
     }
 
-    /* DUNES: a still desert morning. Pale apricot sky over layered sand, terracotta and sage. */
-    :root[data-design='aero'][data-light-style='dunes']:not(.dark) {
-        background-color: hsl(32 45% 93%);
-        --style-primary-h: 18;
+    /* ILLUMINATED · PALE VELLUM: the manuscript style, softened. Paler, less yellow vellum, a finer and lighter gilt rule, a quieter red. */
+    :root[data-design='aero'][data-light-style='illuminated-pale']:not(.dark) {
+        background-color: hsl(40 24% 95.5%);
+        --style-primary-h: 222;
         --style-primary-s: 45%;
-        --style-secondary-h: 100;
-        --style-secondary-s: 16%;
-        --aero-name-green: #8a462e;
+        --style-secondary-h: 4;
+        --style-secondary-s: 42%;
+        --aero-name-green: #943e38;
 
-        --fg-color-1: 20 25% 13%;
-        --fg-color-2: 25 10% 29%;
-        --background-color-2: 35 45% 99% / 0.9;
+        --fg-color-1: 25 18% 13%;
+        --fg-color-2: 25 8% 29%;
+        --background-color-2: 40 25% 99% / 0.94;
 
-        --glass-opacity: 0.74;
-        --glass-blur: 10px;
-        --glass-gloss-alpha: 0.05;
+        --glass-opacity: 0.88;
+        --glass-blur: 4px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.2;
+        --glass-boost: 100%;
+        --glass-tint-top: 42 25% 99.5%;
+        --glass-tint-bottom: 40 20% 98%;
+        --glass-fade: 0.97;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 30 20% 22%;
+        --glass-shadow-alpha: 0.13;
+        --glass-contact-alpha: 0.05;
+        --glass-border: hsl(40 40% 50% / calc(var(--glass-edge-alpha) * 0.45 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* ILLUMINATED · LAPIS: cool white vellum with a lapis blue rule and a fine gold inner line; lapis name, gilt tags. */
+    :root[data-design='aero'][data-light-style='illuminated-lapis']:not(.dark) {
+        background-color: hsl(220 20% 96.5%);
+        --style-primary-h: 222;
+        --style-primary-s: 55%;
+        --style-secondary-h: 40;
+        --style-secondary-s: 45%;
+        --aero-name-green: #29488e;
+
+        --fg-color-1: 222 25% 13%;
+        --fg-color-2: 222 8% 29%;
+        --background-color-2: 220 25% 99% / 0.94;
+
+        --glass-opacity: 0.88;
+        --glass-blur: 4px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.25;
+        --glass-boost: 100%;
+        --glass-tint-top: 220 25% 99.5%;
+        --glass-tint-bottom: 222 20% 98%;
+        --glass-fade: 0.97;
+        --glass-highlight-alpha: 0.65;
+        --glass-shadow-color: 222 25% 22%;
+        --glass-shadow-alpha: 0.13;
+        --glass-contact-alpha: 0.05;
+        --glass-border: hsl(222 45% 45% / calc(var(--glass-edge-alpha) * 0.4 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* ILLUMINATED · RULED PAGE: no frame; faint manuscript ruling lines and double margin rules, gold corner ornaments, a rubric-red name. */
+    :root[data-design='aero'][data-light-style='illuminated-ruled']:not(.dark) {
+        background-color: hsl(40 22% 96%);
+        --style-primary-h: 222;
+        --style-primary-s: 45%;
+        --style-secondary-h: 4;
+        --style-secondary-s: 48%;
+        --aero-name-green: #993a33;
+
+        --fg-color-1: 25 20% 13%;
+        --fg-color-2: 25 8% 29%;
+        --background-color-2: 40 25% 99% / 0.94;
+
+        --glass-opacity: 0.9;
+        --glass-blur: 4px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.55;
+        --glass-rim: 0.2;
+        --glass-boost: 100%;
+        --glass-tint-top: 42 25% 99.5%;
+        --glass-tint-bottom: 40 20% 98.5%;
+        --glass-fade: 0.98;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 30 20% 22%;
+        --glass-shadow-alpha: 0.12;
+        --glass-contact-alpha: 0.05;
+        --glass-border: hsl(10 30% 50% / calc(var(--glass-edge-alpha) * 0.35 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* CELESTIAL ATLAS · ARMILLARY: cooler, paler paper with an engraved armillary sphere (its rings turn imperceptibly) and scattered stars. */
+    :root[data-design='aero'][data-light-style='atlas-armillary']:not(.dark) {
+        background-color: hsl(215 25% 95.5%);
+        --style-primary-h: 222;
+        --style-primary-s: 45%;
+        --style-secondary-h: 40;
+        --style-secondary-s: 45%;
+        --aero-name-green: #2d4376;
+
+        --fg-color-1: 222 30% 14%;
+        --fg-color-2: 222 10% 30%;
+        --background-color-2: 215 30% 99% / 0.92;
+
+        --glass-opacity: 0.86;
+        --glass-blur: 6px;
+        --glass-gloss-alpha: 0;
         --glass-edge-alpha: 0.6;
         --glass-rim: 0.3;
-        --glass-boost: 105%;
-        --glass-tint-top: 35 50% 99.5%;
-        --glass-tint-bottom: 30 40% 97.5%;
-        --glass-fade: 0.88;
-        --glass-highlight-alpha: 0.75;
-        --glass-shadow-color: 20 30% 22%;
-        --glass-shadow-alpha: 0.15;
+        --glass-boost: 100%;
+        --glass-tint-top: 215 30% 99.5%;
+        --glass-tint-bottom: 218 25% 98%;
+        --glass-fade: 0.95;
+        --glass-highlight-alpha: 0.7;
+        --glass-shadow-color: 222 25% 22%;
+        --glass-shadow-alpha: 0.14;
         --glass-contact-alpha: 0.05;
 
         --orb-fill: 0;
-        --orb-gloss: 0.15;
+        --orb-gloss: 0;
+    }
+
+    /* CELESTIAL ATLAS · PLANISPHERE: a rotating star wheel. Soft cream, indigo and copper; an hour ring with numerals, star field and constellations. */
+    :root[data-design='aero'][data-light-style='atlas-planisphere']:not(.dark) {
+        background-color: hsl(38 22% 95.5%);
+        --style-primary-h: 230;
+        --style-primary-s: 40%;
+        --style-secondary-h: 18;
+        --style-secondary-s: 50%;
+        --aero-name-green: #313d77;
+
+        --fg-color-1: 230 28% 14%;
+        --fg-color-2: 30 8% 29%;
+        --background-color-2: 38 25% 99% / 0.92;
+
+        --glass-opacity: 0.86;
+        --glass-blur: 6px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 100%;
+        --glass-tint-top: 40 30% 99.5%;
+        --glass-tint-bottom: 38 22% 98%;
+        --glass-fade: 0.95;
+        --glass-highlight-alpha: 0.7;
+        --glass-shadow-color: 30 25% 22%;
+        --glass-shadow-alpha: 0.14;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* BAUHAUS · ALBERS: nested squares after Josef Albers, warm ochre and terracotta below, cool blues above; matte panels. */
+    :root[data-design='aero'][data-light-style='bauhaus-albers']:not(.dark) {
+        background-color: hsl(38 28% 96%);
+        --style-primary-h: 212;
+        --style-primary-s: 35%;
+        --style-secondary-h: 14;
+        --style-secondary-s: 50%;
+        --aero-name-green: #9b4a31;
+
+        --fg-color-1: 212 25% 14%;
+        --fg-color-2: 212 8% 30%;
+        --background-color-2: 38 28% 99% / 0.94;
+
+        --glass-opacity: 0.88;
+        --glass-blur: 10px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 105%;
+        --glass-tint-top: 38 28% 99.5%;
+        --glass-tint-bottom: 38 22% 98.5%;
+        --glass-fade: 1;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 25 25% 20%;
+        --glass-shadow-alpha: 0.1;
+        --glass-contact-alpha: 0.06;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* BAUHAUS · CIRCLES: overlapping translucent circles after Kandinsky around the edges; cool off-white, deep blue and mustard. */
+    :root[data-design='aero'][data-light-style='bauhaus-circles']:not(.dark) {
+        background-color: hsl(210 15% 96.5%);
+        --style-primary-h: 220;
+        --style-primary-s: 50%;
+        --style-secondary-h: 42;
+        --style-secondary-s: 55%;
+        --aero-name-green: #294b8e;
+
+        --fg-color-1: 220 30% 14%;
+        --fg-color-2: 220 10% 30%;
+        --background-color-2: 210 18% 99% / 0.94;
+
+        --glass-opacity: 0.88;
+        --glass-blur: 10px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 105%;
+        --glass-tint-top: 210 20% 99.5%;
+        --glass-tint-bottom: 212 16% 98.5%;
+        --glass-fade: 1;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 220 25% 20%;
+        --glass-shadow-alpha: 0.1;
+        --glass-contact-alpha: 0.06;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
     }
 }
