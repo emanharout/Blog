@@ -22,7 +22,7 @@ const dawnStars = Array.from({ length: 34 }, () => {
     return `${x}vw ${y}vh rgb(255 255 255 / ${alpha})`;
 }).join(', ');
 
-// Glasshouse: fern fronds built from leaflets along a curved stem (quadratic Bézier from p0 via p1 to p2)
+// Fern fronds built from leaflets along a curved stem (quadratic Bézier from p0 via p1 to p2)
 type Point = [number, number];
 function frond(p0: Point, p1: Point, p2: Point, leaflets: number, maxLength: number) {
     const at = (t: number): Point => [
@@ -54,14 +54,6 @@ function frond(p0: Point, p1: Point, p2: Point, leaflets: number, maxLength: num
     }
     return { stem: `M${p0[0]} ${p0[1]} Q${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`, leaves };
 }
-const fernRising = frond([70, 500], [120, 220], [330, 70], 16, 92);
-const fernHanging = frond([380, 0], [300, 150], [110, 390], 14, 80);
-
-// Glasshouse: arched glazing bars across the top of the page
-const glazingBars = Array.from({ length: 10 }, (_, i) => {
-    const x = i * 160;
-    return `M${x} 900 V300 A80 80 0 0 1 ${x + 160} 300 V900`;
-}).join(' ');
 
 // Celestial Atlas: an engraved celestial sphere (rings with degree ticks) and a few constellations, in a 1440x900 chart
 const sphere = { cx: 70, cy: 860, r: 440 };
@@ -95,6 +87,84 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
         color: chapelColors[i % chapelColors.length],
     };
 });
+
+// Cyanotype: white fern prints on Prussian blue paper (300x380 print)
+const cyanFernA = frond([60, 360], [90, 180], [240, 40], 14, 70);
+const cyanFernB = frond([255, 20], [200, 150], [70, 335], 12, 62);
+
+// Dappled Light: two clusters of leaf shadows (1440x900 view)
+const leafRandom = seededRandom(31);
+function leafCluster(cx: number, cy: number, spread: number, count: number) {
+    return Array.from({ length: count }, () => {
+        const angle = leafRandom() * Math.PI * 2;
+        const distance = Math.sqrt(leafRandom()) * spread;
+        return {
+            cx: (cx + Math.cos(angle) * distance * 1.25).toFixed(1),
+            cy: (cy + Math.sin(angle) * distance * 0.8).toFixed(1),
+            rx: (22 + leafRandom() * 24).toFixed(1),
+            ry: (9 + leafRandom() * 8).toFixed(1),
+            rotate: (leafRandom() * 180).toFixed(1),
+        };
+    });
+}
+const leavesRight = leafCluster(1330, 60, 360, 75);
+const leavesLeft = leafCluster(90, 260, 260, 45);
+
+// Cartographer: concentric, irregular contour rings around a few summits (1440x900 view)
+function contours(cx: number, cy: number, maxRadius: number, rings: number, seed: number) {
+    const phase = seededRandom(seed);
+    const [p1, p2, p3] = [phase() * 6.28, phase() * 6.28, phase() * 6.28];
+    return Array.from({ length: rings }, (_, k) => {
+        const radius = (maxRadius * (k + 1)) / rings;
+        const drift = k * 0.12;
+        const points = Array.from({ length: 90 }, (_, i) => {
+            const t = (i / 90) * Math.PI * 2;
+            const r = radius * (1 + 0.16 * Math.sin(3 * t + p1 + drift) + 0.09 * Math.sin(5 * t + p2 - drift) + 0.05 * Math.sin(7 * t + p3));
+            return `${(cx + Math.cos(t) * r * 1.2).toFixed(1)} ${(cy + Math.sin(t) * r).toFixed(1)}`;
+        });
+        return { d: `M${points.join(' L')} Z`, index: (k + 1) % 5 === 0 };
+    });
+}
+const contourLines = [...contours(1300, 140, 430, 15, 3), ...contours(110, 830, 380, 13, 8), ...contours(980, 900, 170, 6, 13)];
+const graticule = [
+    ...Array.from({ length: 10 }, (_, i) => `M${i * 160} 0 V900`),
+    ...Array.from({ length: 6 }, (_, i) => `M0 ${i * 160} H1440`),
+].join(' ');
+
+// Sea Glass: gentle wave crests (1600 wide so they can drift sideways)
+const waveCrests = [36, 74, 112, 150].map((y, i) => {
+    const amplitude = 5 + i * 1.5;
+    const points = Array.from({ length: 81 }, (_, j) => {
+        const x = j * 20;
+        return `${x} ${(y + Math.sin((x / (220 + i * 30)) * Math.PI * 2 + i) * amplitude).toFixed(1)}`;
+    });
+    return `M${points.join(' L')}`;
+});
+
+// Kintsugi: gold seams that wander in from the edges and occasionally branch (1440x900 view)
+const crackRandom = seededRandom(19);
+function crack(x: number, y: number, heading: number, steps: number): string[] {
+    const paths: string[] = [];
+    let d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
+    for (let i = 0; i < steps; i++) {
+        heading += (crackRandom() - 0.5) * 1.1;
+        const length = 20 + crackRandom() * 26;
+        x += Math.cos(heading) * length;
+        y += Math.sin(heading) * length;
+        d += ` L${x.toFixed(1)} ${y.toFixed(1)}`;
+        if (crackRandom() < 0.16 && steps - i > 4) {
+            paths.push(...crack(x, y, heading + (crackRandom() < 0.5 ? -1 : 1) * (0.6 + crackRandom() * 0.5), Math.floor(4 + crackRandom() * 5)));
+        }
+    }
+    return [d, ...paths];
+}
+const seams = [
+    ...crack(0, 120, 0.35, 14),
+    ...crack(330, 0, 1.25, 9),
+    ...crack(1440, 260, Math.PI - 0.25, 13),
+    ...crack(1160, 900, -1.9, 10),
+    ...crack(0, 700, -0.3, 11),
+];
 ---
 
 <!-- MORNING MIST: layered hills fading into haze, a veiled sun. Nothing moves. -->
@@ -123,35 +193,6 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
 
 <!-- PORCELAIN: no decoration, just an even, slightly cool light from above. -->
 <div class="ls-layer ls-porcelain"></div>
-
-<!-- GLASSHOUSE: faint arched glazing bars and two fern fronds that sway very slowly. -->
-<div class="ls-layer ls-glasshouse">
-    <div class="ls-parallax" style="--speed: 0.03">
-        <svg class="ls-glazing" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMin slice">
-            <path d={glazingBars}></path>
-            <path d="M0 560 H1440 M0 760 H1440"></path>
-        </svg>
-    </div>
-    {
-        [
-            ['ls-fern-rising', fernRising],
-            ['ls-fern-hanging', fernHanging],
-        ].map(([className, fern]) => (
-            <svg class:list={['ls-fern', className as string]} viewBox="0 0 400 500">
-                <path class="ls-fern-stem" d={(fern as typeof fernRising).stem} />
-                {(fern as typeof fernRising).leaves.map((leaf) => (
-                    <ellipse
-                        cx={leaf.cx}
-                        cy={leaf.cy}
-                        rx={leaf.rx}
-                        ry={leaf.ry}
-                        transform={`rotate(${leaf.angle} ${leaf.cx} ${leaf.cy})`}
-                    />
-                ))}
-            </svg>
-        ))
-    }
-</div>
 
 <!-- WATERCOLOR: soft washes with uneven, slightly darker edges on warm paper. -->
 <div class="ls-layer ls-watercolor">
@@ -249,26 +290,6 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
     </svg>
 </div>
 
-<!-- MARBLED ENDPAPER: indigo and ochre marbling around the edges, fading to plain cream behind the content. -->
-<div class="ls-layer ls-marbled">
-    <svg class="ls-marbling" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
-        <defs>
-            <pattern id="ls-marble-bands" width="1440" height="96" patternUnits="userSpaceOnUse">
-                <rect width="1440" height="30" y="0" style="fill: hsl(230 32% 46%)"></rect>
-                <rect width="1440" height="18" y="30" style="fill: hsl(40 40% 90%)"></rect>
-                <rect width="1440" height="22" y="48" style="fill: hsl(34 55% 62%)"></rect>
-                <rect width="1440" height="4" y="70" style="fill: hsl(230 30% 22%)"></rect>
-                <rect width="1440" height="22" y="74" style="fill: hsl(210 22% 72%)"></rect>
-            </pattern>
-            <filter id="ls-comb" x="-10%" y="-10%" width="120%" height="120%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.009" numOctaves="2" seed="11" result="swirl"></feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="swirl" scale="220" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
-            </filter>
-        </defs>
-        <rect x="-100" y="-100" width="1640" height="1100" fill="url(#ls-marble-bands)" filter="url(#ls-comb)"></rect>
-    </svg>
-</div>
-
 <!-- SUMI-E: ink-wash mountains with mist between them, a vermilion sun, washi fibers. -->
 <div class="ls-layer ls-sumie">
     <div class="ls-sumie-sun"></div>
@@ -309,6 +330,155 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
     <div class="ls-parallax" style="--speed: 0.04"><div class="ls-bh ls-bh-line"></div><div class="ls-bh ls-bh-dot"></div></div>
 </div>
 
+<!-- CYANOTYPE: two sun prints of ferns, Prussian blue with brushed edges, laid at the corners of cream paper. -->
+<div class="ls-layer ls-cyanotype">
+    <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+        <filter id="ls-brushed" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="9" result="noise"></feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="16"></feDisplacementMap>
+        </filter>
+        <radialGradient id="ls-cyan-paper">
+            <stop offset="0" style="stop-color: hsl(208 60% 38%)"></stop>
+            <stop offset="1" style="stop-color: hsl(212 65% 27%)"></stop>
+        </radialGradient>
+    </svg>
+    {
+        [
+            ['ls-print-a', cyanFernA],
+            ['ls-print-b', cyanFernB],
+        ].map(([className, fern]) => (
+            <svg class:list={['ls-print', className as string]} viewBox="0 0 300 380">
+                <rect x="12" y="12" width="276" height="356" fill="url(#ls-cyan-paper)" filter="url(#ls-brushed)" />
+                <g class="ls-print-fern">
+                    <path d={(fern as typeof cyanFernA).stem} />
+                    {(fern as typeof cyanFernA).leaves.map((leaf) => (
+                        <ellipse
+                            cx={leaf.cx}
+                            cy={leaf.cy}
+                            rx={leaf.rx}
+                            ry={leaf.ry}
+                            transform={`rotate(${leaf.angle} ${leaf.cx} ${leaf.cy})`}
+                        />
+                    ))}
+                </g>
+            </svg>
+        ))
+    }
+</div>
+
+<!-- DAPPLED LIGHT: soft leaf shadows on warm plaster, swaying slightly in a breeze. -->
+<div class="ls-layer ls-dappled">
+    <svg class="ls-leaf-shadows" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+            <filter id="ls-soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="7"></feGaussianBlur>
+            </filter>
+        </defs>
+        {
+            [
+                ['ls-leaves-right', leavesRight],
+                ['ls-leaves-left', leavesLeft],
+            ].map(([className, leaves]) => (
+                <g class={className as string} filter="url(#ls-soft-shadow)">
+                    {(leaves as typeof leavesRight).map((leaf) => (
+                        <ellipse
+                            cx={leaf.cx}
+                            cy={leaf.cy}
+                            rx={leaf.rx}
+                            ry={leaf.ry}
+                            transform={`rotate(${leaf.rotate} ${leaf.cx} ${leaf.cy})`}
+                        />
+                    ))}
+                </g>
+            ))
+        }
+    </svg>
+</div>
+
+<!-- ILLUMINATED: a gilt double rule around the page with small corner ornaments, on vellum. -->
+<div class="ls-layer ls-illuminated">
+    <div class="ls-gilt-frame">
+        {
+            ['tl', 'tr', 'bl', 'br'].map((corner) => (
+                <svg class:list={['ls-ornament', `ls-ornament-${corner}`]} viewBox="0 0 48 48">
+                    <circle cx="14" cy="14" r="5" />
+                    <circle cx="24" cy="14" r="3" />
+                    <circle cx="14" cy="24" r="3" />
+                    <path d="M14 2 L18 14 L14 26 L10 14 Z" />
+                    <path d="M2 14 L14 10 L26 14 L14 18 Z" />
+                    <circle cx="32" cy="14" r="1.6" />
+                    <circle cx="14" cy="32" r="1.6" />
+                </svg>
+            ))
+        }
+    </div>
+</div>
+
+<!-- CARTOGRAPHER: contour lines around a few summits, a faint graticule and a compass rose. -->
+<div class="ls-layer ls-cartographer">
+    <div class="ls-parallax" style="--speed: 0.03">
+        <svg class="ls-map" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <path class="ls-graticule" d={graticule}></path>
+            {contourLines.map((line) => <path d={line.d} class:list={[{ 'ls-index-contour': line.index }]} />)}
+        </svg>
+    </div>
+    <svg class="ls-compass" viewBox="-60 -60 120 120">
+        <circle r="44"></circle>
+        <circle r="38" class="ls-compass-thin"></circle>
+        <path class="ls-compass-star" d="M0 -54 L7 -7 L54 0 L7 7 L0 54 L-7 7 L-54 0 L-7 -7 Z"></path>
+        <path class="ls-compass-star ls-compass-minor" d="M0 0 L26 -26 L5 -5 Z M0 0 L26 26 L5 5 Z M0 0 L-26 26 L-5 5 Z M0 0 L-26 -26 L-5 -5 Z"></path>
+        <text y="-56" text-anchor="middle">N</text>
+    </svg>
+</div>
+
+<!-- FIELD NOTEBOOK: dot-grid paper and a red ribbon bookmark. -->
+<div class="ls-layer ls-notebook">
+    <div class="ls-ribbon"></div>
+</div>
+
+<!-- SEA GLASS: pale sky, a quiet band of sea, sand, and wave lines lapping softly. -->
+<div class="ls-layer ls-seaglass">
+    <svg class="ls-waves" viewBox="0 0 1440 200" preserveAspectRatio="none">
+        <g class="ls-wave-drift">
+            {waveCrests.map((d, i) => <path d={d} class:list={['ls-wave', { 'ls-wave-foam': i === waveCrests.length - 1 }]} />)}
+        </g>
+    </svg>
+</div>
+
+<!-- KINTSUGI: ivory stoneware with fine gold seams wandering in from the edges. -->
+<div class="ls-layer ls-kintsugi">
+    <svg class="ls-seams" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+            <linearGradient id="ls-gold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" style="stop-color: hsl(44 70% 62%)"></stop>
+                <stop offset="0.5" style="stop-color: hsl(38 70% 44%)"></stop>
+                <stop offset="1" style="stop-color: hsl(46 75% 64%)"></stop>
+            </linearGradient>
+            <filter id="ls-gold-glow" x="-10%" y="-10%" width="120%" height="120%">
+                <feGaussianBlur stdDeviation="2.5" result="glow"></feGaussianBlur>
+                <feMerge>
+                    <feMergeNode in="glow"></feMergeNode>
+                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+            </filter>
+        </defs>
+        <g filter="url(#ls-gold-glow)">
+            {seams.map((d) => <path d={d} />)}
+        </g>
+    </svg>
+    <div class="ls-speckle"></div>
+</div>
+
+<!-- DUNES: layered dunes in warm sand with fine ripples, under a pale apricot sky. -->
+<div class="ls-layer ls-dunes">
+    <svg class="ls-dune-field" viewBox="0 0 1440 420" preserveAspectRatio="none">
+        <path class="ls-dune-far" d="M0 170 C 200 120 380 110 560 150 C 760 195 900 110 1100 100 C 1250 92 1350 130 1440 150 V420 H0 Z"></path>
+        <path class="ls-dune-mid" d="M0 260 C 180 220 330 200 520 235 C 700 268 860 210 1040 205 C 1200 200 1330 235 1440 250 V420 H0 Z"></path>
+        <path class="ls-dune-near" d="M0 340 C 240 300 460 290 700 320 C 920 348 1130 300 1440 318 V420 H0 Z"></path>
+        <path class="ls-ripples" d="M120 372 C 300 352 480 350 640 366 M260 392 C 420 376 600 374 760 388 M860 360 C 1000 342 1160 338 1320 350 M940 386 C 1080 372 1220 370 1380 378"></path>
+    </svg>
+</div>
+
 <style is:global>
     .ls-layer {
         position: absolute;
@@ -318,14 +488,20 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
     }
     :root[data-light-style='mist'] .ls-mist,
     :root[data-light-style='porcelain'] .ls-porcelain,
-    :root[data-light-style='glasshouse'] .ls-glasshouse,
     :root[data-light-style='watercolor'] .ls-watercolor,
     :root[data-light-style='firstlight'] .ls-firstlight,
     :root[data-light-style='atlas'] .ls-atlas,
     :root[data-light-style='chapel'] .ls-chapel,
-    :root[data-light-style='marbled'] .ls-marbled,
     :root[data-light-style='sumie'] .ls-sumie,
-    :root[data-light-style='bauhaus'] .ls-bauhaus {
+    :root[data-light-style='bauhaus'] .ls-bauhaus,
+    :root[data-light-style='cyanotype'] .ls-cyanotype,
+    :root[data-light-style='dappled'] .ls-dappled,
+    :root[data-light-style='illuminated'] .ls-illuminated,
+    :root[data-light-style='cartographer'] .ls-cartographer,
+    :root[data-light-style='notebook'] .ls-notebook,
+    :root[data-light-style='seaglass'] .ls-seaglass,
+    :root[data-light-style='kintsugi'] .ls-kintsugi,
+    :root[data-light-style='dunes'] .ls-dunes {
         display: block;
     }
 
@@ -365,58 +541,6 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
         background:
             radial-gradient(90rem 32rem at 50% -12%, hsl(0 0% 100% / 0.9), transparent 70%),
             linear-gradient(180deg, hsl(220 24% 95.5%) 0%, hsl(220 16% 97.5%) 55%, hsl(40 18% 97.5%) 100%);
-    }
-
-    /* GLASSHOUSE */
-    .ls-glasshouse {
-        background:
-            radial-gradient(70rem 40rem at 50% -10%, hsl(55 60% 99% / 0.9), transparent 70%),
-            linear-gradient(180deg, hsl(60 28% 95%) 0%, hsl(48 34% 95%) 55%, hsl(100 20% 93%) 100%);
-    }
-    .ls-glazing {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        fill: none;
-        stroke: hsl(160 20% 40% / 0.09);
-        stroke-width: 2;
-        opacity: var(--style-deco);
-        -webkit-mask-image: linear-gradient(180deg, black 0%, black 35%, transparent 85%);
-        mask-image: linear-gradient(180deg, black 0%, black 35%, transparent 85%);
-    }
-    .ls-fern {
-        position: absolute;
-        width: min(26rem, 45vw);
-        height: auto;
-        opacity: var(--style-deco);
-        fill: hsl(150 24% 42% / 0.14);
-        animation: ls-sway 16s ease-in-out infinite;
-    }
-    .ls-fern-stem {
-        fill: none;
-        stroke: hsl(150 24% 40% / 0.16);
-        stroke-width: 3;
-    }
-    .ls-fern-rising {
-        left: -2rem;
-        bottom: -1.5rem;
-        transform-origin: 15% 100%;
-    }
-    .ls-fern-hanging {
-        top: -1rem;
-        right: -2.5rem;
-        transform-origin: 95% 0%;
-        animation-delay: -7s;
-    }
-    @keyframes ls-sway {
-        0%,
-        100% {
-            rotate: -1deg;
-        }
-        50% {
-            rotate: 1.2deg;
-        }
     }
 
     /* WATERCOLOR */
@@ -537,21 +661,6 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
         }
     }
 
-    /* MARBLED ENDPAPER */
-    .ls-marbled {
-        background: hsl(40 40% 95%);
-    }
-    .ls-marbling {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: calc(0.38 * var(--style-deco));
-        /* Only the outer edges are marbled, like an endpaper border; the reading area stays plain cream */
-        -webkit-mask-image: radial-gradient(ellipse 72% 66% at 50% 48%, transparent 78%, black 100%);
-        mask-image: radial-gradient(ellipse 72% 66% at 50% 48%, transparent 78%, black 100%);
-    }
-
     /* SUMI-E */
     .ls-sumie {
         background: linear-gradient(180deg, hsl(45 32% 96.5%) 0%, hsl(42 26% 95%) 100%);
@@ -632,10 +741,321 @@ const roseSegments = Array.from({ length: 12 }, (_, i) => {
         background: hsl(215 30% 22% / 0.55);
     }
 
+    /* CYANOTYPE */
+    .ls-cyanotype {
+        background: linear-gradient(180deg, hsl(46 38% 96%) 0%, hsl(43 32% 94%) 100%);
+    }
+    .ls-print {
+        position: absolute;
+        height: auto;
+        opacity: calc(0.5 * var(--style-deco));
+        filter: drop-shadow(0 6px 14px hsl(30 30% 20% / 0.12));
+    }
+    .ls-print-a {
+        left: -5.5rem;
+        bottom: -5rem;
+        width: min(18rem, 36vw);
+        rotate: -7deg;
+    }
+    .ls-print-b {
+        top: 4.5rem;
+        right: -4.5rem;
+        width: min(17rem, 34vw);
+        rotate: 8deg;
+    }
+    .ls-print-fern {
+        fill: hsl(45 60% 97% / 0.88);
+    }
+    .ls-print-fern path {
+        fill: none;
+        stroke: hsl(45 60% 97% / 0.88);
+        stroke-width: 2.5;
+    }
+
+    /* DAPPLED LIGHT */
+    .ls-dappled {
+        background:
+            radial-gradient(40rem 26rem at 70% 30%, hsl(44 90% 88% / 0.55), transparent 70%),
+            radial-gradient(30rem 22rem at 20% 70%, hsl(40 85% 88% / 0.4), transparent 70%),
+            linear-gradient(180deg, hsl(40 42% 95%) 0%, hsl(36 36% 93%) 100%);
+    }
+    .ls-leaf-shadows {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: calc(0.2 * var(--style-deco));
+        fill: hsl(70 18% 28%);
+        mix-blend-mode: multiply;
+    }
+    .ls-leaves-right {
+        transform-origin: 1330px 60px;
+        animation: ls-breeze 11s ease-in-out infinite alternate;
+    }
+    .ls-leaves-left {
+        transform-origin: 90px 260px;
+        animation: ls-breeze 14s ease-in-out -5s infinite alternate;
+    }
+    @keyframes ls-breeze {
+        from {
+            transform: rotate(-0.8deg) translate(-4px, 0);
+        }
+        to {
+            transform: rotate(0.8deg) translate(5px, 3px);
+        }
+    }
+
+    /* ILLUMINATED */
+    .ls-illuminated {
+        background:
+            radial-gradient(50rem 30rem at 20% 20%, hsl(38 45% 88% / 0.35), transparent 70%),
+            radial-gradient(40rem 30rem at 85% 80%, hsl(34 40% 86% / 0.3), transparent 70%),
+            linear-gradient(180deg, hsl(42 48% 94%) 0%, hsl(39 42% 92%) 100%);
+    }
+    .ls-gilt-frame {
+        position: absolute;
+        inset: 14px;
+        border: 1.5px solid hsl(42 60% 46% / 0.55);
+        opacity: var(--style-deco);
+    }
+    .ls-gilt-frame::after {
+        content: '';
+        position: absolute;
+        inset: 5px;
+        border: 0.75px solid hsl(42 60% 46% / 0.45);
+    }
+    .ls-ornament {
+        position: absolute;
+        width: 3rem;
+        height: 3rem;
+        fill: hsl(42 62% 48% / 0.7);
+    }
+    .ls-ornament-tl {
+        top: -1px;
+        left: -1px;
+    }
+    .ls-ornament-tr {
+        top: -1px;
+        right: -1px;
+        scale: -1 1;
+    }
+    .ls-ornament-bl {
+        bottom: -1px;
+        left: -1px;
+        scale: 1 -1;
+    }
+    .ls-ornament-br {
+        bottom: -1px;
+        right: -1px;
+        scale: -1 -1;
+    }
+
+    /* CARTOGRAPHER */
+    .ls-cartographer {
+        background:
+            radial-gradient(120% 90% at 50% 45%, transparent 62%, hsl(35 30% 82% / 0.4) 100%),
+            linear-gradient(180deg, hsl(44 38% 95%) 0%, hsl(40 32% 93%) 100%);
+    }
+    .ls-map {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: hsl(188 28% 32% / 0.15);
+        stroke-width: 1;
+        opacity: var(--style-deco);
+    }
+    .ls-map .ls-index-contour {
+        stroke: hsl(188 30% 30% / 0.24);
+        stroke-width: 1.6;
+    }
+    .ls-graticule {
+        stroke: hsl(8 40% 40% / 0.08);
+        stroke-dasharray: 2 6;
+    }
+    .ls-compass {
+        position: absolute;
+        right: max(0.75rem, 1.5vw);
+        bottom: 4vh;
+        width: 5.5rem;
+        height: 5.5rem;
+        opacity: calc(0.5 * var(--style-deco));
+        fill: none;
+        stroke: hsl(188 30% 30% / 0.5);
+        stroke-width: 1;
+    }
+    .ls-compass-thin {
+        stroke-dasharray: 1 3;
+    }
+    .ls-compass-star {
+        fill: hsl(188 30% 30% / 0.25);
+    }
+    .ls-compass-minor {
+        fill: hsl(8 45% 45% / 0.3);
+        stroke: none;
+    }
+    .ls-compass text {
+        fill: hsl(188 30% 30% / 0.7);
+        stroke: none;
+        font: 600 10px var(--font-serif);
+    }
+
+    /* FIELD NOTEBOOK */
+    .ls-notebook {
+        background:
+            radial-gradient(circle, hsl(222 15% 50% / calc(0.26 * var(--style-deco))) 1.1px, transparent 1.6px) 0 0 / 22px
+                22px,
+            linear-gradient(180deg, hsl(46 42% 96.5%) 0%, hsl(43 36% 95%) 100%);
+    }
+    .ls-ribbon {
+        position: absolute;
+        top: -0.5rem;
+        right: max(1.5rem, 5vw);
+        width: 1.25rem;
+        height: 36vh;
+        opacity: var(--style-deco);
+        background: linear-gradient(
+            90deg,
+            hsl(356 55% 34%) 0%,
+            hsl(358 58% 44%) 35%,
+            hsl(2 60% 52%) 55%,
+            hsl(358 58% 42%) 80%,
+            hsl(356 55% 34%) 100%
+        );
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 0.8rem), 0 100%);
+        filter: drop-shadow(1px 3px 3px hsl(0 30% 20% / 0.25));
+        transform-origin: 50% 0;
+        animation: ls-ribbon-sway 9s ease-in-out infinite alternate;
+    }
+    @keyframes ls-ribbon-sway {
+        from {
+            rotate: -0.6deg;
+        }
+        to {
+            rotate: 0.7deg;
+        }
+    }
+
+    /* SEA GLASS */
+    .ls-seaglass {
+        background: linear-gradient(
+            180deg,
+            hsl(198 45% 91%) 0%,
+            hsl(192 38% 94%) 44%,
+            hsl(184 34% 89%) 68%,
+            hsl(180 30% 90%) 80%,
+            hsl(42 40% 91%) 88%,
+            hsl(38 38% 89%) 100%
+        );
+    }
+    .ls-waves {
+        position: absolute;
+        left: 0;
+        bottom: 6vh;
+        width: 100%;
+        height: min(22vh, 12rem);
+        opacity: var(--style-deco);
+        overflow: visible;
+    }
+    .ls-wave {
+        fill: none;
+        stroke: hsl(0 0% 100% / 0.75);
+        stroke-width: 1.6;
+        vector-effect: non-scaling-stroke;
+    }
+    .ls-wave:nth-child(odd) {
+        stroke: hsl(184 35% 40% / 0.16);
+    }
+    .ls-wave-foam {
+        stroke: hsl(0 0% 100% / 0.9);
+        stroke-width: 2.2;
+    }
+    .ls-wave-drift {
+        animation: ls-lap 13s ease-in-out infinite alternate;
+    }
+    @keyframes ls-lap {
+        from {
+            transform: translate(-40px, 0);
+        }
+        to {
+            transform: translate(0, 4px);
+        }
+    }
+
+    /* KINTSUGI */
+    .ls-kintsugi {
+        background:
+            radial-gradient(60rem 36rem at 50% 0%, hsl(40 30% 97% / 0.8), transparent 70%),
+            linear-gradient(180deg, hsl(40 22% 94%) 0%, hsl(38 18% 91.5%) 100%);
+    }
+    .ls-seams {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: url(#ls-gold);
+        stroke-width: 2.2;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+        opacity: calc(0.8 * var(--style-deco));
+        animation: ls-gleam 12s ease-in-out infinite alternate;
+    }
+    @keyframes ls-gleam {
+        from {
+            opacity: calc(0.8 * var(--style-deco));
+        }
+        to {
+            opacity: calc(0.62 * var(--style-deco));
+        }
+    }
+    .ls-speckle {
+        position: absolute;
+        inset: 0;
+        opacity: 0.35;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.26 0 0 0 0 0.2 0 0 0 9 -6.2'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
+    }
+
+    /* DUNES */
+    .ls-dunes {
+        background:
+            radial-gradient(50rem 26rem at 80% 10%, hsl(38 90% 92% / 0.7), transparent 70%),
+            linear-gradient(180deg, hsl(26 50% 94%) 0%, hsl(32 50% 93%) 45%, hsl(30 45% 90%) 100%);
+    }
+    .ls-dune-field {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: min(56vh, 32rem);
+        opacity: var(--style-deco);
+    }
+    .ls-dune-far {
+        fill: hsl(32 42% 87%);
+    }
+    .ls-dune-mid {
+        fill: hsl(28 42% 83%);
+    }
+    .ls-dune-near {
+        fill: hsl(24 40% 79%);
+    }
+    .ls-ripples {
+        fill: none;
+        stroke: hsl(22 35% 62% / 0.35);
+        stroke-width: 1.2;
+        vector-effect: non-scaling-stroke;
+    }
+
     @media (prefers-reduced-motion: reduce) {
+        .ls-leaves-right,
+        .ls-leaves-left,
+        .ls-ribbon,
+        .ls-wave-drift,
+        .ls-seams,
         .ls-sphere,
         .ls-chapel-light,
-        .ls-fern,
         .ls-dawn-stars {
             animation: none;
         }

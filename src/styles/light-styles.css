@@ -127,37 +127,6 @@
         --orb-gloss: 0;
     }
 
-    /* GLASSHOUSE: a Victorian conservatory. Cream daylight, verdigris and brass, faint glazing bars and ferns. */
-    :root[data-design='aero'][data-light-style='glasshouse']:not(.dark) {
-        background-color: hsl(48 35% 95%);
-        --style-primary-h: 165;
-        --style-primary-s: 32%;
-        --style-secondary-h: 42;
-        --style-secondary-s: 38%;
-        --aero-name-green: #315e49;
-
-        --fg-color-1: 160 25% 14%;
-        --fg-color-2: 160 10% 28%;
-        --background-color-2: 48 40% 99% / 0.9;
-
-        --glass-opacity: 0.55;
-        --glass-blur: 14px;
-        --glass-gloss-alpha: 0.3;
-        --glass-edge-alpha: 0.7;
-        --glass-rim: 0.8;
-        --glass-boost: 125%;
-        --glass-tint-top: 90 30% 99%;
-        --glass-tint-bottom: 140 20% 97.5%;
-        --glass-fade: 0.7;
-        --glass-highlight-alpha: 0.95;
-        --glass-shadow-color: 160 30% 20%;
-        --glass-shadow-alpha: 0.18;
-        --glass-contact-alpha: 0.05;
-
-        --orb-fill: 0;
-        --orb-gloss: 0.5;
-    }
-
     /* WATERCOLOR: warm paper with soft washes. Ink blue and sienna; panels read as paper. */
     :root[data-design='aero'][data-light-style='watercolor']:not(.dark) {
         background-color: hsl(40 35% 96%);
@@ -283,37 +252,6 @@
         --orb-gloss: 0.3;
     }
 
-    /* MARBLED ENDPAPER: the inside cover of an old book. Indigo and ochre marbling around the edges, cream bookplate panels. */
-    :root[data-design='aero'][data-light-style='marbled']:not(.dark) {
-        background-color: hsl(40 40% 95%);
-        --style-primary-h: 230;
-        --style-primary-s: 35%;
-        --style-secondary-h: 35;
-        --style-secondary-s: 50%;
-        --aero-name-green: #343f74;
-
-        --fg-color-1: 230 30% 15%;
-        --fg-color-2: 30 10% 28%;
-        --background-color-2: 42 45% 99% / 0.94;
-
-        --glass-opacity: 0.92;
-        --glass-blur: 4px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.7;
-        --glass-rim: 0.2;
-        --glass-boost: 100%;
-        --glass-tint-top: 44 50% 99.5%;
-        --glass-tint-bottom: 40 40% 98%;
-        --glass-fade: 1;
-        --glass-highlight-alpha: 0.6;
-        --glass-shadow-color: 30 30% 22%;
-        --glass-shadow-alpha: 0.16;
-        --glass-contact-alpha: 0.06;
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
     /* SUMI-E: ink-wash painting on washi paper. Charcoal ink, misty mountains, one vermilion sun (and a vermilion name, like a seal). */
     :root[data-design='aero'][data-light-style='sumie']:not(.dark) {
         background-color: hsl(45 30% 96%);
@@ -374,5 +312,256 @@
 
         --orb-fill: 0;
         --orb-gloss: 0;
+    }
+
+    /* CYANOTYPE: Anna Atkins-style sun prints. Cream paper with Prussian blue prints of ferns at the corners; sepia secondary. */
+    :root[data-design='aero'][data-light-style='cyanotype']:not(.dark) {
+        background-color: hsl(45 35% 95%);
+        --style-primary-h: 208;
+        --style-primary-s: 62%;
+        --style-secondary-h: 28;
+        --style-secondary-s: 30%;
+        --aero-name-green: #1d507c;
+
+        --fg-color-1: 208 35% 14%;
+        --fg-color-2: 208 12% 30%;
+        --background-color-2: 45 40% 99% / 0.93;
+
+        --glass-opacity: 0.9;
+        --glass-blur: 4px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.5;
+        --glass-rim: 0;
+        --glass-boost: 100%;
+        --glass-tint-top: 45 40% 99.5%;
+        --glass-tint-bottom: 45 30% 98%;
+        --glass-fade: 0.97;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 208 30% 20%;
+        --glass-shadow-alpha: 0.13;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* DAPPLED LIGHT: sunlight through leaves onto warm plaster (komorebi). Olive and terracotta; shadows sway gently. */
+    :root[data-design='aero'][data-light-style='dappled']:not(.dark) {
+        background-color: hsl(38 40% 94%);
+        --style-primary-h: 82;
+        --style-primary-s: 26%;
+        --style-secondary-h: 16;
+        --style-secondary-s: 45%;
+        --aero-name-green: #4f5d32;
+
+        --fg-color-1: 40 18% 13%;
+        --fg-color-2: 40 8% 29%;
+        --background-color-2: 40 40% 99% / 0.9;
+
+        --glass-opacity: 0.68;
+        --glass-blur: 12px;
+        --glass-gloss-alpha: 0.1;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.4;
+        --glass-boost: 110%;
+        --glass-tint-top: 42 45% 99.5%;
+        --glass-tint-bottom: 38 35% 97.5%;
+        --glass-fade: 0.85;
+        --glass-highlight-alpha: 0.8;
+        --glass-shadow-color: 35 30% 22%;
+        --glass-shadow-alpha: 0.15;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0.2;
+    }
+
+    /* ILLUMINATED: a manuscript page. Vellum, iron-gall ink, lapis and a rubric red; a gilt double rule frames the page. */
+    :root[data-design='aero'][data-light-style='illuminated']:not(.dark) {
+        background-color: hsl(40 45% 93%);
+        --style-primary-h: 222;
+        --style-primary-s: 55%;
+        --style-secondary-h: 4;
+        --style-secondary-s: 55%;
+        --aero-name-green: #a1332b;
+
+        --fg-color-1: 25 25% 12%;
+        --fg-color-2: 25 10% 28%;
+        --background-color-2: 42 45% 98.5% / 0.94;
+
+        --glass-opacity: 0.88;
+        --glass-blur: 4px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.65;
+        --glass-rim: 0.2;
+        --glass-boost: 100%;
+        --glass-tint-top: 44 50% 98.5%;
+        --glass-tint-bottom: 40 40% 97%;
+        --glass-fade: 0.97;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 30 30% 22%;
+        --glass-shadow-alpha: 0.15;
+        --glass-contact-alpha: 0.05;
+        /* Gilt edges on the panels */
+        --glass-border: hsl(42 55% 48% / calc(var(--glass-edge-alpha) * 0.55 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* CARTOGRAPHER: a survey map. Parchment, deep teal and brick red; contour lines, a faint graticule and a compass rose. */
+    :root[data-design='aero'][data-light-style='cartographer']:not(.dark) {
+        background-color: hsl(42 35% 94%);
+        --style-primary-h: 188;
+        --style-primary-s: 42%;
+        --style-secondary-h: 8;
+        --style-secondary-s: 45%;
+        --aero-name-green: #265c64;
+
+        --fg-color-1: 190 30% 13%;
+        --fg-color-2: 30 10% 29%;
+        --background-color-2: 42 40% 99% / 0.93;
+
+        --glass-opacity: 0.86;
+        --glass-blur: 6px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.2;
+        --glass-boost: 100%;
+        --glass-tint-top: 44 45% 99%;
+        --glass-tint-bottom: 42 35% 97.5%;
+        --glass-fade: 0.95;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 30 30% 22%;
+        --glass-shadow-alpha: 0.15;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* FIELD NOTEBOOK: a dot-grid notebook. Cream paper, ink blue, and a red ribbon bookmark. */
+    :root[data-design='aero'][data-light-style='notebook']:not(.dark) {
+        background-color: hsl(45 40% 96%);
+        --style-primary-h: 225;
+        --style-primary-s: 50%;
+        --style-secondary-h: 2;
+        --style-secondary-s: 55%;
+        --aero-name-green: #253b7e;
+
+        --fg-color-1: 225 30% 14%;
+        --fg-color-2: 225 8% 30%;
+        --background-color-2: 45 45% 99% / 0.95;
+
+        --glass-opacity: 0.94;
+        --glass-blur: 2px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.55;
+        --glass-rim: 0;
+        --glass-boost: 100%;
+        --glass-tint-top: 45 50% 99.5%;
+        --glass-tint-bottom: 45 40% 98.5%;
+        --glass-fade: 1;
+        --glass-highlight-alpha: 0.5;
+        --glass-shadow-color: 30 25% 25%;
+        --glass-shadow-alpha: 0.12;
+        --glass-contact-alpha: 0.08;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* SEA GLASS: a calm shoreline. Pale sky, quiet sea and sand; panels like frosted aqua sea glass. */
+    :root[data-design='aero'][data-light-style='seaglass']:not(.dark) {
+        background-color: hsl(190 30% 93%);
+        --style-primary-h: 182;
+        --style-primary-s: 35%;
+        --style-secondary-h: 25;
+        --style-secondary-s: 40%;
+        --aero-name-green: #2b6264;
+
+        --fg-color-1: 195 30% 14%;
+        --fg-color-2: 195 10% 30%;
+        --background-color-2: 180 30% 99% / 0.9;
+
+        --glass-opacity: 0.55;
+        --glass-blur: 18px;
+        --glass-gloss-alpha: 0.15;
+        --glass-edge-alpha: 0.7;
+        --glass-rim: 0.6;
+        --glass-boost: 120%;
+        --glass-tint-top: 170 40% 97.5%;
+        --glass-tint-bottom: 182 35% 94.5%;
+        --glass-fade: 0.85;
+        --glass-highlight-alpha: 0.9;
+        --glass-shadow-color: 185 30% 22%;
+        --glass-shadow-alpha: 0.15;
+        --glass-contact-alpha: 0.05;
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.85 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0.3;
+    }
+
+    /* KINTSUGI: ivory stoneware mended with gold. Charcoal indigo, bronze, and fine gold seams at the edges. */
+    :root[data-design='aero'][data-light-style='kintsugi']:not(.dark) {
+        background-color: hsl(40 20% 93%);
+        --style-primary-h: 220;
+        --style-primary-s: 18%;
+        --style-secondary-h: 40;
+        --style-secondary-s: 55%;
+        --aero-name-green: #855e23;
+
+        --fg-color-1: 220 15% 13%;
+        --fg-color-2: 220 6% 30%;
+        --background-color-2: 40 25% 99% / 0.93;
+
+        --glass-opacity: 0.85;
+        --glass-blur: 8px;
+        --glass-gloss-alpha: 0.25;
+        --glass-edge-alpha: 0.55;
+        --glass-rim: 0.4;
+        --glass-boost: 100%;
+        --glass-tint-top: 40 30% 99.5%;
+        --glass-tint-bottom: 40 20% 97.5%;
+        --glass-fade: 0.92;
+        --glass-highlight-alpha: 0.85;
+        --glass-shadow-color: 30 20% 20%;
+        --glass-shadow-alpha: 0.14;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0.3;
+    }
+
+    /* DUNES: a still desert morning. Pale apricot sky over layered sand, terracotta and sage. */
+    :root[data-design='aero'][data-light-style='dunes']:not(.dark) {
+        background-color: hsl(32 45% 93%);
+        --style-primary-h: 18;
+        --style-primary-s: 45%;
+        --style-secondary-h: 100;
+        --style-secondary-s: 16%;
+        --aero-name-green: #8a462e;
+
+        --fg-color-1: 20 25% 13%;
+        --fg-color-2: 25 10% 29%;
+        --background-color-2: 35 45% 99% / 0.9;
+
+        --glass-opacity: 0.74;
+        --glass-blur: 10px;
+        --glass-gloss-alpha: 0.05;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 105%;
+        --glass-tint-top: 35 50% 99.5%;
+        --glass-tint-bottom: 30 40% 97.5%;
+        --glass-fade: 0.88;
+        --glass-highlight-alpha: 0.75;
+        --glass-shadow-color: 20 30% 22%;
+        --glass-shadow-alpha: 0.15;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0.15;
     }
 }
