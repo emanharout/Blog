@@ -10,18 +10,18 @@ export type LightStyle = {
 
 export const LIGHT_STYLES: LightStyle[] = [
     { id: 'default', name: 'Refined Aero', blurb: 'The current light mode: blue sky, glass, honey light.' },
-    { id: 'porcelain', name: 'Porcelain', blurb: 'Gallery white, ink and one cobalt accent. No decoration at all.' },
     { id: 'watercolor', name: 'Watercolor', blurb: 'Warm paper with soft blue and ochre washes; ink and sienna.' },
     { id: 'firstlight', name: 'First Light', blurb: 'The hour after night: periwinkle to peach, the last stars fading.' },
+    { id: 'daybreak', name: 'Daybreak', blurb: 'A little after First Light: the sun just risen, sky blue over peach and gold.' },
+    { id: 'afterglow', name: 'Afterglow', blurb: 'Just after sunset: dusky blue over mauve and rose, the first few stars.' },
     { id: 'bluehour', name: 'Blue Hour', blurb: 'Like First Light, later in the evening: deeper blues just after dusk, more stars.' },
+    { id: 'nightfall', name: 'Nightfall', blurb: 'Later than Blue Hour: deeper indigo, many stars, a thin crescent moon.' },
     { id: 'atlas', name: 'Celestial Atlas', blurb: 'An old star chart by daylight: cream, navy ink, brass rings and constellations.' },
     { id: 'atlas-armillary', name: 'Celestial Atlas · Armillary', blurb: 'Warm ivory, sepia and brass: an engraved armillary sphere and scattered stars.' },
     { id: 'atlas-planisphere', name: 'Celestial Atlas · Planisphere', blurb: 'A star wheel with an hour ring and star field; warm parchment, sepia and copper.' },
     { id: 'bauhaus', name: 'Bauhaus Soft', blurb: 'Modernist calm: off-white with muted blue, red and yellow geometry.' },
     { id: 'bauhaus-circles', name: 'Bauhaus · Circles', blurb: 'Overlapping translucent circles after Kandinsky; warm brick, ochre and mustard.' },
-    { id: 'dappled', name: 'Dappled Light', blurb: 'Sunlight through leaves onto warm plaster; soft shadows sway.' },
     { id: 'illuminated', name: 'Illuminated', blurb: 'A manuscript page: vellum, lapis, rubric red and a gilt frame.' },
     { id: 'illuminated-pale', name: 'Illuminated · Pale Vellum', blurb: 'The manuscript style, softened: paler vellum, a finer gilt rule, a quieter red.' },
-    { id: 'illuminated-ruled', name: 'Illuminated · Ruled Page', blurb: 'No frame: faint manuscript ruling, double margin rules, gold corners.' },
     { id: 'kintsugi', name: 'Kintsugi', blurb: 'Plain ivory stoneware with a fine speckle; charcoal and bronze. No decoration.' },
 ];

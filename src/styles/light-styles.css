@@ -65,37 +65,6 @@
         --logo-bottom: hsl(var(--primary-color-700));
     }
 
-    /* PORCELAIN: gallery white, ink and one cobalt accent. No decoration; material and type only. */
-    :root[data-design='aero'][data-light-style='porcelain']:not(.dark) {
-        background-color: hsl(220 20% 97%);
-        --style-primary-h: 222;
-        --style-primary-s: 55%;
-        --style-secondary-h: 215;
-        --style-secondary-s: 14%;
-        --aero-name-green: #2c4c96;
-
-        --fg-color-1: 222 30% 13%;
-        --fg-color-2: 220 10% 30%;
-        --background-color-2: 0 0% 100% / 0.95;
-
-        --glass-opacity: 0.92;
-        --glass-blur: 6px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.8;
-        --glass-rim: 0.6;
-        --glass-boost: 100%;
-        --glass-tint-top: 0 0% 100%;
-        --glass-tint-bottom: 220 25% 99%;
-        --glass-fade: 1;
-        --glass-highlight-alpha: 1;
-        --glass-shadow-color: 222 25% 25%;
-        --glass-shadow-alpha: 0.12;
-        --glass-contact-alpha: 0.06;
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
     /* WATERCOLOR: warm paper with soft washes. Ink blue and sienna; panels read as paper. */
     :root[data-design='aero'][data-light-style='watercolor']:not(.dark) {
         background-color: hsl(40 35% 96%);
@@ -159,6 +128,70 @@
         --orb-gloss: 0.4;
     }
 
+    /* DAYBREAK: a little after First Light. The sun has just risen: pale sky blue over peach and gold, pearly glass, no stars. */
+    :root[data-design='aero'][data-light-style='daybreak']:not(.dark) {
+        background-color: hsl(32 60% 93%);
+        --style-primary-h: 212;
+        --style-primary-s: 35%;
+        --style-secondary-h: 20;
+        --style-secondary-s: 55%;
+        --aero-name-green: #9b4a31;
+
+        --fg-color-1: 218 25% 15%;
+        --fg-color-2: 218 10% 30%;
+        --background-color-2: 30 60% 99% / 0.9;
+
+        --glass-opacity: 0.6;
+        --glass-blur: 18px;
+        --glass-gloss-alpha: 0.26;
+        --glass-edge-alpha: 0.8;
+        --glass-rim: 0.8;
+        --glass-boost: 130%;
+        --glass-tint-top: 30 60% 99.5%;
+        --glass-tint-bottom: 28 50% 97.5%;
+        --glass-fade: 0.76;
+        --glass-highlight-alpha: 0.95;
+        --glass-shadow-color: 25 35% 30%;
+        --glass-shadow-alpha: 0.17;
+        --glass-contact-alpha: 0.04;
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0.4;
+    }
+
+    /* AFTERGLOW: just after sunset, before Blue Hour. Dusky blue over mauve and rose, a peach horizon, the first few stars. */
+    :root[data-design='aero'][data-light-style='afterglow']:not(.dark) {
+        background-color: hsl(300 18% 91%);
+        --style-primary-h: 235;
+        --style-primary-s: 28%;
+        --style-secondary-h: 345;
+        --style-secondary-s: 35%;
+        --aero-name-green: #8b415c;
+
+        --fg-color-1: 240 22% 16%;
+        --fg-color-2: 240 10% 31%;
+        --background-color-2: 300 30% 99% / 0.9;
+
+        --glass-opacity: 0.58;
+        --glass-blur: 18px;
+        --glass-gloss-alpha: 0.26;
+        --glass-edge-alpha: 0.8;
+        --glass-rim: 0.8;
+        --glass-boost: 130%;
+        --glass-tint-top: 320 40% 99.5%;
+        --glass-tint-bottom: 300 25% 97.5%;
+        --glass-fade: 0.76;
+        --glass-highlight-alpha: 0.95;
+        --glass-shadow-color: 280 25% 28%;
+        --glass-shadow-alpha: 0.17;
+        --glass-contact-alpha: 0.04;
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0.4;
+    }
+
     /* BLUE HOUR: like First Light but later, just after dusk. Deeper periwinkle blues, a dusky lavender, pearly glass, more stars. */
     :root[data-design='aero'][data-light-style='bluehour']:not(.dark) {
         background-color: hsl(228 34% 90%);
@@ -184,6 +217,38 @@
         --glass-highlight-alpha: 0.95;
         --glass-shadow-color: 230 35% 28%;
         --glass-shadow-alpha: 0.18;
+        --glass-contact-alpha: 0.04;
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0.4;
+    }
+
+    /* NIGHTFALL: later than Blue Hour. Deeper indigo-periwinkle with no warmth left, many stars and a thin crescent moon. */
+    :root[data-design='aero'][data-light-style='nightfall']:not(.dark) {
+        background-color: hsl(232 32% 84%);
+        --style-primary-h: 228;
+        --style-primary-s: 42%;
+        --style-secondary-h: 260;
+        --style-secondary-s: 22%;
+        --aero-name-green: #2d3776;
+
+        --fg-color-1: 232 30% 13%;
+        --fg-color-2: 232 12% 28%;
+        --background-color-2: 230 40% 99% / 0.9;
+
+        --glass-opacity: 0.62;
+        --glass-blur: 18px;
+        --glass-gloss-alpha: 0.26;
+        --glass-edge-alpha: 0.8;
+        --glass-rim: 0.8;
+        --glass-boost: 130%;
+        --glass-tint-top: 225 40% 99.5%;
+        --glass-tint-bottom: 232 35% 97%;
+        --glass-fade: 0.76;
+        --glass-highlight-alpha: 0.95;
+        --glass-shadow-color: 232 40% 25%;
+        --glass-shadow-alpha: 0.17;
         --glass-contact-alpha: 0.04;
         --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
 
@@ -251,37 +316,6 @@
 
         --orb-fill: 0;
         --orb-gloss: 0;
-    }
-
-    /* DAPPLED LIGHT: sunlight through leaves onto warm plaster (komorebi). Olive and terracotta; shadows sway gently. */
-    :root[data-design='aero'][data-light-style='dappled']:not(.dark) {
-        background-color: hsl(38 40% 94%);
-        --style-primary-h: 82;
-        --style-primary-s: 26%;
-        --style-secondary-h: 16;
-        --style-secondary-s: 45%;
-        --aero-name-green: #4f5d32;
-
-        --fg-color-1: 40 18% 13%;
-        --fg-color-2: 40 8% 29%;
-        --background-color-2: 40 40% 99% / 0.9;
-
-        --glass-opacity: 0.68;
-        --glass-blur: 12px;
-        --glass-gloss-alpha: 0.1;
-        --glass-edge-alpha: 0.6;
-        --glass-rim: 0.4;
-        --glass-boost: 110%;
-        --glass-tint-top: 42 45% 99.5%;
-        --glass-tint-bottom: 38 35% 97.5%;
-        --glass-fade: 0.85;
-        --glass-highlight-alpha: 0.8;
-        --glass-shadow-color: 35 30% 22%;
-        --glass-shadow-alpha: 0.15;
-        --glass-contact-alpha: 0.05;
-
-        --orb-fill: 0;
-        --orb-gloss: 0.2;
     }
 
     /* ILLUMINATED: a manuscript page. Vellum, iron-gall ink, lapis and a rubric red; a gilt double rule frames the page. */
@@ -375,38 +409,6 @@
         --glass-shadow-alpha: 0.13;
         --glass-contact-alpha: 0.05;
         --glass-border: hsl(40 40% 50% / calc(var(--glass-edge-alpha) * 0.45 * var(--glass-intensity)));
-
-        --orb-fill: 0;
-        --orb-gloss: 0;
-    }
-
-    /* ILLUMINATED · RULED PAGE: no frame; faint manuscript ruling lines and double margin rules, gold corner ornaments, a rubric-red name. */
-    :root[data-design='aero'][data-light-style='illuminated-ruled']:not(.dark) {
-        background-color: hsl(40 22% 96%);
-        --style-primary-h: 222;
-        --style-primary-s: 45%;
-        --style-secondary-h: 4;
-        --style-secondary-s: 48%;
-        --aero-name-green: #993a33;
-
-        --fg-color-1: 25 20% 13%;
-        --fg-color-2: 25 8% 29%;
-        --background-color-2: 40 25% 99% / 0.94;
-
-        --glass-opacity: 0.9;
-        --glass-blur: 4px;
-        --glass-gloss-alpha: 0;
-        --glass-edge-alpha: 0.55;
-        --glass-rim: 0.2;
-        --glass-boost: 100%;
-        --glass-tint-top: 42 25% 99.5%;
-        --glass-tint-bottom: 40 20% 98.5%;
-        --glass-fade: 0.98;
-        --glass-highlight-alpha: 0.6;
-        --glass-shadow-color: 30 20% 22%;
-        --glass-shadow-alpha: 0.12;
-        --glass-contact-alpha: 0.05;
-        --glass-border: hsl(10 30% 50% / calc(var(--glass-edge-alpha) * 0.35 * var(--glass-intensity)));
 
         --orb-fill: 0;
         --orb-gloss: 0;
