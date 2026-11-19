@@ -269,11 +269,13 @@
         /* How far down the viewport the blue sky reaches before warming to gold (the gold-to-lawn band stays put) */
         --aero-sky-fade: 63%;
         /* Sky blue intensity: saturation is a multiplier (1 = default); depth darkens the blue toward a richer tone */
-        --aero-sky-saturation: 1.25;
-        --aero-sky-depth: 0.1;
+        --aero-sky-saturation: 1.35;
+        --aero-sky-depth: 0.25;
         --aero-lawn: 1;
         /* 0 = crisp rolling arches, 1 = soft, edgeless mist */
         --aero-lawn-softness: 0.55;
+        /* 1 shows the warm gold band and the lawn at the bottom of the sky; 0 lets the pale blue run to the bottom */
+        --aero-horizon: 0;
         /* How far up the page the lawn rises (1 = default height) */
         --aero-lawn-height: 1.45;
         --aero-night-h: 222;

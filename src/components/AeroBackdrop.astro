@@ -136,6 +136,10 @@ const shootingStars: [number, number, number, number, number][] = [
 
     /* DAY */
     .day {
+        /* The pale lower blue, reused where the horizon is switched off */
+        --sky-pale: hsl(
+            var(--aero-sky-h) calc(60% * var(--aero-sky-saturation)) calc(89% - 17% * var(--aero-sky-depth))
+        );
         background:
             radial-gradient(
                 70rem 45rem at 100% -5%,
@@ -149,13 +153,19 @@ const shootingStars: [number, number, number, number, number][] = [
                             calc(81% - 23% * var(--aero-sky-depth))
                     )
                     0%,
-                hsl(
-                        var(--aero-sky-h) calc(60% * var(--aero-sky-saturation))
-                            calc(89% - 17% * var(--aero-sky-depth))
+                var(--sky-pale) min(var(--aero-sky-fade), 82%),
+                color-mix(
+                        in oklab,
+                        hsl(calc(var(--aero-sun-h) + 6) 70% 94%) calc(var(--aero-horizon) * 100%),
+                        var(--sky-pale)
                     )
-                    min(var(--aero-sky-fade), 82%),
-                hsl(calc(var(--aero-sun-h) + 6) 70% 94%) 85%,
-                hsl(var(--aero-leaf-h) 30% 89%) 100%
+                    85%,
+                color-mix(
+                        in oklab,
+                        hsl(var(--aero-leaf-h) 30% 89%) calc(var(--aero-horizon) * 100%),
+                        var(--sky-pale)
+                    )
+                    100%
             );
     }
 
@@ -204,7 +214,7 @@ const shootingStars: [number, number, number, number, number][] = [
         left: 0;
         width: 100%;
         height: calc(min(18vh, 10rem) * var(--aero-lawn-height));
-        opacity: calc(var(--aero-lawn) * (1 - var(--aero-lawn-softness)));
+        opacity: calc(var(--aero-lawn) * (1 - var(--aero-lawn-softness)) * var(--aero-horizon));
         filter: blur(calc(var(--aero-lawn-softness) * 18px));
     }
     .lawn-far {
@@ -220,7 +230,7 @@ const shootingStars: [number, number, number, number, number][] = [
         left: 0;
         width: 100%;
         height: calc(min(30vh, 17rem) * var(--aero-lawn-height));
-        opacity: calc(var(--aero-lawn) * var(--aero-lawn-softness));
+        opacity: calc(var(--aero-lawn) * var(--aero-lawn-softness) * var(--aero-horizon));
         background:
             radial-gradient(60% 75% at 25% 100%, hsl(var(--aero-leaf-h) 26% 74% / 0.45), transparent 100%),
             radial-gradient(55% 65% at 78% 100%, hsl(var(--aero-leaf-h) 24% 76% / 0.4), transparent 100%),

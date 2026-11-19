@@ -7,8 +7,8 @@ type Theme = 'light' | 'dark';
 type Knob = {
     name: string;
     label: string;
-    // Sliders by default; 'color' shows a color picker (value is a hex color)
-    type?: 'range' | 'color';
+    // Sliders by default; 'color' shows a color picker (value is a hex color); 'toggle' a checkbox (value 1 or 0)
+    type?: 'range' | 'color' | 'toggle';
     min?: number;
     max?: number;
     step?: number;
@@ -16,6 +16,8 @@ type Knob = {
     themes: Theme[];
     // Shared knobs set the same value in light and dark mode
     shared?: boolean;
+    // Name of a toggle knob; this knob is greyed out and disabled while that toggle is off
+    dependsOn?: string;
     // Optional live color preview
     swatch?: string;
 };
@@ -35,9 +37,10 @@ const groups: { title: string; knobs: Knob[] }[] = [
             { name: 'aero-sky-fade', label: 'Blue reaches down', min: 15, max: 82, step: 1, unit: '%', themes: ['light'] },
             { name: 'aero-sun-strength', label: 'Sun glow', min: 0, max: 1, step: 0.05, themes: ['light'] },
             { name: 'aero-rays', label: 'Window light', min: 0, max: 1, step: 0.05, themes: ['light'] },
-            { name: 'aero-lawn', label: 'Lawn', min: 0, max: 1, step: 0.05, themes: ['light'] },
-            { name: 'aero-lawn-height', label: 'Lawn height', min: 0.5, max: 3, step: 0.05, themes: ['light'] },
-            { name: 'aero-lawn-softness', label: 'Lawn edge (arches → mist)', min: 0, max: 1, step: 0.05, themes: ['light'] },
+            { name: 'aero-horizon', label: 'Show gold band and lawn', type: 'toggle', themes: ['light'] },
+            { name: 'aero-lawn', label: 'Lawn', min: 0, max: 1, step: 0.05, themes: ['light'], dependsOn: 'aero-horizon' },
+            { name: 'aero-lawn-height', label: 'Lawn height', min: 0.5, max: 3, step: 0.05, themes: ['light'], dependsOn: 'aero-horizon' },
+            { name: 'aero-lawn-softness', label: 'Lawn edge (arches → mist)', min: 0, max: 1, step: 0.05, themes: ['light'], dependsOn: 'aero-horizon' },
             { name: 'aero-night-h', label: 'Navy hue', min: 200, max: 265, step: 1, themes: ['dark'], swatch: 'hsl(var(--night-color-600))' },
             { name: 'aero-night-l', label: 'Sky brightness', min: 2, max: 16, step: 0.5, unit: '%', themes: ['dark'], swatch: 'hsl(var(--aero-night-h) 68% var(--aero-night-l))' },
             { name: 'aero-dusk-h', label: 'Dusk hue', min: 215, max: 290, step: 1, themes: ['dark'], swatch: 'hsl(var(--dusk-color-500))' },
@@ -106,35 +109,53 @@ const groups: { title: string; knobs: Knob[] }[] = [
                 <fieldset class="mt-4">
                     <legend class="mb-1 text-xs font-semibold uppercase tracking-wider text-fg-2">{title}</legend>
                     {knobs.map((knob) => (
-                        <label class="aero-tuner-row mt-2 block" data-themes={knob.themes.join(' ')}>
-                            <span class="flex items-center justify-between gap-2">
-                                <span class="flex items-center gap-2">
-                                    {knob.swatch && (
-                                        <span
-                                            class="inline-block size-3 rounded-full ring-1 ring-black/10 dark:ring-white/20"
-                                            style={`background: ${knob.swatch}`}
-                                            aria-hidden="true"
-                                        />
-                                    )}
+                        <label
+                            class="aero-tuner-row mt-2 block transition-opacity data-disabled:opacity-40"
+                            data-themes={knob.themes.join(' ')}
+                            data-depends-on={knob.dependsOn}
+                        >
+                            {knob.type === 'toggle' ? (
+                                <span class="flex cursor-pointer items-center justify-between gap-2">
                                     {knob.label}
+                                    <input
+                                        type="checkbox"
+                                        class="size-4 accent-primary-600"
+                                        data-knob={knob.name}
+                                        data-unit=""
+                                    />
                                 </span>
-                                <output class="tabular-nums text-xs text-fg-2" data-output-for={knob.name} />
-                            </span>
-                            <input
-                                type={knob.type ?? 'range'}
-                                class:list={[
-                                    'mt-1',
-                                    knob.type === 'color'
-                                        ? 'h-8 w-full cursor-pointer rounded border border-fg-border-2 bg-transparent'
-                                        : 'w-full accent-primary-600',
-                                ]}
-                                min={knob.min}
-                                max={knob.max}
-                                step={knob.step}
-                                data-knob={knob.name}
-                                data-unit={knob.unit ?? ''}
-                                data-shared={knob.shared ? '' : undefined}
-                            />
+                            ) : (
+                                <>
+                                    <span class="flex items-center justify-between gap-2">
+                                        <span class="flex items-center gap-2">
+                                            {knob.swatch && (
+                                                <span
+                                                    class="inline-block size-3 rounded-full ring-1 ring-black/10 dark:ring-white/20"
+                                                    style={`background: ${knob.swatch}`}
+                                                    aria-hidden="true"
+                                                />
+                                            )}
+                                            {knob.label}
+                                        </span>
+                                        <output class="tabular-nums text-xs text-fg-2" data-output-for={knob.name} />
+                                    </span>
+                                    <input
+                                        type={knob.type ?? 'range'}
+                                        class:list={[
+                                            'mt-1',
+                                            knob.type === 'color'
+                                                ? 'h-8 w-full cursor-pointer rounded border border-fg-border-2 bg-transparent'
+                                                : 'w-full accent-primary-600',
+                                        ]}
+                                        min={knob.min}
+                                        max={knob.max}
+                                        step={knob.step}
+                                        data-knob={knob.name}
+                                        data-unit={knob.unit ?? ''}
+                                        data-shared={knob.shared ? '' : undefined}
+                                    />
+                                </>
+                            )}
                         </label>
                     ))}
                 </fieldset>
@@ -225,6 +246,20 @@ const groups: { title: string; knobs: Knob[] }[] = [
         return `${Number.isInteger(n) ? n : n.toFixed(2).replace(/0$/, '')}${unit}`;
     }
 
+    // Grey out and disable knobs whose controlling toggle is off.
+    function updateDependents() {
+        rows.forEach((row) => {
+            const controller = row.dataset.dependsOn;
+            if (!controller) return;
+            const toggleInput = document.querySelector<HTMLInputElement>(`#aero-tuner input[data-knob="${controller}"]`);
+            const enabled = toggleInput?.checked ?? true;
+            row.toggleAttribute('data-disabled', !enabled);
+            row.querySelectorAll('input').forEach((input) => {
+                input.disabled = !enabled;
+            });
+        });
+    }
+
     // Show only the knobs for the current theme and fill them with the live values.
     function refresh() {
         const theme = currentTheme();
@@ -240,16 +275,18 @@ const groups: { title: string; knobs: Knob[] }[] = [
         inputs.forEach((input) => {
             const name = input.dataset.knob!;
             const value = computed.getPropertyValue(`--${name}`).trim();
-            input.value = input.type === 'color' ? value : String(parseFloat(value));
+            if (input.type === 'checkbox') input.checked = parseFloat(value) >= 0.5;
+            else input.value = input.type === 'color' ? value : String(parseFloat(value));
             const output = document.querySelector(`[data-output-for="${name}"]`);
             if (output) output.textContent = format(value, input.dataset.unit ?? '');
         });
+        updateDependents();
     }
 
     inputs.forEach((input) => {
-        input.addEventListener('input', () => {
+        input.addEventListener(input.type === 'checkbox' ? 'change' : 'input', () => {
             const name = input.dataset.knob!;
-            const value = `${input.value}${input.dataset.unit ?? ''}`;
+            const value = input.type === 'checkbox' ? (input.checked ? '1' : '0') : `${input.value}${input.dataset.unit ?? ''}`;
             const themes: Theme[] = input.dataset.shared !== undefined ? ['light', 'dark'] : [currentTheme()];
             themes.forEach((theme) => {
                 state.overrides[theme][name] = value;
@@ -258,6 +295,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             save();
             const output = document.querySelector(`[data-output-for="${name}"]`);
             if (output) output.textContent = format(value, input.dataset.unit ?? '');
+            if (input.type === 'checkbox') updateDependents();
         });
     });
 
