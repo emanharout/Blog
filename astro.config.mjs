@@ -54,6 +54,17 @@ export default defineConfig({
     }),
     mdx(),
     sitemap(),
+    // Dev-only pages (not part of the built site): /dev/compare shows the experimental light styles side by side.
+    {
+      name: 'dev-only-pages',
+      hooks: {
+        'astro:config:setup': ({ command, injectRoute }) => {
+          if (command === 'dev') {
+            injectRoute({ pattern: '/dev/compare', entrypoint: './src/dev/compare.astro' });
+          }
+        },
+      },
+    },
   ],
   vite: {
     plugins: [tailwindcss()],

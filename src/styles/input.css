@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Dev-only light-mode style experiments; inert unless <html data-light-style> is set */
+@import "./light-styles.css";
 @custom-variant dark (&:where(.dark, .dark *));
 /* Pages that opt into the glass / Frutiger Aero design (data-design="aero" on <html>, set via RootLayout's `design`) */
 @custom-variant aero (&:where([data-design='aero'], [data-design='aero'] *));

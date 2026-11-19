@@ -54,15 +54,19 @@
         });
     }
 
-    applyTheme(readStoredOption());
+    // `?theme=light` or `?theme=dark` shows that theme without changing the saved choice (used by side-by-side previews).
+    const forcedOption = new URLSearchParams(location.search).get('theme');
+    const isForced = OPTIONS.includes(forcedOption);
+
+    applyTheme(isForced ? forcedOption : readStoredOption());
 
     // Follow OS changes live while 'system' is selected.
     darkQuery.addEventListener('change', () => {
-        if (readStoredOption() === 'system') applyThemeSmoothly('system');
+        if (!isForced && readStoredOption() === 'system') applyThemeSmoothly('system');
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        syncPicker(readStoredOption());
+        syncPicker(isForced ? forcedOption : readStoredOption());
         const feedback = document.getElementById('theme-selection-feedback');
 
         document.querySelectorAll('input[name="theme"]').forEach((input) => {

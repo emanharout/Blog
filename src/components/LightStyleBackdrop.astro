@@ -1,0 +1,335 @@
+---
+// Backdrops for the experimental light-mode styles (development only; see src/styles/light-styles.css). Each layer
+// covers the default daytime sky and shows only when <html data-light-style> matches. Decorations scale with
+// --style-deco (the tuner's "Decoration" slider). Parallax layers use --sky-scroll from AeroBackdrop.
+
+function seededRandom(seed: number) {
+    return () => {
+        seed |= 0;
+        seed = (seed + 0x6d2b79f5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+// First Light: a few faint stars lingering near the top of the dawn sky
+const random = seededRandom(7);
+const dawnStars = Array.from({ length: 34 }, () => {
+    const x = (random() * 100).toFixed(2);
+    const y = (Math.pow(random(), 1.6) * 42).toFixed(2);
+    const alpha = (0.35 + random() * 0.5).toFixed(2);
+    return `${x}vw ${y}vh rgb(255 255 255 / ${alpha})`;
+}).join(', ');
+
+// Glasshouse: fern fronds built from leaflets along a curved stem (quadratic Bézier from p0 via p1 to p2)
+type Point = [number, number];
+function frond(p0: Point, p1: Point, p2: Point, leaflets: number, maxLength: number) {
+    const at = (t: number): Point => [
+        (1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t ** 2 * p2[0],
+        (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * p1[1] + t ** 2 * p2[1],
+    ];
+    const tangent = (t: number): Point => [
+        2 * (1 - t) * (p1[0] - p0[0]) + 2 * t * (p2[0] - p1[0]),
+        2 * (1 - t) * (p1[1] - p0[1]) + 2 * t * (p2[1] - p1[1]),
+    ];
+    const leaves = [];
+    for (let i = 1; i <= leaflets; i++) {
+        const t = i / (leaflets + 1);
+        const [x, y] = at(t);
+        const [tx, ty] = tangent(t);
+        const stemAngle = (Math.atan2(ty, tx) * 180) / Math.PI;
+        const length = maxLength * (1 - t * 0.8);
+        for (const side of [-1, 1]) {
+            const angle = stemAngle + side * 58;
+            const rad = (angle * Math.PI) / 180;
+            leaves.push({
+                cx: (x + (Math.cos(rad) * length) / 2).toFixed(1),
+                cy: (y + (Math.sin(rad) * length) / 2).toFixed(1),
+                rx: (length / 2).toFixed(1),
+                ry: (length * 0.17).toFixed(1),
+                angle: angle.toFixed(1),
+            });
+        }
+    }
+    return { stem: `M${p0[0]} ${p0[1]} Q${p1[0]} ${p1[1]} ${p2[0]} ${p2[1]}`, leaves };
+}
+const fernRising = frond([70, 500], [120, 220], [330, 70], 16, 92);
+const fernHanging = frond([380, 0], [300, 150], [110, 390], 14, 80);
+
+// Glasshouse: arched glazing bars across the top of the page
+const glazingBars = Array.from({ length: 10 }, (_, i) => {
+    const x = i * 160;
+    return `M${x} 900 V300 A80 80 0 0 1 ${x + 160} 300 V900`;
+}).join(' ');
+---
+
+<!-- MORNING MIST: layered hills fading into haze, a veiled sun. Nothing moves. -->
+<div class="ls-layer ls-mist">
+    <div class="ls-mist-sun"></div>
+    <svg class="ls-mist-hills" viewBox="0 0 1440 400" preserveAspectRatio="none">
+        <defs>
+            {
+                [
+                    ['far', '212 22% 82%'],
+                    ['mid', '208 20% 78%'],
+                    ['near', '200 16% 75%'],
+                ].map(([id, color]) => (
+                    <linearGradient id={`ls-mist-${id}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" style={`stop-color: hsl(${color}); stop-opacity: 0.85`} />
+                        <stop offset="1" style="stop-color: hsl(205 22% 95%); stop-opacity: 0.2" />
+                    </linearGradient>
+                ))
+            }
+        </defs>
+        <path fill="url(#ls-mist-far)" d="M0 150 C 220 90 420 100 640 140 S 1100 70 1440 120 V400 H0 Z"></path>
+        <path fill="url(#ls-mist-mid)" d="M0 230 C 260 170 520 190 760 225 S 1180 170 1440 210 V400 H0 Z"></path>
+        <path fill="url(#ls-mist-near)" d="M0 310 C 300 265 640 285 900 300 S 1300 270 1440 290 V400 H0 Z"></path>
+    </svg>
+</div>
+
+<!-- PORCELAIN: no decoration, just an even, slightly cool light from above. -->
+<div class="ls-layer ls-porcelain"></div>
+
+<!-- GLASSHOUSE: faint arched glazing bars and two fern fronds that sway very slowly. -->
+<div class="ls-layer ls-glasshouse">
+    <div class="ls-parallax" style="--speed: 0.03">
+        <svg class="ls-glazing" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMin slice">
+            <path d={glazingBars}></path>
+            <path d="M0 560 H1440 M0 760 H1440"></path>
+        </svg>
+    </div>
+    {
+        [
+            ['ls-fern-rising', fernRising],
+            ['ls-fern-hanging', fernHanging],
+        ].map(([className, fern]) => (
+            <svg class:list={['ls-fern', className as string]} viewBox="0 0 400 500">
+                <path class="ls-fern-stem" d={(fern as typeof fernRising).stem} />
+                {(fern as typeof fernRising).leaves.map((leaf) => (
+                    <ellipse
+                        cx={leaf.cx}
+                        cy={leaf.cy}
+                        rx={leaf.rx}
+                        ry={leaf.ry}
+                        transform={`rotate(${leaf.angle} ${leaf.cx} ${leaf.cy})`}
+                    />
+                ))}
+            </svg>
+        ))
+    }
+</div>
+
+<!-- WATERCOLOR: soft washes with uneven, slightly darker edges on warm paper. -->
+<div class="ls-layer ls-watercolor">
+    <svg class="ls-washes" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+            <filter id="ls-wash-edge" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="3" seed="4" result="noise"></feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="70"></feDisplacementMap>
+                <feGaussianBlur stdDeviation="1.5"></feGaussianBlur>
+            </filter>
+            {
+                [
+                    ['blue', '212 55% 70%'],
+                    ['ochre', '36 70% 68%'],
+                    ['sage', '150 25% 65%'],
+                    ['ink', '222 45% 72%'],
+                ].map(([id, color]) => (
+                    <radialGradient id={`ls-wash-${id}`}>
+                        <stop offset="0" style={`stop-color: hsl(${color}); stop-opacity: 0.12`} />
+                        <stop offset="0.78" style={`stop-color: hsl(${color}); stop-opacity: 0.17`} />
+                        <stop offset="0.94" style={`stop-color: hsl(${color}); stop-opacity: 0.3`} />
+                        <stop offset="1" style={`stop-color: hsl(${color}); stop-opacity: 0`} />
+                    </radialGradient>
+                ))
+            }
+        </defs>
+        <g filter="url(#ls-wash-edge)">
+            <circle cx="170" cy="110" r="340" fill="url(#ls-wash-blue)"></circle>
+            <circle cx="1310" cy="190" r="300" fill="url(#ls-wash-ochre)"></circle>
+            <circle cx="1160" cy="880" r="320" fill="url(#ls-wash-sage)"></circle>
+            <circle cx="470" cy="920" r="190" fill="url(#ls-wash-ink)"></circle>
+        </g>
+    </svg>
+    <div class="ls-grain"></div>
+</div>
+
+<!-- FIRST LIGHT: dawn gradient with the sun about to rise; a few stars still fading near the top. -->
+<div class="ls-layer ls-firstlight">
+    <div class="ls-parallax ls-dawn-sky" style="--speed: 0.05">
+        <div class="ls-dawn-stars" style={`box-shadow: ${dawnStars}`}></div>
+    </div>
+</div>
+
+<style is:global>
+    .ls-layer {
+        position: absolute;
+        inset: 0;
+        display: none;
+        overflow: hidden;
+    }
+    :root[data-light-style='mist'] .ls-mist,
+    :root[data-light-style='porcelain'] .ls-porcelain,
+    :root[data-light-style='glasshouse'] .ls-glasshouse,
+    :root[data-light-style='watercolor'] .ls-watercolor,
+    :root[data-light-style='firstlight'] .ls-firstlight {
+        display: block;
+    }
+
+    .ls-parallax {
+        position: absolute;
+        inset: 0;
+        transform: translate3d(0, calc(var(--sky-scroll, 0) * var(--speed) * var(--aero-parallax) * -1px), 0);
+    }
+
+    /* MORNING MIST */
+    .ls-mist {
+        background: linear-gradient(180deg, hsl(212 30% 88%) 0%, hsl(210 26% 92%) 45%, hsl(205 20% 95%) 100%);
+    }
+    .ls-mist-sun {
+        position: absolute;
+        top: 9vh;
+        right: 14vw;
+        width: 6rem;
+        height: 6rem;
+        border-radius: 50%;
+        opacity: calc(0.75 * var(--style-deco));
+        background: radial-gradient(circle, hsl(45 55% 97%) 0 42%, hsl(45 45% 95% / 0.5) 50%, transparent 72%);
+        filter: blur(1px);
+    }
+    .ls-mist-hills {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: min(46vh, 26rem);
+        opacity: var(--style-deco);
+        filter: blur(1.5px);
+    }
+
+    /* PORCELAIN */
+    .ls-porcelain {
+        background:
+            radial-gradient(90rem 32rem at 50% -12%, hsl(0 0% 100% / 0.9), transparent 70%),
+            linear-gradient(180deg, hsl(220 24% 95.5%) 0%, hsl(220 16% 97.5%) 55%, hsl(40 18% 97.5%) 100%);
+    }
+
+    /* GLASSHOUSE */
+    .ls-glasshouse {
+        background:
+            radial-gradient(70rem 40rem at 50% -10%, hsl(55 60% 99% / 0.9), transparent 70%),
+            linear-gradient(180deg, hsl(60 28% 95%) 0%, hsl(48 34% 95%) 55%, hsl(100 20% 93%) 100%);
+    }
+    .ls-glazing {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: hsl(160 20% 40% / 0.09);
+        stroke-width: 2;
+        opacity: var(--style-deco);
+        -webkit-mask-image: linear-gradient(180deg, black 0%, black 35%, transparent 85%);
+        mask-image: linear-gradient(180deg, black 0%, black 35%, transparent 85%);
+    }
+    .ls-fern {
+        position: absolute;
+        width: min(26rem, 45vw);
+        height: auto;
+        opacity: var(--style-deco);
+        fill: hsl(150 24% 42% / 0.14);
+        animation: ls-sway 16s ease-in-out infinite;
+    }
+    .ls-fern-stem {
+        fill: none;
+        stroke: hsl(150 24% 40% / 0.16);
+        stroke-width: 3;
+    }
+    .ls-fern-rising {
+        left: -2rem;
+        bottom: -1.5rem;
+        transform-origin: 15% 100%;
+    }
+    .ls-fern-hanging {
+        top: -1rem;
+        right: -2.5rem;
+        transform-origin: 95% 0%;
+        animation-delay: -7s;
+    }
+    @keyframes ls-sway {
+        0%,
+        100% {
+            rotate: -1deg;
+        }
+        50% {
+            rotate: 1.2deg;
+        }
+    }
+
+    /* WATERCOLOR */
+    .ls-watercolor {
+        background: linear-gradient(180deg, hsl(42 40% 97%) 0%, hsl(38 34% 95%) 100%);
+    }
+    .ls-washes {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: var(--style-deco);
+    }
+    .ls-grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.06;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0 0.16 0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    /* FIRST LIGHT */
+    .ls-firstlight {
+        background:
+            radial-gradient(70rem 32rem at 50% 118%, hsl(32 95% 86% / 0.75), transparent 70%),
+            linear-gradient(
+                180deg,
+                hsl(232 36% 86%) 0%,
+                hsl(250 28% 90%) 35%,
+                hsl(320 26% 93%) 62%,
+                hsl(28 66% 93%) 85%,
+                hsl(38 72% 92%) 100%
+            );
+    }
+    .ls-dawn-sky {
+        opacity: var(--style-deco);
+        -webkit-mask-image: linear-gradient(180deg, black 0%, black 15%, transparent 48%);
+        mask-image: linear-gradient(180deg, black 0%, black 15%, transparent 48%);
+    }
+    .ls-dawn-stars {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1.5px;
+        height: 1.5px;
+        border-radius: 50%;
+        animation: ls-fade-twinkle 9s ease-in-out infinite;
+    }
+    @keyframes ls-fade-twinkle {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.55;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ls-fern,
+        .ls-dawn-stars {
+            animation: none;
+        }
+        .ls-parallax {
+            transform: none;
+        }
+    }
+</style>

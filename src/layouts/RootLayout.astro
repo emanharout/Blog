@@ -59,6 +59,25 @@ const socialImageAlt = imageAlt ?? description;
         <meta name="twitter:image" content={absoluteImageURL} />
         <meta name="twitter:image:alt" content={socialImageAlt} />
 
+        {
+            /*
+              Dev only: pick an experimental light-mode style (see src/styles/light-styles.css) from ?light-style=…
+              or the design tuner's choice, before first paint. Production always uses the default style.
+            */
+            import.meta.env.DEV && (
+                <script is:inline>
+                    (() => {
+                        try {
+                            const fromUrl = new URLSearchParams(location.search).get('light-style');
+                            const style = fromUrl ?? localStorage.getItem('light-style');
+                            if (style && style !== 'default') document.documentElement.dataset.lightStyle = style;
+                        } catch {
+                            // Storage unavailable; use the default style.
+                        }
+                    })();
+                </script>
+            )
+        }
         <!-- Keep this inline/public script in <head> so theme class is applied before first paint. -->
         <!-- This avoids a flash of wrong theme; tradeoff is that this script is not Astro-processed. -->
         <script is:inline src="/scripts/colorThemeScript.js"></script>
