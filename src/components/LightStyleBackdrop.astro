@@ -62,6 +62,39 @@ const glazingBars = Array.from({ length: 10 }, (_, i) => {
     const x = i * 160;
     return `M${x} 900 V300 A80 80 0 0 1 ${x + 160} 300 V900`;
 }).join(' ');
+
+// Celestial Atlas: an engraved celestial sphere (rings with degree ticks) and a few constellations, in a 1440x900 chart
+const sphere = { cx: 70, cy: 860, r: 440 };
+const sphereTicks = Array.from({ length: 72 }, (_, i) => {
+    const a = (i * 5 * Math.PI) / 180;
+    const inner = sphere.r - (i % 6 === 0 ? 16 : 8);
+    return `M${(sphere.cx + Math.cos(a) * inner).toFixed(1)} ${(sphere.cy + Math.sin(a) * inner).toFixed(1)} L${(sphere.cx + Math.cos(a) * sphere.r).toFixed(1)} ${(sphere.cy + Math.sin(a) * sphere.r).toFixed(1)}`;
+}).join(' ');
+const constellations: { stars: Point[]; lines: [number, number][] }[] = [
+    // A dipper
+    { stars: [[120, 170], [205, 160], [275, 192], [335, 236], [352, 318], [452, 330], [470, 252]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]] },
+    // A "W"
+    { stars: [[640, 760], [700, 805], [760, 772], [822, 826], [884, 780]], lines: [[0, 1], [1, 2], [2, 3], [3, 4]] },
+    // A hunter
+    { stars: [[1060, 520], [1215, 508], [1110, 615], [1145, 606], [1180, 597], [1080, 730], [1205, 712]], lines: [[0, 1], [0, 2], [1, 4], [2, 3], [3, 4], [2, 5], [4, 6]] },
+];
+
+// Chapel Light: two lancet windows of colored panes (projected, so blurred and skewed) and a rose window
+const chapelColors = ['222 70% 62%', '350 60% 66%', '42 85% 66%', '160 40% 58%', '265 40% 66%'];
+const lancetPanes = Array.from({ length: 4 * 9 }, (_, i) => ({
+    x: (i % 4) * 100,
+    y: Math.floor(i / 4) * 92,
+    color: chapelColors[(i * 7 + Math.floor(i / 4)) % chapelColors.length],
+}));
+const roseSegments = Array.from({ length: 12 }, (_, i) => {
+    const a0 = (i * 30 * Math.PI) / 180;
+    const a1 = ((i + 1) * 30 * Math.PI) / 180;
+    const r = 150;
+    return {
+        d: `M0 0 L${(Math.cos(a0) * r).toFixed(1)} ${(Math.sin(a0) * r).toFixed(1)} A${r} ${r} 0 0 1 ${(Math.cos(a1) * r).toFixed(1)} ${(Math.sin(a1) * r).toFixed(1)} Z`,
+        color: chapelColors[i % chapelColors.length],
+    };
+});
 ---
 
 <!-- MORNING MIST: layered hills fading into haze, a veiled sun. Nothing moves. -->
@@ -162,6 +195,120 @@ const glazingBars = Array.from({ length: 10 }, (_, i) => {
     </div>
 </div>
 
+<!-- CELESTIAL ATLAS: engraved rings and constellations on aged cream; the sphere turns imperceptibly slowly. -->
+<div class="ls-layer ls-atlas">
+    <div class="ls-parallax" style="--speed: 0.03">
+        <svg class="ls-chart" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+            <g class="ls-sphere">
+                <circle cx={sphere.cx} cy={sphere.cy} r={sphere.r}></circle>
+                <circle cx={sphere.cx} cy={sphere.cy} r={sphere.r - 30}></circle>
+                <circle cx={sphere.cx} cy={sphere.cy} r={sphere.r * 0.62} class="ls-dashed"></circle>
+                <path d={sphereTicks}></path>
+                <path
+                    d={`M${sphere.cx - sphere.r} ${sphere.cy} H${sphere.cx + sphere.r} M${sphere.cx} ${sphere.cy - sphere.r} V${sphere.cy + sphere.r}`}
+                ></path>
+                <ellipse cx={sphere.cx} cy={sphere.cy} rx={sphere.r} ry={sphere.r * 0.36} transform={`rotate(-23 ${sphere.cx} ${sphere.cy})`} class="ls-dashed"></ellipse>
+            </g>
+            {
+                constellations.map(({ stars, lines }) => (
+                    <g class="ls-constellation">
+                        {lines.map(([a, b]) => (
+                            <line x1={stars[a][0]} y1={stars[a][1]} x2={stars[b][0]} y2={stars[b][1]} />
+                        ))}
+                        {stars.map(([x, y], i) => (
+                            <circle cx={x} cy={y} r={i % 3 === 0 ? 4 : 2.8} />
+                        ))}
+                    </g>
+                ))
+            }
+        </svg>
+    </div>
+</div>
+
+<!-- CHAPEL LIGHT: jewel-toned light from stained glass, cast softly across limestone. -->
+<div class="ls-layer ls-chapel">
+    <svg class="ls-chapel-light" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+            <clipPath id="ls-lancet">
+                <path d="M0 830 V250 Q0 50 200 0 Q400 50 400 250 V830 Z"></path>
+            </clipPath>
+            <filter id="ls-diffuse" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="34"></feGaussianBlur>
+            </filter>
+            <g id="ls-lancet-panes" clip-path="url(#ls-lancet)">
+                {lancetPanes.map((pane) => <rect x={pane.x} y={pane.y} width="94" height="86" style={`fill: hsl(${pane.color})`} />)}
+            </g>
+        </defs>
+        <g filter="url(#ls-diffuse)">
+            <use href="#ls-lancet-panes" transform="translate(40 180) skewX(-24) scale(0.62 0.78)"></use>
+            <use href="#ls-lancet-panes" transform="translate(330 230) skewX(-24) scale(0.62 0.78)"></use>
+            <g transform="translate(1260 150)">
+                {roseSegments.map((segment) => <path d={segment.d} style={`fill: hsl(${segment.color})`} />)}
+            </g>
+        </g>
+    </svg>
+</div>
+
+<!-- MARBLED ENDPAPER: indigo and ochre marbling around the edges, fading to plain cream behind the content. -->
+<div class="ls-layer ls-marbled">
+    <svg class="ls-marbling" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+        <defs>
+            <pattern id="ls-marble-bands" width="1440" height="96" patternUnits="userSpaceOnUse">
+                <rect width="1440" height="30" y="0" style="fill: hsl(230 32% 46%)"></rect>
+                <rect width="1440" height="18" y="30" style="fill: hsl(40 40% 90%)"></rect>
+                <rect width="1440" height="22" y="48" style="fill: hsl(34 55% 62%)"></rect>
+                <rect width="1440" height="4" y="70" style="fill: hsl(230 30% 22%)"></rect>
+                <rect width="1440" height="22" y="74" style="fill: hsl(210 22% 72%)"></rect>
+            </pattern>
+            <filter id="ls-comb" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.009" numOctaves="2" seed="11" result="swirl"></feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="swirl" scale="220" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+            </filter>
+        </defs>
+        <rect x="-100" y="-100" width="1640" height="1100" fill="url(#ls-marble-bands)" filter="url(#ls-comb)"></rect>
+    </svg>
+</div>
+
+<!-- SUMI-E: ink-wash mountains with mist between them, a vermilion sun, washi fibers. -->
+<div class="ls-layer ls-sumie">
+    <div class="ls-sumie-sun"></div>
+    <svg class="ls-ink-mountains" viewBox="0 0 1440 500" preserveAspectRatio="xMaxYMax slice">
+        <defs>
+            <filter id="ls-brush" x="-5%" y="-10%" width="110%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="3" seed="2" result="grain"></feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="grain" scale="14"></feDisplacementMap>
+            </filter>
+            {
+                [
+                    ['far', 0.16],
+                    ['mid', 0.24],
+                    ['near', 0.34],
+                ].map(([id, alpha]) => (
+                    <linearGradient id={`ls-ink-${id}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" style={`stop-color: hsl(215 12% 20%); stop-opacity: ${alpha}`} />
+                        <stop offset="0.55" style="stop-color: hsl(215 10% 30%); stop-opacity: 0.04" />
+                        <stop offset="1" style="stop-color: hsl(215 10% 30%); stop-opacity: 0" />
+                    </linearGradient>
+                ))
+            }
+        </defs>
+        <g filter="url(#ls-brush)">
+            <path fill="url(#ls-ink-far)" d="M560 500 L760 210 L840 280 L930 150 L1050 260 L1130 200 L1300 330 L1440 260 V500 Z"></path>
+            <path fill="url(#ls-ink-mid)" d="M700 500 L880 300 L960 350 L1080 240 L1210 360 L1320 300 L1440 380 V500 Z"></path>
+            <path fill="url(#ls-ink-near)" d="M860 500 L1020 380 L1120 420 L1240 330 L1380 440 L1440 410 V500 Z"></path>
+        </g>
+    </svg>
+    <div class="ls-fibers"></div>
+</div>
+
+<!-- BAUHAUS SOFT: a few calm geometric forms in muted primaries, at different depths. -->
+<div class="ls-layer ls-bauhaus">
+    <div class="ls-parallax" style="--speed: 0.02"><div class="ls-bh ls-bh-sun"></div></div>
+    <div class="ls-parallax" style="--speed: 0.06"><div class="ls-bh ls-bh-arc"></div></div>
+    <div class="ls-parallax" style="--speed: 0.1"><div class="ls-bh ls-bh-half"></div></div>
+    <div class="ls-parallax" style="--speed: 0.04"><div class="ls-bh ls-bh-line"></div><div class="ls-bh ls-bh-dot"></div></div>
+</div>
+
 <style is:global>
     .ls-layer {
         position: absolute;
@@ -173,7 +320,12 @@ const glazingBars = Array.from({ length: 10 }, (_, i) => {
     :root[data-light-style='porcelain'] .ls-porcelain,
     :root[data-light-style='glasshouse'] .ls-glasshouse,
     :root[data-light-style='watercolor'] .ls-watercolor,
-    :root[data-light-style='firstlight'] .ls-firstlight {
+    :root[data-light-style='firstlight'] .ls-firstlight,
+    :root[data-light-style='atlas'] .ls-atlas,
+    :root[data-light-style='chapel'] .ls-chapel,
+    :root[data-light-style='marbled'] .ls-marbled,
+    :root[data-light-style='sumie'] .ls-sumie,
+    :root[data-light-style='bauhaus'] .ls-bauhaus {
         display: block;
     }
 
@@ -323,7 +475,166 @@ const glazingBars = Array.from({ length: 10 }, (_, i) => {
         }
     }
 
+    /* CELESTIAL ATLAS */
+    .ls-atlas {
+        background:
+            radial-gradient(120% 90% at 50% 40%, transparent 60%, hsl(35 30% 82% / 0.45) 100%),
+            linear-gradient(180deg, hsl(44 40% 95%) 0%, hsl(40 34% 93%) 100%);
+    }
+    .ls-chart {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: var(--style-deco);
+        fill: none;
+        stroke: hsl(222 30% 32% / 0.22);
+        stroke-width: 1.3;
+    }
+    .ls-sphere {
+        transform-origin: 70px 860px;
+        animation: ls-turn 480s linear infinite;
+    }
+    .ls-dashed {
+        stroke-dasharray: 3 7;
+    }
+    .ls-constellation line {
+        stroke: hsl(222 30% 32% / 0.2);
+    }
+    .ls-constellation circle {
+        fill: hsl(40 55% 45% / 0.45);
+        stroke: none;
+    }
+    @keyframes ls-turn {
+        to {
+            rotate: 360deg;
+        }
+    }
+
+    /* CHAPEL LIGHT */
+    .ls-chapel {
+        background:
+            radial-gradient(80rem 40rem at 30% -10%, hsl(45 60% 98% / 0.9), transparent 70%),
+            linear-gradient(180deg, hsl(40 26% 94%) 0%, hsl(36 22% 92%) 100%);
+    }
+    .ls-chapel-light {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: calc(0.5 * var(--style-deco));
+        mix-blend-mode: multiply;
+        animation: ls-sun-moves 40s ease-in-out infinite;
+    }
+    /* The light brightens and dims a little, as if clouds pass the sun */
+    @keyframes ls-sun-moves {
+        0%,
+        100% {
+            opacity: calc(0.5 * var(--style-deco));
+        }
+        50% {
+            opacity: calc(0.38 * var(--style-deco));
+        }
+    }
+
+    /* MARBLED ENDPAPER */
+    .ls-marbled {
+        background: hsl(40 40% 95%);
+    }
+    .ls-marbling {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: calc(0.38 * var(--style-deco));
+        /* Only the outer edges are marbled, like an endpaper border; the reading area stays plain cream */
+        -webkit-mask-image: radial-gradient(ellipse 72% 66% at 50% 48%, transparent 78%, black 100%);
+        mask-image: radial-gradient(ellipse 72% 66% at 50% 48%, transparent 78%, black 100%);
+    }
+
+    /* SUMI-E */
+    .ls-sumie {
+        background: linear-gradient(180deg, hsl(45 32% 96.5%) 0%, hsl(42 26% 95%) 100%);
+    }
+    .ls-sumie-sun {
+        position: absolute;
+        top: 12vh;
+        right: max(1.25rem, 3.5vw);
+        width: 4.5rem;
+        height: 4.5rem;
+        border-radius: 50%;
+        background: hsl(6 70% 52%);
+        opacity: calc(0.62 * var(--style-deco));
+        filter: blur(0.4px);
+    }
+    .ls-ink-mountains {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: min(52vh, 30rem);
+        opacity: var(--style-deco);
+    }
+    .ls-fibers {
+        position: absolute;
+        inset: 0;
+        opacity: 0.08;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.006 0.09' numOctaves='3' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.27 0 0 0 0 0.2 0 0 0 1.4 -0.4'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+    }
+
+    /* BAUHAUS SOFT */
+    .ls-bauhaus {
+        background: linear-gradient(180deg, hsl(40 25% 96.5%) 0%, hsl(38 20% 95%) 100%);
+    }
+    .ls-bh {
+        position: absolute;
+        opacity: var(--style-deco);
+    }
+    .ls-bh-sun {
+        top: -9rem;
+        right: -7rem;
+        width: 30rem;
+        height: 30rem;
+        border-radius: 50%;
+        background: hsl(45 75% 80% / 0.6);
+    }
+    .ls-bh-arc {
+        left: -15rem;
+        bottom: -15rem;
+        width: 30rem;
+        height: 30rem;
+        border-radius: 50%;
+        border: 2.75rem solid hsl(212 40% 72% / 0.45);
+    }
+    .ls-bh-half {
+        top: 48vh;
+        right: -3rem;
+        width: 12rem;
+        height: 6rem;
+        border-radius: 12rem 12rem 0 0;
+        background: hsl(8 55% 74% / 0.45);
+        rotate: -90deg;
+    }
+    .ls-bh-line {
+        top: 12vh;
+        left: 7vw;
+        width: 1px;
+        height: 34vh;
+        background: hsl(215 30% 25% / 0.22);
+    }
+    .ls-bh-dot {
+        top: calc(12vh + 34vh + 1.5rem);
+        left: calc(7vw - 0.45rem);
+        width: 0.9rem;
+        height: 0.9rem;
+        border-radius: 50%;
+        background: hsl(215 30% 22% / 0.55);
+    }
+
     @media (prefers-reduced-motion: reduce) {
+        .ls-sphere,
+        .ls-chapel-light,
         .ls-fern,
         .ls-dawn-stars {
             animation: none;

@@ -15,4 +15,9 @@ export const LIGHT_STYLES: LightStyle[] = [
     { id: 'glasshouse', name: 'Glasshouse', blurb: 'A Victorian conservatory: cream light, faint glazing bars, fern fronds.' },
     { id: 'watercolor', name: 'Watercolor', blurb: 'Warm paper with soft blue and ochre washes; ink and sienna.' },
     { id: 'firstlight', name: 'First Light', blurb: 'The hour after night: periwinkle to peach, the last stars fading.' },
+    { id: 'atlas', name: 'Celestial Atlas', blurb: 'An old star chart by daylight: cream, navy ink, brass rings and constellations.' },
+    { id: 'chapel', name: 'Chapel Light', blurb: 'Sun through stained glass onto pale limestone; soft jewel-toned light.' },
+    { id: 'marbled', name: 'Marbled Endpaper', blurb: 'Inside an old book cover: indigo and ochre marbling framing cream pages.' },
+    { id: 'sumie', name: 'Sumi-e', blurb: 'Ink-wash mountains on washi paper, with one vermilion sun.' },
+    { id: 'bauhaus', name: 'Bauhaus Soft', blurb: 'Modernist calm: off-white with muted blue, red and yellow geometry.' },
 ];
