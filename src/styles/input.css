@@ -266,6 +266,8 @@
         --aero-sun-h: 40;
         --aero-sun-strength: 0.55;
         --aero-rays: 0.75;
+        /* How far down the viewport the blue sky reaches before warming to gold */
+        --aero-sky-fade: 55%;
         --aero-lawn: 1;
         --aero-night-h: 222;
         --aero-night-l: 7%;
@@ -303,10 +305,10 @@
         --leaf-color-200: var(--aero-leaf-h) 30% 82%;
         --leaf-color-300: var(--aero-leaf-h) 28% 68%;
         --leaf-color-400: var(--aero-leaf-h) 26% 54%;
-        --leaf-color-500: var(--aero-leaf-h) 30% 42%;
-        --leaf-color-600: var(--aero-leaf-h) 34% 33%;
-        --leaf-color-700: var(--aero-leaf-h) 36% 27%;
-        --leaf-color-800: var(--aero-leaf-h) 36% 22%;
+        --leaf-color-500: var(--aero-leaf-h) 30% 45%;
+        --leaf-color-600: var(--aero-leaf-h) 32% 37%;
+        --leaf-color-700: var(--aero-leaf-h) 34% 30%;
+        --leaf-color-800: var(--aero-leaf-h) 35% 25%;
         --leaf-color-900: var(--aero-leaf-h) 38% 18%;
         --leaf-color-950: var(--aero-leaf-h) 40% 10%;
 
@@ -471,7 +473,7 @@
         --fg-color-2: calc(var(--aero-sky-h) + 7) 24% 27%;
         --fg-color-border-2: calc(var(--aero-sky-h) + 7) 25% 55% / 0.22;
         --fg-light: 0deg 0% 100%;
-        --accent-color: var(--sun-color-400);
+        --accent-color: var(--leaf-color-600);
 
         /* Glass knobs (tunable): calmer, less shine, hairline edges */
         --glass-opacity: 0.62;

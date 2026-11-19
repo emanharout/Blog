@@ -1,7 +1,8 @@
 ---
 // Fixed, decorative sky behind an aero page. Light mode: a calm morning sky with warm sunlight slanting in, as if
-// through tall college windows, over a soft lawn horizon. Dark mode: a navy night sky with a faint Milky Way, a moon, a twinkling starfield and the occasional
-// shooting star. Colors and strengths come from the --aero-* knobs in src/styles/input.css.
+// through tall college windows, over a soft, misty lawn. Dark mode: a navy night sky with a faint Milky Way, a moon,
+// a twinkling starfield and the occasional shooting star. Colors and strengths come from the --aero-* knobs in
+// src/styles/input.css.
 //
 // Stars are drawn as box-shadows of three tiny elements (one per size). Positions come from a seeded PRNG so every
 // build renders the same sky, and use vw/vh so they spread across any viewport without changing size. They extend
@@ -55,10 +56,7 @@ const shootingStars: [number, number, number, number, number][] = [
     <div class="day">
         <div class="sun"></div>
         <div class="layer rays-layer"><div class="rays"></div></div>
-        <svg class="lawn" viewBox="0 0 1440 200" preserveAspectRatio="none">
-            <path class="lawn-far" d="M0 70 C 360 40 900 36 1440 62 V200 H0 Z"></path>
-            <path class="lawn-near" d="M0 120 C 420 98 1000 96 1440 116 V200 H0 Z"></path>
-        </svg>
+        <div class="lawn"></div>
     </div>
     <div class="night">
         <div class="layer milky-way-layer"><div class="milky-way"></div></div>
@@ -143,8 +141,8 @@ const shootingStars: [number, number, number, number, number][] = [
             linear-gradient(
                 180deg,
                 hsl(var(--aero-sky-h) 70% 81%) 0%,
-                hsl(var(--aero-sky-h) 60% 89%) 36%,
-                hsl(calc(var(--aero-sun-h) + 6) 70% 94%) 74%,
+                hsl(var(--aero-sky-h) 60% 89%) var(--aero-sky-fade),
+                hsl(calc(var(--aero-sun-h) + 6) 70% 94%) min(calc(var(--aero-sky-fade) + 30%), 96%),
                 hsl(var(--aero-leaf-h) 30% 89%) 100%
             );
     }
@@ -184,19 +182,19 @@ const shootingStars: [number, number, number, number, number][] = [
         mask-image: radial-gradient(75rem 55rem at 100% 0%, black 0%, transparent 72%);
     }
 
+    /* A soft, edgeless lawn: muted sage mist rising from the bottom, with gentle swells but no hard outline */
     .lawn {
         position: absolute;
         bottom: 0;
         left: 0;
         width: 100%;
-        height: min(18vh, 10rem);
+        height: min(30vh, 17rem);
         opacity: var(--aero-lawn);
-    }
-    .lawn-far {
-        fill: hsl(var(--aero-leaf-h) 24% 80% / 0.4);
-    }
-    .lawn-near {
-        fill: hsl(var(--aero-leaf-h) 26% 72% / 0.38);
+        background:
+            radial-gradient(60% 75% at 25% 100%, hsl(var(--aero-leaf-h) 26% 74% / 0.45), transparent 100%),
+            radial-gradient(55% 65% at 78% 100%, hsl(var(--aero-leaf-h) 24% 76% / 0.4), transparent 100%),
+            linear-gradient(180deg, transparent 0%, hsl(var(--aero-leaf-h) 25% 78% / 0.35) 100%);
+        filter: blur(12px);
     }
 
     /* NIGHT */
