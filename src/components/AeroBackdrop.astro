@@ -203,7 +203,7 @@ const shootingStars: [number, number, number, number, number][] = [
         bottom: 0;
         left: 0;
         width: 100%;
-        height: min(18vh, 10rem);
+        height: calc(min(18vh, 10rem) * var(--aero-lawn-height));
         opacity: calc(var(--aero-lawn) * (1 - var(--aero-lawn-softness)));
         filter: blur(calc(var(--aero-lawn-softness) * 18px));
     }
@@ -219,7 +219,7 @@ const shootingStars: [number, number, number, number, number][] = [
         bottom: 0;
         left: 0;
         width: 100%;
-        height: min(30vh, 17rem);
+        height: calc(min(30vh, 17rem) * var(--aero-lawn-height));
         opacity: calc(var(--aero-lawn) * var(--aero-lawn-softness));
         background:
             radial-gradient(60% 75% at 25% 100%, hsl(var(--aero-leaf-h) 26% 74% / 0.45), transparent 100%),

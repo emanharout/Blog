@@ -274,6 +274,8 @@
         --aero-lawn: 1;
         /* 0 = crisp rolling arches, 1 = soft, edgeless mist */
         --aero-lawn-softness: 0.4;
+        /* How far up the page the lawn rises (1 = default height) */
+        --aero-lawn-height: 1;
         --aero-night-h: 222;
         --aero-night-l: 7%;
         --aero-dusk-h: 238;
@@ -284,9 +286,9 @@
 
         /*
          * Shape roles: big intro panels, mid-size boxes, post cards, and pill-shaped controls. Shared by light and
-         * dark mode. --aero-radius-scale scales them all (1 = default, 0 = square corners).
+         * dark mode. --aero-radius-scale scales them all (1 = full size, 0 = square corners).
          */
-        --aero-radius-scale: 1;
+        --aero-radius-scale: 0.85;
         --panel-radius: calc(clamp(1.75rem, 1.25rem + 1.5vw, 2.25rem) * var(--aero-radius-scale));
         --box-radius: calc(1.5rem * var(--aero-radius-scale));
         --card-radius: calc(1rem * var(--aero-radius-scale));
