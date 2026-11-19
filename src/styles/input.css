@@ -266,9 +266,11 @@
         --aero-sun-h: 40;
         --aero-sun-strength: 0.55;
         --aero-rays: 0.75;
-        /* How far down the viewport the blue sky reaches before warming to gold */
+        /* How far down the viewport the blue sky reaches before warming to gold (the gold-to-lawn band stays put) */
         --aero-sky-fade: 55%;
         --aero-lawn: 1;
+        /* 0 = crisp rolling arches, 1 = soft, edgeless mist */
+        --aero-lawn-softness: 1;
         --aero-night-h: 222;
         --aero-night-l: 7%;
         --aero-dusk-h: 238;
