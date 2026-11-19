@@ -1,6 +1,6 @@
 ---
-// Fixed, decorative sky behind an aero page. Light mode: a bright sky with a sun glow, soft green hills and a few
-// glassy bubbles. Dark mode: a navy night sky with a faint Milky Way, a moon, a twinkling starfield and the occasional
+// Fixed, decorative sky behind an aero page. Light mode: a calm morning sky with warm sunlight slanting in, as if
+// through tall college windows, over a soft lawn horizon. Dark mode: a navy night sky with a faint Milky Way, a moon, a twinkling starfield and the occasional
 // shooting star. Colors and strengths come from the --aero-* knobs in src/styles/input.css.
 //
 // Stars are drawn as box-shadows of three tiny elements (one per size). Positions come from a seeded PRNG so every
@@ -43,16 +43,6 @@ const smallStars = starShadows(160, 0.35, 0.75);
 const mediumStars = starShadows(50, 0.55, 0.95);
 const largeStars = starShadows(16, 0.8, 1);
 
-// Bubbles: [left %, top %, size rem, float delay s]
-const bubbles: [number, number, number, number][] = [
-    [6, 62, 5.5, 0],
-    [12, 24, 2.25, -6],
-    [88, 70, 4.5, -3],
-    [93, 34, 2, -9],
-    [72, 86, 2.75, -12],
-    [30, 104, 3.25, -4],
-];
-
 // Shooting stars: [left %, top %, angle deg, cycle s, delay s]. Each streaks once per cycle; uneven cycles keep them
 // from falling into a noticeable rhythm.
 const shootingStars: [number, number, number, number, number][] = [
@@ -64,20 +54,11 @@ const shootingStars: [number, number, number, number, number][] = [
 <div class="aero-sky" aria-hidden="true">
     <div class="day">
         <div class="sun"></div>
-        <svg class="hills" viewBox="0 0 1440 320" preserveAspectRatio="none">
-            <path class="hill-back" d="M0 190 C 240 110 480 120 720 170 S 1200 230 1440 140 V320 H0 Z"></path>
-            <path class="hill-front" d="M0 260 C 300 190 560 210 820 250 S 1260 280 1440 220 V320 H0 Z"></path>
+        <div class="layer rays-layer"><div class="rays"></div></div>
+        <svg class="lawn" viewBox="0 0 1440 200" preserveAspectRatio="none">
+            <path class="lawn-far" d="M0 70 C 360 40 900 36 1440 62 V200 H0 Z"></path>
+            <path class="lawn-near" d="M0 120 C 420 98 1000 96 1440 116 V200 H0 Z"></path>
         </svg>
-        <div class="layer bubbles">
-            {
-                bubbles.map(([left, top, size, delay]) => (
-                    <span
-                        class="bubble"
-                        style={`left:${left}%; top:${top}%; width:${size}rem; height:${size}rem; animation-delay:${delay}s`}
-                    />
-                ))
-            }
-        </div>
     </div>
     <div class="night">
         <div class="layer milky-way-layer"><div class="milky-way"></div></div>
@@ -155,78 +136,67 @@ const shootingStars: [number, number, number, number, number][] = [
     .day {
         background:
             radial-gradient(
-                60rem 40rem at 105% -10%,
-                hsl(var(--aero-sun-h) 100% 80% / var(--aero-sun-strength)),
+                70rem 45rem at 100% -5%,
+                hsl(var(--aero-sun-h) 90% 86% / var(--aero-sun-strength)),
                 transparent 60%
             ),
-            radial-gradient(50rem 36rem at -10% 10%, hsl(var(--aero-sky-h) 95% 75% / 0.45), transparent 60%),
             linear-gradient(
                 180deg,
-                hsl(calc(var(--aero-sky-h) + 3) 90% 84%) 0%,
-                hsl(calc(var(--aero-sky-h) - 2) 85% 92%) 45%,
-                hsl(calc(var(--aero-leaf-h) + 18) 60% 93%) 100%
+                hsl(var(--aero-sky-h) 70% 81%) 0%,
+                hsl(var(--aero-sky-h) 60% 89%) 36%,
+                hsl(calc(var(--aero-sun-h) + 6) 70% 94%) 74%,
+                hsl(var(--aero-leaf-h) 30% 89%) 100%
             );
     }
 
     .sun {
         position: absolute;
-        top: -9rem;
-        right: -7rem;
-        width: 22rem;
-        height: 22rem;
+        top: -12rem;
+        right: -10rem;
+        width: 30rem;
+        height: 30rem;
         border-radius: 50%;
         opacity: calc(var(--aero-sun-strength) / 0.55);
         background: radial-gradient(
             circle,
-            hsl(calc(var(--aero-sun-h) + 4) 100% 92% / 0.95) 0%,
-            hsl(calc(var(--aero-sun-h) + 2) 100% 75% / 0.45) 35%,
+            hsl(calc(var(--aero-sun-h) + 8) 100% 96% / 0.9) 0%,
+            hsl(var(--aero-sun-h) 90% 82% / 0.35) 35%,
             transparent 70%
         );
     }
 
-    .hills {
+    /* Soft shafts of morning light falling from the upper right */
+    .rays-layer {
+        --speed: 0.04;
+        opacity: var(--aero-rays);
+    }
+    .rays {
+        position: absolute;
+        inset: -10% -10% 0 0;
+        background: repeating-linear-gradient(
+            112deg,
+            transparent 0 7rem,
+            hsl(calc(var(--aero-sun-h) + 8) 100% 97% / 0.7) 8.5rem 11rem,
+            transparent 12.5rem 19rem
+        );
+        filter: blur(14px);
+        -webkit-mask-image: radial-gradient(75rem 55rem at 100% 0%, black 0%, transparent 72%);
+        mask-image: radial-gradient(75rem 55rem at 100% 0%, black 0%, transparent 72%);
+    }
+
+    .lawn {
         position: absolute;
         bottom: 0;
         left: 0;
         width: 100%;
-        height: min(38vh, 22rem);
-        opacity: var(--aero-hills);
+        height: min(18vh, 10rem);
+        opacity: var(--aero-lawn);
     }
-    .hill-back {
-        fill: hsl(calc(var(--aero-leaf-h) - 10) 60% 74% / 0.45);
+    .lawn-far {
+        fill: hsl(var(--aero-leaf-h) 24% 80% / 0.4);
     }
-    .hill-front {
-        fill: hsl(calc(var(--aero-leaf-h) - 25) 55% 66% / 0.42);
-    }
-
-    .bubbles {
-        --speed: 0.12;
-        opacity: var(--aero-bubbles);
-    }
-
-    .bubble {
-        position: absolute;
-        border-radius: 50%;
-        background:
-            radial-gradient(circle at 32% 28%, hsl(0 0% 100% / 0.95) 0 5%, hsl(0 0% 100% / 0.25) 13%, transparent 32%),
-            radial-gradient(
-                circle at 50% 50%,
-                transparent 56%,
-                hsl(var(--aero-sky-h) 90% 70% / 0.2) 72%,
-                hsl(0 0% 100% / 0.6) 100%
-            );
-        box-shadow: inset 0 0 0 1px hsl(0 0% 100% / 0.35);
-        animation: float 18s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-        50% {
-            transform: translateY(-1.25rem);
-        }
+    .lawn-near {
+        fill: hsl(var(--aero-leaf-h) 26% 72% / 0.38);
     }
 
     /* NIGHT */
@@ -367,7 +337,6 @@ const shootingStars: [number, number, number, number, number][] = [
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .bubble,
         .stars,
         :global(.dark) .shooting-star::before {
             animation: none;

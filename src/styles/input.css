@@ -261,12 +261,12 @@
          * (AeroTuner.astro) adjusts. Hues are plain numbers (degrees); the rest are 0–1 strengths unless noted.
          * Glass knobs differ per theme and live in the aero role blocks below.
          */
-        --aero-sky-h: 200;
-        --aero-leaf-h: 142;
-        --aero-sun-h: 46;
+        --aero-sky-h: 208;
+        --aero-leaf-h: 128;
+        --aero-sun-h: 40;
         --aero-sun-strength: 0.55;
-        --aero-hills: 1;
-        --aero-bubbles: 0.7;
+        --aero-rays: 0.75;
+        --aero-lawn: 1;
         --aero-night-h: 222;
         --aero-night-l: 7%;
         --aero-dusk-h: 238;
@@ -285,34 +285,34 @@
         --orb-fill: 1;
         --orb-gloss: 1;
 
-        /* Aero (light): clear-sky blue, fresh leaf green, and a touch of sunshine */
-        --azure-color-50: var(--aero-sky-h) 100% 97%;
-        --azure-color-100: var(--aero-sky-h) 94% 94%;
-        --azure-color-200: var(--aero-sky-h) 94% 86%;
-        --azure-color-300: var(--aero-sky-h) 95% 74%;
-        --azure-color-400: var(--aero-sky-h) 93% 60%;
-        --azure-color-500: var(--aero-sky-h) 89% 48%;
-        --azure-color-600: var(--aero-sky-h) 98% 39%;
-        --azure-color-700: var(--aero-sky-h) 96% 32%;
-        --azure-color-800: var(--aero-sky-h) 90% 27%;
-        --azure-color-900: var(--aero-sky-h) 80% 24%;
-        --azure-color-950: var(--aero-sky-h) 80% 16%;
+        /* Aero (light): a clear morning sky, college-lawn sage, and honey-gold sunlight. Muted on purpose. */
+        --azure-color-50: var(--aero-sky-h) 60% 97%;
+        --azure-color-100: var(--aero-sky-h) 55% 93%;
+        --azure-color-200: var(--aero-sky-h) 52% 85%;
+        --azure-color-300: var(--aero-sky-h) 50% 73%;
+        --azure-color-400: var(--aero-sky-h) 48% 60%;
+        --azure-color-500: var(--aero-sky-h) 50% 47%;
+        --azure-color-600: var(--aero-sky-h) 58% 37%;
+        --azure-color-700: var(--aero-sky-h) 60% 30%;
+        --azure-color-800: var(--aero-sky-h) 58% 25%;
+        --azure-color-900: var(--aero-sky-h) 55% 20%;
+        --azure-color-950: var(--aero-sky-h) 60% 13%;
 
-        --leaf-color-50: var(--aero-leaf-h) 76% 97%;
-        --leaf-color-100: var(--aero-leaf-h) 84% 93%;
-        --leaf-color-200: var(--aero-leaf-h) 79% 85%;
-        --leaf-color-300: var(--aero-leaf-h) 70% 70%;
-        --leaf-color-400: var(--aero-leaf-h) 62% 55%;
-        --leaf-color-500: var(--aero-leaf-h) 64% 43%;
-        --leaf-color-600: var(--aero-leaf-h) 70% 35%;
-        --leaf-color-700: var(--aero-leaf-h) 68% 28%;
-        --leaf-color-800: var(--aero-leaf-h) 62% 23%;
-        --leaf-color-900: var(--aero-leaf-h) 60% 19%;
-        --leaf-color-950: var(--aero-leaf-h) 80% 10%;
+        --leaf-color-50: var(--aero-leaf-h) 35% 96%;
+        --leaf-color-100: var(--aero-leaf-h) 32% 91%;
+        --leaf-color-200: var(--aero-leaf-h) 30% 82%;
+        --leaf-color-300: var(--aero-leaf-h) 28% 68%;
+        --leaf-color-400: var(--aero-leaf-h) 26% 54%;
+        --leaf-color-500: var(--aero-leaf-h) 30% 42%;
+        --leaf-color-600: var(--aero-leaf-h) 34% 33%;
+        --leaf-color-700: var(--aero-leaf-h) 36% 27%;
+        --leaf-color-800: var(--aero-leaf-h) 36% 22%;
+        --leaf-color-900: var(--aero-leaf-h) 38% 18%;
+        --leaf-color-950: var(--aero-leaf-h) 40% 10%;
 
-        --sun-color-300: var(--aero-sun-h) 96% 67%;
-        --sun-color-400: var(--aero-sun-h) 93% 56%;
-        --sun-color-500: var(--aero-sun-h) 92% 48%;
+        --sun-color-300: var(--aero-sun-h) 75% 65%;
+        --sun-color-400: var(--aero-sun-h) 70% 52%;
+        --sun-color-500: var(--aero-sun-h) 72% 44%;
 
         /* Aero (dark): a night sky. Navy depths, starlit blue, and a dusky violet-blue */
         --night-color-50: var(--aero-night-h) 60% 96%;
@@ -437,7 +437,7 @@
      * (AeroBackdrop.astro) shows through; raised surfaces become frosted.
      */
     :root[data-design='aero'] {
-        background-color: hsl(var(--aero-sky-h) 90% 92%);
+        background-color: hsl(var(--aero-sky-h) 60% 90%);
 
         --primary-color-50: var(--azure-color-50);
         --primary-color-100: var(--azure-color-100);
@@ -463,31 +463,47 @@
         --secondary-color-900: var(--leaf-color-900);
         --secondary-color-950: var(--leaf-color-950);
 
-        --background-color-1: var(--aero-sky-h) 100% 97% / 0;
-        --background-color-2: 0deg 0% 100% / 0.72;
+        --background-color-1: var(--aero-sky-h) 60% 97% / 0;
+        --background-color-2: 42deg 40% 99% / 0.86;
 
-        --fg-color-1: var(--aero-sky-h) 60% 15%;
-        --fg-color-2: var(--aero-sky-h) 38% 25%;
-        --fg-color-border-2: 0deg 0% 100% / 0.75;
+        /* Ink-blue text rather than bright blue */
+        --fg-color-1: calc(var(--aero-sky-h) + 7) 42% 15%;
+        --fg-color-2: calc(var(--aero-sky-h) + 7) 24% 27%;
+        --fg-color-border-2: calc(var(--aero-sky-h) + 7) 25% 55% / 0.22;
         --fg-light: 0deg 0% 100%;
         --accent-color: var(--sun-color-400);
 
-        /* Glass knobs (tunable) */
-        --glass-opacity: 0.66;
-        --glass-blur: 18px;
-        --glass-gloss-alpha: 0.55;
-        --glass-edge-alpha: 0.75;
+        /* Glass knobs (tunable): calmer, less shine, hairline edges */
+        --glass-opacity: 0.62;
+        --glass-blur: 20px;
+        --glass-gloss-alpha: 0.22;
+        --glass-edge-alpha: 0.7;
 
-        --glass-reading-opacity: 0.9;
-        --glass-tint-top: 0 0% 100%;
-        --glass-tint-bottom: 0 0% 100%;
-        --glass-fade: 0.6;
-        --glass-border: hsl(0 0% 100% / var(--glass-edge-alpha));
+        --glass-reading-opacity: 0.93;
+        /* Warm ivory at the top, cool daylight at the bottom */
+        --glass-tint-top: 42 45% 99%;
+        --glass-tint-bottom: var(--aero-sky-h) 35% 98%;
+        --glass-fade: 0.75;
+        --glass-border: hsl(calc(var(--aero-sky-h) + 7) 25% 55% / calc(var(--glass-edge-alpha) * 0.3));
         --glass-gloss: hsl(0 0% 100% / var(--glass-gloss-alpha));
         --glass-shadow:
-            inset 0 1px 0 hsl(0 0% 100% / calc(var(--glass-edge-alpha) + 0.15)),
-            0 18px 40px -20px hsl(var(--aero-sky-h) 70% 28% / 0.35),
-            0 2px 6px -2px hsl(var(--aero-sky-h) 60% 30% / 0.12);
+            inset 0 1px 0 hsl(0 0% 100% / 0.9),
+            0 1px 2px hsl(calc(var(--aero-sky-h) + 7) 30% 20% / 0.06),
+            0 22px 44px -26px hsl(calc(var(--aero-sky-h) + 7) 40% 25% / 0.24);
+
+        /* Social icons in ink, sage and blue instead of loud brand colors */
+        --x-icon-color: hsl(var(--fg-color-1));
+        --github-icon-color: hsl(var(--fg-color-1));
+        --medium-icon-color: hsl(var(--leaf-color-600));
+        --email-icon-color: hsl(var(--azure-color-600));
+        --linkedin-icon-color: hsl(var(--azure-color-700));
+
+        /* Crisper shapes and quieter badges */
+        --panel-radius: 1.125rem;
+        --box-radius: 0.875rem;
+        --card-radius: 0.625rem;
+        --orb-fill: 0;
+        --orb-gloss: 0.35;
     }
 
     /* AERO DESIGN ROLES (dark): frosted navy panels under a starry sky */
@@ -528,12 +544,22 @@
         --fg-primary-link-2-hover: var(--night-color-100);
         --accent-color: 45deg 100% 94%;
         --email-icon-color: hsl(var(--night-color-400));
+        --x-icon-color: hsl(220, 10%, 80%);
+        --github-icon-color: hsl(220, 10%, 80%);
+        --medium-icon-color: hsl(158, 70%, 35%);
+        --linkedin-icon-color: hsl(200, 70%, 40%);
 
         /* Glass knobs (tunable) */
         --glass-opacity: 0.42;
         --glass-blur: 14px;
         --glass-gloss-alpha: 0.06;
         --glass-edge-alpha: 0.1;
+
+        --panel-radius: clamp(1.75rem, 1.25rem + 1.5vw, 2.25rem);
+        --box-radius: 1.5rem;
+        --card-radius: 1rem;
+        --orb-fill: 1;
+        --orb-gloss: 1;
 
         --glass-reading-opacity: 0.85;
         --glass-tint-top: var(--aero-night-h) 55% 20%;
