@@ -30,8 +30,8 @@ const blogs = [
 <MainLayout title={SITE_NAME} description={SITE_DESCRIPTION}>
     <section class="container-page container-content pt-4 sm:pt-10">
         <div
-            class="glass grid items-start gap-6 rounded-[1.75rem] px-6 py-8 text-fg-2
-            sm:rounded-[2.25rem] sm:px-12 sm:py-12
+            class="glass grid items-start gap-6 rounded-panel px-6 py-8 text-fg-2
+            sm:px-12 sm:py-12
             md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-12"
         >
             <h1 class="font-serif text-4xl leading-tight text-balance text-fg-1 sm:text-5xl md:text-right">
@@ -53,7 +53,7 @@ const blogs = [
                     <li>
                         <a
                             href={href}
-                            class="glass group flex h-full gap-4 rounded-3xl p-5 sm:p-6
+                            class="glass group flex h-full gap-4 rounded-box p-5 sm:p-6
                             transition duration-300 hover:-translate-y-0.5
                             focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500
                             motion-reduce:transition-none motion-reduce:hover:translate-y-0"
@@ -96,7 +96,7 @@ const blogs = [
             <h2 class="font-serif text-2xl text-fg-1 sm:text-3xl">Latest posts</h2>
             <a
                 href="/blog"
-                class="rounded-full px-3 py-1 text-sm font-medium text-primary-700 hover:bg-bg-2 dark:text-primary-300"
+                class="rounded-pill px-3 py-1 text-sm font-medium text-primary-700 hover:bg-bg-2 dark:text-primary-300"
             >
                 All posts <span aria-hidden="true">→</span>
             </a>

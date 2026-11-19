@@ -76,6 +76,12 @@
     --color-gray-temp-800: hsl(var(--temperature-gray-800));
     --color-gray-temp-900: hsl(var(--temperature-gray-900));
 
+    /* Corner radii. Driven by --*-radius roles so a theme can be rounder or crisper. Use: rounded-panel, … */
+    --radius-panel: var(--panel-radius);
+    --radius-box: var(--box-radius);
+    --radius-card: var(--card-radius);
+    --radius-pill: var(--pill-radius);
+
     /* Project typography families used by font-serif and font-sans. */
     /* The variables come from the `fonts` config in astro.config.mjs and already include fallbacks. */
     --font-serif: var(--font-frank-ruhl-libre);
@@ -143,12 +149,17 @@
     display: grid;
     place-items: center;
     border-radius: 9999px;
-    color: white;
-    background: radial-gradient(circle at 50% 120%, var(--orb-from) 0%, var(--orb-to) 75%);
+    color: color-mix(in oklab, white calc(var(--orb-fill) * 100%), var(--orb-to));
+    background: radial-gradient(
+        circle at 50% 120%,
+        color-mix(in oklab, var(--orb-from) calc(var(--orb-fill) * 100%), white) 0%,
+        color-mix(in oklab, var(--orb-to) calc(var(--orb-fill) * 100%), white) 75%
+    );
     box-shadow:
         inset 0 -6px 12px -4px hsl(0 0% 100% / 0.35),
         inset 0 1px 1px hsl(0 0% 100% / 0.6),
-        0 6px 16px -6px var(--orb-to);
+        0 0 0 1px color-mix(in oklab, var(--orb-to) calc((1 - var(--orb-fill)) * 40%), transparent),
+        0 6px 16px -6px color-mix(in oklab, var(--orb-to) calc(var(--orb-fill) * 100%), transparent);
 
     &::before {
         content: '';
@@ -156,6 +167,7 @@
         inset: 4% 14% 50%;
         border-radius: 9999px;
         pointer-events: none;
+        opacity: var(--orb-gloss);
         background: linear-gradient(180deg, hsl(0 0% 100% / 0.75), hsl(0 0% 100% / 0.05));
     }
 }
@@ -262,6 +274,16 @@
         --aero-moon-glow: 1;
         --aero-shooting-stars: 1;
         --aero-parallax: 1;
+
+        /* Shape roles: big intro panels, mid-size boxes, post cards, and pill-shaped controls */
+        --panel-radius: clamp(1.75rem, 1.25rem + 1.5vw, 2.25rem);
+        --box-radius: 1.5rem;
+        --card-radius: 1rem;
+        --pill-radius: 9999px;
+
+        /* Glossy orb badges: 1 = full colored glass bead, 0 = white disc with a colored ring and icon */
+        --orb-fill: 1;
+        --orb-gloss: 1;
 
         /* Aero (light): clear-sky blue, fresh leaf green, and a touch of sunshine */
         --azure-color-50: var(--aero-sky-h) 100% 97%;
