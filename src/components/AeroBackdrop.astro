@@ -144,8 +144,16 @@ const shootingStars: [number, number, number, number, number][] = [
             ),
             linear-gradient(
                 180deg,
-                hsl(var(--aero-sky-h) 70% 81%) 0%,
-                hsl(var(--aero-sky-h) 60% 89%) min(var(--aero-sky-fade), 82%),
+                hsl(
+                        var(--aero-sky-h) calc(70% * var(--aero-sky-saturation))
+                            calc(81% - 23% * var(--aero-sky-depth))
+                    )
+                    0%,
+                hsl(
+                        var(--aero-sky-h) calc(60% * var(--aero-sky-saturation))
+                            calc(89% - 17% * var(--aero-sky-depth))
+                    )
+                    min(var(--aero-sky-fade), 82%),
                 hsl(calc(var(--aero-sun-h) + 6) 70% 94%) 85%,
                 hsl(var(--aero-leaf-h) 30% 89%) 100%
             );
