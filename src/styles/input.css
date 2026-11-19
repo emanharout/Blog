@@ -76,7 +76,7 @@
     --color-gray-temp-800: hsl(var(--temperature-gray-800));
     --color-gray-temp-900: hsl(var(--temperature-gray-900));
 
-    /* Corner radii. Driven by --*-radius roles so a theme can be rounder or crisper. Use: rounded-panel, … */
+    /* Corner radii, from the --*-radius roles (scaled by --aero-radius-scale). Use: rounded-panel, rounded-pill, … */
     --radius-panel: var(--panel-radius);
     --radius-box: var(--box-radius);
     --radius-card: var(--card-radius);
@@ -267,13 +267,13 @@
         --aero-sun-strength: 0.55;
         --aero-rays: 0.75;
         /* How far down the viewport the blue sky reaches before warming to gold (the gold-to-lawn band stays put) */
-        --aero-sky-fade: 55%;
+        --aero-sky-fade: 63%;
         /* Sky blue intensity: saturation is a multiplier (1 = default); depth darkens the blue toward a richer tone */
-        --aero-sky-saturation: 1;
-        --aero-sky-depth: 0;
+        --aero-sky-saturation: 1.25;
+        --aero-sky-depth: 0.1;
         --aero-lawn: 1;
         /* 0 = crisp rolling arches, 1 = soft, edgeless mist */
-        --aero-lawn-softness: 1;
+        --aero-lawn-softness: 0.4;
         --aero-night-h: 222;
         --aero-night-l: 7%;
         --aero-dusk-h: 238;
@@ -282,11 +282,16 @@
         --aero-shooting-stars: 1;
         --aero-parallax: 1;
 
-        /* Shape roles: big intro panels, mid-size boxes, post cards, and pill-shaped controls */
-        --panel-radius: clamp(1.75rem, 1.25rem + 1.5vw, 2.25rem);
-        --box-radius: 1.5rem;
-        --card-radius: 1rem;
-        --pill-radius: 9999px;
+        /*
+         * Shape roles: big intro panels, mid-size boxes, post cards, and pill-shaped controls. Shared by light and
+         * dark mode. --aero-radius-scale scales them all (1 = default, 0 = square corners).
+         */
+        --aero-radius-scale: 1;
+        --panel-radius: calc(clamp(1.75rem, 1.25rem + 1.5vw, 2.25rem) * var(--aero-radius-scale));
+        --box-radius: calc(1.5rem * var(--aero-radius-scale));
+        --card-radius: calc(1rem * var(--aero-radius-scale));
+        /* 2rem fully rounds every pill-shaped control (all are under 4rem tall) */
+        --pill-radius: calc(2rem * var(--aero-radius-scale));
 
         /* Glossy orb badges: 1 = full colored glass bead, 0 = white disc with a colored ring and icon */
         --orb-fill: 1;
@@ -505,10 +510,7 @@
         --email-icon-color: hsl(var(--azure-color-600));
         --linkedin-icon-color: hsl(var(--azure-color-700));
 
-        /* Crisper shapes and quieter badges */
-        --panel-radius: 1.125rem;
-        --box-radius: 0.875rem;
-        --card-radius: 0.625rem;
+        /* Quieter badges */
         --orb-fill: 0;
         --orb-gloss: 0.35;
     }
@@ -562,9 +564,6 @@
         --glass-gloss-alpha: 0.06;
         --glass-edge-alpha: 0.1;
 
-        --panel-radius: clamp(1.75rem, 1.25rem + 1.5vw, 2.25rem);
-        --box-radius: 1.5rem;
-        --card-radius: 1rem;
         --orb-fill: 1;
         --orb-gloss: 1;
 

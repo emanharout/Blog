@@ -12,6 +12,8 @@ type Knob = {
     step: number;
     unit?: string;
     themes: Theme[];
+    // Shared knobs set the same value in light and dark mode
+    shared?: boolean;
     // Optional live color preview
     swatch?: string;
 };
@@ -48,6 +50,12 @@ const groups: { title: string; knobs: Knob[] }[] = [
             { name: 'glass-blur', label: 'Frost (blur)', min: 0, max: 40, step: 1, unit: 'px', themes: both },
             { name: 'glass-gloss-alpha', label: 'Shine', min: 0, max: 1, step: 0.01, themes: both },
             { name: 'glass-edge-alpha', label: 'Edge', min: 0, max: 1, step: 0.01, themes: both },
+        ],
+    },
+    {
+        title: 'Shape',
+        knobs: [
+            { name: 'aero-radius-scale', label: 'Corner roundness (both modes)', min: 0, max: 2, step: 0.05, themes: both, shared: true },
         ],
     },
     {
@@ -116,6 +124,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
                                 step={knob.step}
                                 data-knob={knob.name}
                                 data-unit={knob.unit ?? ''}
+                                data-shared={knob.shared ? '' : undefined}
                             />
                         </label>
                     ))}
@@ -227,7 +236,10 @@ const groups: { title: string; knobs: Knob[] }[] = [
         input.addEventListener('input', () => {
             const name = input.dataset.knob!;
             const value = `${input.value}${input.dataset.unit ?? ''}`;
-            state.overrides[currentTheme()][name] = value;
+            const themes: Theme[] = input.dataset.shared !== undefined ? ['light', 'dark'] : [currentTheme()];
+            themes.forEach((theme) => {
+                state.overrides[theme][name] = value;
+            });
             writeStyles();
             save();
             const output = document.querySelector(`[data-output-for="${name}"]`);
@@ -248,6 +260,10 @@ const groups: { title: string; knobs: Knob[] }[] = [
     document.getElementById('aero-tuner-reset')?.addEventListener('click', () => {
         const theme = currentTheme();
         state.overrides[theme] = {};
+        // Shared knobs are reset in both modes so they stay in sync
+        inputs.forEach((input) => {
+            if (input.dataset.shared !== undefined) delete state.overrides[theme === 'light' ? 'dark' : 'light'][input.dataset.knob!];
+        });
         writeStyles();
         save();
         refresh();
