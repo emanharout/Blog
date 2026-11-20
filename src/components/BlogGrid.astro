@@ -20,3 +20,7 @@ const { posts } = Astro.props;
 >
     {posts.map((post) => <BlogGridCard post={post} />)}
 </ul>
+
+<script>
+    import '../scripts/cardTilt';
+</script>

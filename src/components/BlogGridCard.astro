@@ -10,15 +10,18 @@ type Props = {
 const { post } = Astro.props;
 ---
 
-<!-- The title link's ::after covers the whole card so the card is clickable; tag links sit above it (z-10). -->
+<!--
+  The title link's ::after covers the whole card so the card is clickable; tag links sit above it (z-10).
+  `tilt-card` + data-tilt: the card tilts toward the pointer (see src/scripts/cardTilt.ts).
+-->
 <li
+    data-tilt
     class="relative flex flex-col justify-between gap-4 min-h-44
     px-4 pt-3 pb-3
     rounded-lg shadow-md border border-fg-border-2
     bg-bg-2 text-fg-2
     aero:glass aero:rounded-card aero:px-5 aero:pt-4 aero:pb-4
-    aero:transition aero:duration-300 aero:hover:-translate-y-0.5
-    motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    tilt-card"
 >
     <article class="contents">
         <div>

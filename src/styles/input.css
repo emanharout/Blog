@@ -164,6 +164,23 @@
 }
 
 /*
+ * PRESS-TILT
+ * Cards tilt toward the pointer as if pressed where it rests: the corner under the pointer dips away, and the card
+ * sinks slightly. --tilt-x / --tilt-y / --tilt-press are set by src/scripts/cardTilt.ts (mouse and trackpad only,
+ * never with reduced motion); without them the card lies flat. [data-tilting] makes it follow the pointer closely.
+ */
+@utility tilt-card {
+    /* No transform at rest, so the card's text stays perfectly crisp; it eases back flat when the pointer leaves */
+    transition: transform 450ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    &[data-tilting] {
+        transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+            translateZ(var(--tilt-press, 0px));
+        transition-duration: 120ms;
+    }
+}
+
+/*
  * GLOSSY ORB
  * A round, glassy icon badge. Set its colors with --orb-from (top) and --orb-to (bottom).
  */
