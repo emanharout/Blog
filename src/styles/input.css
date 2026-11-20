@@ -120,8 +120,12 @@
  * --glass-shadow-depth sets how far the panel floats, and --glass-boost how much it saturates what's behind it.
  */
 @utility glass {
-    position: relative;
     isolation: isolate;
+    /* The gloss layer (::before) needs a positioned box. Panels that are already sticky, fixed or absolute (like the
+       post page's table of contents) keep their own positioning. */
+    &:not(.sticky, .fixed, .absolute) {
+        position: relative;
+    }
     background: linear-gradient(
         180deg,
         hsl(var(--glass-tint-top) / var(--glass-opacity)),
