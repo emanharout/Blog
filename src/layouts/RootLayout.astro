@@ -7,6 +7,7 @@ import { Font } from 'astro:assets';
 import '../styles/input.css';
 import '../styles/shiki.css';
 import { SITE_NAME } from '../scripts/constants';
+import { DEFAULT_LIGHT_STYLE } from '../scripts/lightStyles';
 
 interface Props {
     title: string;
@@ -29,7 +30,7 @@ const socialImageAlt = imageAlt ?? description;
 ---
 
 <!doctype html>
-<html lang="en" class="h-full" data-design={design}>
+<html lang="en" class="h-full" data-design={design} data-light-style={design === 'aero' ? DEFAULT_LIGHT_STYLE : undefined}>
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -61,8 +62,9 @@ const socialImageAlt = imageAlt ?? description;
 
         {
             /*
-              Dev only: pick an experimental light-mode style (see src/styles/light-styles.css) from ?light-style=…
-              or the design tuner's choice, before first paint. Production always uses the default style.
+              Dev only: preview another light-mode style (see src/scripts/lightStyles.ts) from ?light-style=… or the
+              design tuner's choice, before first paint. 'default' is Refined Aero (no attribute). Production always
+              uses DEFAULT_LIGHT_STYLE, set on <html> above.
             */
             import.meta.env.DEV && (
                 <script is:inline>
@@ -70,7 +72,8 @@ const socialImageAlt = imageAlt ?? description;
                         try {
                             const fromUrl = new URLSearchParams(location.search).get('light-style');
                             const style = fromUrl ?? localStorage.getItem('light-style');
-                            if (style && style !== 'default') document.documentElement.dataset.lightStyle = style;
+                            if (style === 'default') delete document.documentElement.dataset.lightStyle;
+                            else if (style) document.documentElement.dataset.lightStyle = style;
                         } catch {
                             // Storage unavailable; use the default style.
                         }

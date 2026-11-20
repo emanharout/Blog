@@ -1,9 +1,9 @@
 /*
- * EXPERIMENTAL LIGHT-MODE STYLES (development only)
- * Each block restyles light mode when <html data-light-style="…"> is set. Only the dev-only script in RootLayout sets
- * it (from ?light-style=… or the design tuner), so production always uses the default Refined Aero light mode. Dark
- * mode is never affected (every selector has :not(.dark)). Backdrops live in LightStyleBackdrop.astro; the list of
- * styles in src/scripts/lightStyles.ts. Once one is chosen, fold it into input.css and delete this file.
+ * LIGHT-MODE STYLES
+ * Each block restyles light mode when <html data-light-style="…"> is set. RootLayout sets it to the site's light style
+ * (DEFAULT_LIGHT_STYLE in src/scripts/lightStyles.ts, currently Daybreak); in development the design tuner and
+ * ?light-style=… can switch to any other style for previewing. Dark mode is never affected (every selector has
+ * :not(.dark)). Backdrops live in LightStyleBackdrop.astro; saved tuner values in tuned.css override these.
  */
 
 @layer base {

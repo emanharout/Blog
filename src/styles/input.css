@@ -1,5 +1,5 @@
 @import "tailwindcss";
-/* Dev-only light-mode style experiments; inert unless <html data-light-style> is set */
+/* Light-mode styles; the site uses Daybreak (see src/scripts/lightStyles.ts), the rest are dev-only previews */
 @import "./light-styles.css";
 /* Values saved from the dev-only design tuner; generated, see scripts/aero-tuner-store.mjs */
 @import "./tuned.css";

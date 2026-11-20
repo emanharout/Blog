@@ -1,5 +1,6 @@
 ---
 import LightStyleBackdrop from './LightStyleBackdrop.astro';
+import { DEFAULT_LIGHT_STYLE } from '../scripts/lightStyles';
 
 // Fixed, decorative sky behind an aero page. Light mode: a calm morning sky with warm sunlight slanting in, as if
 // through tall college windows, over a soft, misty lawn. Dark mode: a navy night sky with a faint Milky Way,
@@ -63,8 +64,11 @@ const shootingStars: [number, number, number, number, number][] = [
             <path class="lawn-near" d="M0 120 C 420 98 1000 96 1440 116 V200 H0 Z"></path>
         </svg>
         <div class="lawn"></div>
-        <!-- Dev-only experimental light styles paint over the default sky when one is selected -->
-        {import.meta.env.DEV && <LightStyleBackdrop />}
+        <!--
+          The light style's backdrop paints over the default sky. Production ships only the site's light style;
+          development includes every style so they can be previewed.
+        -->
+        <LightStyleBackdrop only={import.meta.env.DEV ? undefined : DEFAULT_LIGHT_STYLE} />
     </div>
     <div class="night">
         <div class="layer milky-way-layer"><div class="milky-way"></div></div>
