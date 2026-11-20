@@ -14,6 +14,8 @@ interface SearchablePostData {
 // PROPERTIES
 
 let SEARCHABLE_DATA: SearchablePostData[] | undefined;
+// In-flight fetch of the search index, shared so overlapping searches don't each fetch it and resolve out of order.
+let searchableDataRequest: Promise<SearchablePostData[] | undefined> | undefined;
 const SEARCH_URL_PARAM_KEY = 'query';
 const searchInputElement = document.querySelector<HTMLInputElement>('#searchInput');
 const spinnerIcon = document.querySelector('#loadingSpinnerIcon');
@@ -24,7 +26,11 @@ const FUSE_OPTIONS = {
     findAllMatches: true,
     includeScore: true,
     shouldSort: true,
-    threshold: 0.5,
+    // By default Fuse only scores matches near the start of a field (`location: 0`, `distance: 100`), which made
+    // anything past roughly the first 50 characters of a post body unsearchable. Match anywhere in the field instead.
+    ignoreLocation: true,
+    // Without the location penalty, a looser threshold lets near-random fuzzy matches through, so keep it tighter.
+    threshold: 0.3,
     // Key `name`'s value must match the data we pass into `Fuse` instances (i.e. any `SearchablePostData` properties,
     // which is an abstraction on blog posts).
     keys: [
@@ -181,7 +187,10 @@ function resultsAreEqual(newSearchResult: FuseResult<SearchablePostData>[]): boo
 async function setupSearchableDataIfNeeded() {
     // We prevent a refetch of all posts' data if it is already stored in SEARCHABLE_DATA
     if (!SEARCHABLE_DATA) {
-        SEARCHABLE_DATA = await getSearchableJSONData();
+        searchableDataRequest ??= getSearchableJSONData();
+        SEARCHABLE_DATA = await searchableDataRequest;
+        // Allow a retry on the next search if the fetch failed.
+        if (!SEARCHABLE_DATA) searchableDataRequest = undefined;
     }
     if (SEARCHABLE_DATA && !FUSE_INSTANCE) {
         FUSE_INSTANCE = new Fuse(SEARCHABLE_DATA, FUSE_OPTIONS);
