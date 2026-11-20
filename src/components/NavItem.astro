@@ -13,9 +13,10 @@ const { active = false, class: className } = Astro.props;
     class:list={[
         'relative rounded',
         'hover:bg-bg-2',
-        // Underline: two halves that grow outward from the center (desktop only)
-        'md:before:absolute md:before:bottom-0 md:before:left-1/2 md:before:h-[3px] md:before:w-0 md:before:bg-primary-600',
-        'md:after:absolute md:after:bottom-0 md:after:right-1/2 md:after:h-[3px] md:after:w-0 md:after:bg-primary-600',
+        // Underline: two halves that grow outward from the center (desktop only); the accent color by day
+        'md:before:absolute md:before:bottom-0 md:before:left-1/2 md:before:h-[3px] md:before:w-0 md:before:bg-accent',
+        'md:after:absolute md:after:bottom-0 md:after:right-1/2 md:after:h-[3px] md:after:w-0 md:after:bg-accent',
+        'md:dark:before:bg-primary-600 md:dark:after:bg-primary-600',
         'md:before:transition-[width] md:after:transition-[width] md:before:duration-300 md:after:duration-300',
         'md:hover:before:w-1/2 md:hover:after:w-1/2',
         'motion-reduce:before:transition-none motion-reduce:after:transition-none',

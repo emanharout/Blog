@@ -15,13 +15,15 @@ import { Picture } from 'astro:assets';
         class="size-9 md:size-12 aero:hidden"
     />
     <!--
-      Aero pages: the same hexagon "E" redrawn as glass. Sky blue to green by day, silver to navy by night.
-      Colors are set in the <style> below so they follow the theme and the --aero-* knobs.
+      Aero pages: the same hexagon "E" redrawn as glass, colored like the sky behind it. A light style can set
+      --logo-top / --logo-mid / --logo-bottom (Daybreak runs sky blue through rose to peach); by night it is starlit
+      blue sinking to navy. Colors are set in the <style> below so they follow the theme and the --aero-* knobs.
     -->
     <svg viewBox="0 0 512 512" class="aero-logo hidden size-9 md:size-12 aero:block" aria-hidden="true">
         <defs>
             <linearGradient id="aero-logo-fill" x1="0" y1="0" x2="0.6" y2="1">
                 <stop offset="0" class="stop-top"></stop>
+                <stop offset="0.62" class="stop-mid"></stop>
                 <stop offset="1" class="stop-bottom"></stop>
             </linearGradient>
             <linearGradient id="aero-logo-gloss" x1="0" y1="0" x2="0" y2="1">
@@ -62,14 +64,29 @@ import { Picture } from 'astro:assets';
     .stop-top {
         stop-color: var(--logo-top, hsl(var(--primary-color-400)));
     }
+    .stop-mid {
+        /* Without a style's own middle color, the gradient runs straight from top to bottom */
+        stop-color: var(
+            --logo-mid,
+            color-mix(
+                in oklab,
+                var(--logo-top, hsl(var(--primary-color-400))),
+                var(--logo-bottom, hsl(var(--secondary-color-500)))
+            )
+        );
+    }
     .stop-bottom {
         stop-color: var(--logo-bottom, hsl(var(--secondary-color-500)));
     }
+    /* Night: starlit blue at the crown, through dusk violet, down to deep navy, with a faint starlight halo */
     :global(.dark) .aero-logo {
-        filter: drop-shadow(0 0 8px hsl(var(--aero-night-h) 90% 80% / 0.25));
+        filter: drop-shadow(0 0 10px hsl(var(--aero-night-h) 90% 75% / 0.3));
     }
     :global(.dark) .stop-top {
-        stop-color: hsl(var(--aero-night-h) 30% 72%);
+        stop-color: hsl(var(--night-color-500));
+    }
+    :global(.dark) .stop-mid {
+        stop-color: hsl(var(--dusk-color-700));
     }
     :global(.dark) .stop-bottom {
         stop-color: hsl(var(--night-color-900));
