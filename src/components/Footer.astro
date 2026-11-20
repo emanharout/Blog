@@ -2,62 +2,41 @@
 import { Icon } from 'astro-icon/components';
 
 const currentYear = new Date().getFullYear();
+
+// Glyph-only icons (the accent color by day, soft ink by night), so the row reads as one quiet set on the glass rather than five brand badges.
+const links = [
+    { href: 'https://x.com/emanharout', label: 'Visit my X profile', icon: 'x-social-icon' },
+    { href: 'https://medium.com/@emanharout', label: 'Visit my Medium page', icon: 'medium-social-icon' },
+    { href: 'mailto:elfin.genies06@icloud.com', label: 'Email me', icon: 'email-icon' },
+    { href: 'https://github.com/emanharout', label: 'Visit my GitHub page', icon: 'github-social-icon' },
+    { href: 'https://linkedin.com/in/emanharout', label: 'Visit my LinkedIn', icon: 'linkedin-social-icon' },
+];
 ---
 
-<style lang="css">
-    [data-icon='x-social-icon'] {
-        color: var(--x-icon-color);
-    }
-
-    [data-icon='medium-social-icon'] {
-        color: var(--medium-icon-color);
-    }
-
-    [data-icon='email-icon'] {
-        color: var(--email-icon-color);
-    }
-
-    [data-icon='github-social-icon'] {
-        color: var(--github-icon-color);
-    }
-
-    [data-icon='linkedin-social-icon'] {
-        color: var(--linkedin-icon-color);
-    }
-</style>
-
-<footer class="main-footer shrink-0 mt-4 p-4 sm:p-8 text-center bg-bg-1 text-fg-1">
-    <ul
-        class="flex flex-wrap justify-center gap-x-4
-        my-2 mx-auto bg-bg-2 py-2 px-4 max-w-fit
-        rounded-md shadow-md
-        aero:rounded-pill aero:border aero:border-fg-border-2 aero:backdrop-blur-xl aero:px-6"
-    >
-        <li>
-            <a href="https://x.com/emanharout" target="_blank" rel="noopener noreferrer" aria-label="Visit my X profile">
-                <Icon name="x-social-icon" size="40" aria-hidden="true" />
-            </a>
-        </li>
-        <li>
-            <a href="https://medium.com/@emanharout" target="_blank" rel="noopener noreferrer" aria-label="Visit my Medium page">
-                <Icon name="medium-social-icon" size="40" aria-hidden="true" />
-            </a>
-        </li>
-        <li>
-            <a href="mailto:elfin.genies06@icloud.com" aria-label="Email me">
-                <Icon name="email-icon" size="40" aria-hidden="true" />
-            </a>
-        </li>
-        <li>
-            <a href="https://github.com/emanharout" target="_blank" rel="noopener noreferrer" aria-label="Visit my GitHub page">
-                <Icon name="github-social-icon" size="40" aria-hidden="true" />
-            </a>
-        </li>
-        <li>
-            <a href="https://linkedin.com/in/emanharout" target="_blank" rel="noopener noreferrer" aria-label="Visit my LinkedIn">
-                <Icon name="linkedin-social-icon" size="40" aria-hidden="true" />
-            </a>
-        </li>
+<footer class="main-footer shrink-0 mt-12 px-outer-edge pt-4 pb-8 text-center text-fg-2 sm:mt-16 sm:pb-10">
+    <ul class="glass mx-auto flex max-w-fit flex-wrap justify-center gap-1 rounded-pill p-1.5">
+        {
+            links.map(({ href, label, icon }) => {
+                const external = href.startsWith('http');
+                return (
+                    <li>
+                        <a
+                            href={href}
+                            aria-label={label}
+                            target={external ? '_blank' : undefined}
+                            rel={external ? 'noopener noreferrer' : undefined}
+                            class="grid size-11 place-items-center rounded-pill text-accent
+                            transition-colors duration-200 hover:bg-accent/12
+                            dark:text-fg-2 dark:hover:bg-fg-1/8 dark:hover:text-fg-1
+                            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500
+                            motion-reduce:transition-none"
+                        >
+                            <Icon name={icon} size="20" aria-hidden="true" />
+                        </a>
+                    </li>
+                );
+            })
+        }
     </ul>
-    <p>Copyright © {currentYear} Eman Harout</p>
+    <p class="mt-4 text-sm">Copyright © {currentYear} Eman Harout</p>
 </footer>

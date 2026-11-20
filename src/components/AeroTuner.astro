@@ -42,7 +42,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
     {
         title: 'Colors',
         knobs: [
-            { name: 'aero-name-green', label: 'Name & quote color', tip: 'Color of “Eman” in the home page heading and of the quote mark beside the verse.', type: 'color', themes: ['light'] },
+            { name: 'aero-name-green', label: 'Accent color', tip: 'Color of “Eman” in the home page heading, the quote mark beside the verse, and the footer icons.', type: 'color', themes: ['light'] },
             { name: 'style-primary-h', label: 'Main hue', tip: "Hue of this style's main color: links, the logo, alternating tags, buttons and badge rings.", min: 0, max: 360, step: 1, themes: ['light'], styles: styledOnly, swatch: 'hsl(var(--primary-color-600))' },
             { name: 'style-secondary-h', label: 'Second hue', tip: "Hue of this style's second color: the other alternating tags and the Wonder Blog badge.", min: 0, max: 360, step: 1, themes: ['light'], styles: styledOnly, swatch: 'hsl(var(--secondary-color-600))' },
             { name: 'style-deco', label: 'Background decoration', tip: "Strength of this style's backdrop details (stars, rings, washes, shapes, frames). 0 hides them.", min: 0, max: 2, step: 0.05, themes: ['light'], styles: styledOnly },

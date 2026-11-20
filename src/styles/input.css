@@ -210,6 +210,23 @@
         opacity: var(--orb-gloss);
         background: linear-gradient(180deg, hsl(0 0% 100% / 0.75), hsl(0 0% 100% / 0.05));
     }
+
+    /* Night: a quiet tinted disc with a fine ring and a light icon, rather than a glossy bead */
+    &:where(.dark *) {
+        color: var(--orb-from);
+        background: radial-gradient(
+            circle at 50% 0%,
+            color-mix(in oklab, var(--orb-from) 22%, transparent) 0%,
+            color-mix(in oklab, var(--orb-to) 10%, transparent) 85%
+        );
+        box-shadow:
+            inset 0 0 0 1px color-mix(in oklab, var(--orb-from) 38%, transparent),
+            inset 0 1px 0 hsl(0 0% 100% / 0.06);
+
+        &::before {
+            content: none;
+        }
+    }
 }
 
 /* Typography plugin colors driven by one variable. Use: `prose prose-fg2` */
@@ -454,13 +471,6 @@
         /* Links */
         --fg-primary-link-2: var(--primary-color-600);
         --fg-primary-link-2-hover: var(--primary-color-900);
-
-        /* Social icons */
-        --x-icon-color: hsl(220, 10%, 20%);
-        --medium-icon-color: hsl(158, 98%, 36%);
-        --email-icon-color: hsl(var(--primary-color-500));
-        --github-icon-color: hsl(220, 10%, 20%);
-        --linkedin-icon-color: hsl(200, 70%, 45%);
     }
 
     /* DARK THEME ROLES — only values that differ from light mode */
@@ -479,12 +489,6 @@
         --fg-color-border-2: var(--temperature-gray-600);
         --fg-primary-link-2: var(--primary-color-400);
         --fg-primary-link-2-hover: var(--primary-color-300);
-
-        --x-icon-color: hsl(220, 10%, 80%);
-        --medium-icon-color: hsl(158, 70%, 35%);
-        --email-icon-color: hsl(var(--primary-color-600));
-        --github-icon-color: hsl(220, 10%, 80%);
-        --linkedin-icon-color: hsl(200, 70%, 40%);
     }
 
     /*
@@ -560,13 +564,6 @@
         --glass-shadow-blur: 44px;
         --glass-shadow-spread: -26px;
 
-        /* Social icons in ink, sage and blue instead of loud brand colors */
-        --x-icon-color: hsl(var(--fg-color-1));
-        --github-icon-color: hsl(var(--fg-color-1));
-        --medium-icon-color: hsl(var(--leaf-color-600));
-        --email-icon-color: hsl(var(--azure-color-600));
-        --linkedin-icon-color: hsl(var(--azure-color-700));
-
         /* Quieter badges */
         --orb-fill: 0;
         --orb-gloss: 0.35;
@@ -610,11 +607,6 @@
         --fg-primary-link-2-hover: var(--night-color-100);
         --accent-color: 45deg 100% 94%;
         --color-accent: hsl(var(--accent-color));
-        --email-icon-color: hsl(var(--night-color-400));
-        --x-icon-color: hsl(220, 10%, 80%);
-        --github-icon-color: hsl(220, 10%, 80%);
-        --medium-icon-color: hsl(158, 70%, 35%);
-        --linkedin-icon-color: hsl(200, 70%, 40%);
 
         /* Glass knobs (tunable) */
         --glass-opacity: 0.42;

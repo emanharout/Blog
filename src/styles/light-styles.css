@@ -44,12 +44,6 @@
         --fg-color-border-2: var(--style-primary-h) 15% 40% / 0.18;
         --fg-light: 0deg 0% 100%;
 
-        --x-icon-color: hsl(var(--fg-color-1));
-        --github-icon-color: hsl(var(--fg-color-1));
-        --medium-icon-color: hsl(var(--secondary-color-600));
-        --email-icon-color: hsl(var(--primary-color-600));
-        --linkedin-icon-color: hsl(var(--primary-color-700));
-
         --glass-intensity: 1;
         --glass-shadow-depth: 1;
         --glass-shadow-y: 22px;
@@ -155,6 +149,12 @@
         --glass-shadow-alpha: 0.17;
         --glass-contact-alpha: 0.04;
         --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
+
+        /* Logo colored like the sunrise behind it: sky blue, a peach blush, then deeper peach */
+        --logo-top: hsl(206 62% 52%);
+        --logo-mid: hsl(12 48% 64%);
+        --logo-bottom: hsl(22 64% 52%);
+        --logo-shadow: hsl(22 45% 30% / 0.25);
 
         --orb-fill: 0;
         --orb-gloss: 0.4;
