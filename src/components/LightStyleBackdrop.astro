@@ -22,31 +22,6 @@ const dawnStars = Array.from({ length: 34 }, () => {
     return `${x}vw ${y}vh rgb(255 255 255 / ${alpha})`;
 }).join(', ');
 
-// Blue Hour: later than First Light, so more stars, reaching further down a deeper blue sky
-const duskRandom = seededRandom(53);
-const duskStars = Array.from({ length: 52 }, () => {
-    const x = (duskRandom() * 100).toFixed(2);
-    const y = (Math.pow(duskRandom(), 1.4) * 58).toFixed(2);
-    const alpha = (0.4 + duskRandom() * 0.55).toFixed(2);
-    return `${x}vw ${y}vh rgb(255 255 255 / ${alpha})`;
-}).join(', ');
-
-// A field of tiny stars as box-shadows: `count` stars spread across the width, biased toward the top, reaching down to
-// `depth` vh, with opacities between `minAlpha` and `maxAlpha`
-function starField(seed: number, count: number, depth: number, minAlpha: number, maxAlpha: number) {
-    const rand = seededRandom(seed);
-    return Array.from({ length: count }, () => {
-        const x = (rand() * 100).toFixed(2);
-        const y = (Math.pow(rand(), 1.4) * depth).toFixed(2);
-        const alpha = (minAlpha + rand() * (maxAlpha - minAlpha)).toFixed(2);
-        return `${x}vw ${y}vh rgb(255 255 255 / ${alpha})`;
-    }).join(', ');
-}
-// Afterglow: just after sunset, only the first few stars are out
-const afterglowStars = starField(61, 12, 30, 0.35, 0.75);
-// Nightfall: later than Blue Hour, many more stars reaching far down the sky
-const nightfallStars = starField(67, 85, 78, 0.45, 1);
-
 type Point = [number, number];
 
 // Celestial Atlas: an engraved celestial sphere (rings with degree ticks) and a few constellations, in a 1440x900 chart
@@ -161,31 +136,9 @@ const bauhausCircles: [number, number, number, string, number][] = [
     </div>
 </div>
 
-<!-- BLUE HOUR: like First Light but later, just after dusk: deeper blues, a faint last warmth low down, more stars. -->
-<div class="ls-layer ls-bluehour">
-    <div class="ls-parallax ls-dusk-sky" style="--speed: 0.05">
-        <div class="ls-dusk-stars" style={`box-shadow: ${duskStars}`}></div>
-    </div>
-</div>
-
 <!-- DAYBREAK: a little after First Light. The sun has just risen; pale sky blue above warm peach and gold, no stars. -->
 <div class="ls-layer ls-daybreak">
     <div class="ls-parallax" style="--speed: 0.03"><div class="ls-risen-sun"></div></div>
-</div>
-
-<!-- AFTERGLOW: just after sunset, before Blue Hour. Dusky blue over mauve and rose, a peach horizon, the first stars. -->
-<div class="ls-layer ls-afterglow">
-    <div class="ls-parallax ls-afterglow-sky" style="--speed: 0.05">
-        <div class="ls-dusk-stars" style={`box-shadow: ${afterglowStars}`}></div>
-    </div>
-</div>
-
-<!-- NIGHTFALL: later than Blue Hour. Deeper indigo-periwinkle, no warmth left, many stars, a thin crescent moon. -->
-<div class="ls-layer ls-nightfall">
-    <div class="ls-parallax ls-nightfall-sky" style="--speed: 0.05">
-        <div class="ls-dusk-stars ls-nightfall-stars" style={`box-shadow: ${nightfallStars}`}></div>
-    </div>
-    <div class="ls-parallax" style="--speed: 0.02"><div class="ls-crescent"></div></div>
 </div>
 
 <!-- CELESTIAL ATLAS: engraved rings and constellations on aged cream; the sphere turns imperceptibly slowly. -->
@@ -226,10 +179,7 @@ const bauhausCircles: [number, number, number, string, number][] = [
     <div class="ls-parallax" style="--speed: 0.04"><div class="ls-bh ls-bh-line"></div><div class="ls-bh ls-bh-dot"></div></div>
 </div>
 
-<!--
-  ILLUMINATED (and its Pale Vellum variant): a double rule around the page with small corner ornaments on vellum.
-  The variant changes the colors through custom properties.
--->
+<!-- ILLUMINATED · PALE VELLUM: a fine gilt double rule around the page with small corner ornaments on pale vellum. -->
 <div class="ls-layer ls-illuminated">
     <div class="ls-gilt-frame">
         {
@@ -346,16 +296,12 @@ const bauhausCircles: [number, number, number, string, number][] = [
     }
     :root[data-light-style='watercolor'] .ls-watercolor,
     :root[data-light-style='firstlight'] .ls-firstlight,
-    :root[data-light-style='bluehour'] .ls-bluehour,
     :root[data-light-style='daybreak'] .ls-daybreak,
-    :root[data-light-style='afterglow'] .ls-afterglow,
-    :root[data-light-style='nightfall'] .ls-nightfall,
     :root[data-light-style='atlas'] .ls-atlas,
     :root[data-light-style='atlas-armillary'] .ls-armillary,
     :root[data-light-style='atlas-planisphere'] .ls-planisphere,
     :root[data-light-style='bauhaus'] .ls-bauhaus,
     :root[data-light-style='bauhaus-circles'] .ls-circles,
-    :root[data-light-style='illuminated'] .ls-illuminated,
     :root[data-light-style='illuminated-pale'] .ls-illuminated,
     :root[data-light-style='kintsugi'] .ls-kintsugi {
         display: block;
@@ -423,34 +369,6 @@ const bauhausCircles: [number, number, number, string, number][] = [
         }
     }
 
-    /* BLUE HOUR */
-    .ls-bluehour {
-        background:
-            radial-gradient(70rem 24rem at 50% 122%, hsl(24 70% 86% / 0.4), transparent 70%),
-            linear-gradient(
-                180deg,
-                hsl(226 42% 80%) 0%,
-                hsl(229 38% 85%) 30%,
-                hsl(240 30% 89%) 58%,
-                hsl(270 20% 91%) 82%,
-                hsl(20 36% 91%) 100%
-            );
-    }
-    .ls-dusk-sky {
-        opacity: var(--style-deco);
-        -webkit-mask-image: linear-gradient(180deg, black 0%, black 25%, transparent 62%);
-        mask-image: linear-gradient(180deg, black 0%, black 25%, transparent 62%);
-    }
-    .ls-dusk-stars {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 1.6px;
-        height: 1.6px;
-        border-radius: 50%;
-        animation: ls-fade-twinkle 11s ease-in-out infinite;
-    }
-
     /* DAYBREAK */
     .ls-daybreak {
         background:
@@ -476,62 +394,6 @@ const bauhausCircles: [number, number, number, string, number][] = [
         opacity: calc(0.85 * var(--style-deco));
         background: radial-gradient(circle, hsl(45 100% 96%) 0 38%, hsl(40 100% 85% / 0.6) 52%, transparent 70%);
         filter: blur(2px);
-    }
-
-    /* AFTERGLOW */
-    .ls-afterglow {
-        background:
-            radial-gradient(70rem 26rem at 50% 120%, hsl(20 85% 84% / 0.6), transparent 70%),
-            linear-gradient(
-                180deg,
-                hsl(222 36% 85%) 0%,
-                hsl(260 24% 88%) 32%,
-                hsl(300 20% 89%) 52%,
-                hsl(345 38% 90%) 72%,
-                hsl(18 60% 90%) 90%,
-                hsl(30 60% 90%) 100%
-            );
-    }
-    .ls-afterglow-sky {
-        opacity: var(--style-deco);
-        -webkit-mask-image: linear-gradient(180deg, black 0%, black 12%, transparent 34%);
-        mask-image: linear-gradient(180deg, black 0%, black 12%, transparent 34%);
-    }
-
-    /* NIGHTFALL */
-    .ls-nightfall {
-        background:
-            radial-gradient(80rem 30rem at 50% -10%, hsl(232 40% 70% / 0.5), transparent 70%),
-            linear-gradient(
-                180deg,
-                hsl(230 36% 76%) 0%,
-                hsl(232 32% 81%) 30%,
-                hsl(238 28% 86%) 60%,
-                hsl(250 22% 89%) 85%,
-                hsl(262 20% 90%) 100%
-            );
-    }
-    .ls-nightfall-sky {
-        opacity: var(--style-deco);
-        -webkit-mask-image: linear-gradient(180deg, black 0%, black 40%, transparent 82%);
-        mask-image: linear-gradient(180deg, black 0%, black 40%, transparent 82%);
-    }
-    .ls-nightfall-stars {
-        width: 1.7px;
-        height: 1.7px;
-    }
-    /* A thin crescent: the shadow of a transparent disc, offset so only a sliver shows */
-    .ls-crescent {
-        position: absolute;
-        top: 13vh;
-        left: max(1.5rem, 4vw);
-        width: 2.6rem;
-        height: 2.6rem;
-        border-radius: 50%;
-        box-shadow: 0.55rem 0.3rem 0 0 hsl(48 70% 97%);
-        rotate: -20deg;
-        opacity: calc(0.9 * var(--style-deco));
-        filter: drop-shadow(0 0 6px hsl(48 80% 96% / 0.7));
     }
 
     /* CELESTIAL ATLAS */
@@ -619,15 +481,15 @@ const bauhausCircles: [number, number, number, string, number][] = [
         background: hsl(215 30% 22% / 0.55);
     }
 
-    /* ILLUMINATED (shared by its variants; colors come from the custom properties below) */
+    /* ILLUMINATED · PALE VELLUM */
     .ls-illuminated {
-        --ls-vellum-top: hsl(42 48% 94%);
-        --ls-vellum-bottom: hsl(39 42% 92%);
-        --ls-mottle-a: hsl(38 45% 88% / 0.35);
-        --ls-mottle-b: hsl(34 40% 86% / 0.3);
-        --ls-rule-outer: 1.5px solid hsl(42 60% 46% / 0.55);
-        --ls-rule-inner: 0.75px solid hsl(42 60% 46% / 0.45);
-        --ls-ornament: hsl(42 62% 48% / 0.7);
+        --ls-vellum-top: hsl(42 30% 96.5%);
+        --ls-vellum-bottom: hsl(40 24% 95%);
+        --ls-mottle-a: hsl(38 30% 90% / 0.25);
+        --ls-mottle-b: hsl(34 25% 89% / 0.2);
+        --ls-rule-outer: 1px solid hsl(40 42% 52% / 0.42);
+        --ls-rule-inner: 0.5px solid hsl(40 42% 52% / 0.32);
+        --ls-ornament: hsl(40 45% 52% / 0.5);
         background:
             radial-gradient(50rem 30rem at 20% 20%, var(--ls-mottle-a), transparent 70%),
             radial-gradient(40rem 30rem at 85% 80%, var(--ls-mottle-b), transparent 70%),
@@ -651,17 +513,6 @@ const bauhausCircles: [number, number, number, string, number][] = [
         height: 3rem;
         fill: var(--ls-ornament);
     }
-    /* Pale Vellum: less yellow, finer and lighter gilt */
-    :root[data-light-style='illuminated-pale'] .ls-illuminated {
-        --ls-vellum-top: hsl(42 30% 96.5%);
-        --ls-vellum-bottom: hsl(40 24% 95%);
-        --ls-mottle-a: hsl(38 30% 90% / 0.25);
-        --ls-mottle-b: hsl(34 25% 89% / 0.2);
-        --ls-rule-outer: 1px solid hsl(40 42% 52% / 0.42);
-        --ls-rule-inner: 0.5px solid hsl(40 42% 52% / 0.32);
-        --ls-ornament: hsl(40 45% 52% / 0.5);
-    }
-
     .ls-ornament-tl {
         top: -1px;
         left: -1px;
@@ -781,8 +632,7 @@ const bauhausCircles: [number, number, number, string, number][] = [
         .ls-sphere,
         .ls-armillary-rings,
         .ls-wheel,
-        .ls-dawn-stars,
-        .ls-dusk-stars {
+        .ls-dawn-stars {
             animation: none;
         }
         .ls-parallax {
