@@ -54,6 +54,39 @@ export default defineConfig({
     }),
     mdx(),
     sitemap(),
+    // Dev-only pages (not part of the built site): /dev/compare shows the experimental light styles side by side.
+    {
+      name: 'dev-only-pages',
+      hooks: {
+        'astro:config:setup': ({ command, injectRoute }) => {
+          if (command === 'dev') {
+            injectRoute({ pattern: '/dev/compare', entrypoint: './src/dev/compare.astro' });
+          }
+        },
+        // Only runs for `astro dev`: lets the design tuner read and save its values (scripts/aero-tuner-store.mjs).
+        'astro:server:setup': ({ server }) => {
+          server.middlewares.use('/__aero-tuner/saved', async (req, res) => {
+            const { readSaved, applyUpdates } = await import('./scripts/aero-tuner-store.mjs');
+            res.setHeader('content-type', 'application/json');
+            try {
+              if (req.method === 'GET') {
+                res.end(JSON.stringify(await readSaved()));
+              } else if (req.method === 'POST') {
+                let body = '';
+                for await (const chunk of req) body += chunk;
+                res.end(JSON.stringify(await applyUpdates(JSON.parse(body).updates)));
+              } else {
+                res.statusCode = 405;
+                res.end(JSON.stringify({ error: 'Method not allowed' }));
+              }
+            } catch (error) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: String(error?.message ?? error) }));
+            }
+          });
+        },
+      },
+    },
   ],
   vite: {
     plugins: [tailwindcss()],

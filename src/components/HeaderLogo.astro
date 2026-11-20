@@ -12,7 +12,66 @@ import { Picture } from 'astro:assets';
         formats={['avif', 'webp']}
         loading="eager"
         fallbackFormat="png"
-        class="size-9 md:size-12"
+        class="size-9 md:size-12 aero:hidden"
     />
+    <!--
+      Aero pages: the same hexagon "E" redrawn as glass. Sky blue to green by day, silver to navy by night.
+      Colors are set in the <style> below so they follow the theme and the --aero-* knobs.
+    -->
+    <svg viewBox="0 0 512 512" class="aero-logo hidden size-9 md:size-12 aero:block" aria-hidden="true">
+        <defs>
+            <linearGradient id="aero-logo-fill" x1="0" y1="0" x2="0.6" y2="1">
+                <stop offset="0" class="stop-top"></stop>
+                <stop offset="1" class="stop-bottom"></stop>
+            </linearGradient>
+            <linearGradient id="aero-logo-gloss" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="white" stop-opacity="0.7"></stop>
+                <stop offset="1" stop-color="white" stop-opacity="0.05"></stop>
+            </linearGradient>
+            <clipPath id="aero-logo-top-half">
+                <rect x="0" y="0" width="512" height="236"></rect>
+            </clipPath>
+        </defs>
+        <!-- Rounded hexagon: a stroked polygon with round joins softens the corners -->
+        <polygon
+            class="hexagon"
+            points="256,40 446,150 446,362 256,472 66,362 66,150"
+            fill="url(#aero-logo-fill)"
+            stroke="url(#aero-logo-fill)"
+            stroke-width="52"
+            stroke-linejoin="round"
+        ></polygon>
+        <path d="M172 122H343V172H228V230H330V278H228V336H343V386H172Z" fill="white"></path>
+        <polygon
+            points="256,40 446,150 446,362 256,472 66,362 66,150"
+            fill="url(#aero-logo-gloss)"
+            stroke="url(#aero-logo-gloss)"
+            stroke-width="40"
+            stroke-linejoin="round"
+            clip-path="url(#aero-logo-top-half)"
+            opacity="0.55"
+        ></polygon>
+    </svg>
     <span class="font-serif text-xl md:text-2xl whitespace-nowrap">EMAN HAROUT</span>
 </a>
+
+<style>
+    .aero-logo {
+        filter: drop-shadow(0 3px 6px var(--logo-shadow, hsl(var(--aero-sky-h) 70% 30% / 0.3)));
+    }
+    .stop-top {
+        stop-color: var(--logo-top, hsl(var(--primary-color-400)));
+    }
+    .stop-bottom {
+        stop-color: var(--logo-bottom, hsl(var(--secondary-color-500)));
+    }
+    :global(.dark) .aero-logo {
+        filter: drop-shadow(0 0 8px hsl(var(--aero-night-h) 90% 80% / 0.25));
+    }
+    :global(.dark) .stop-top {
+        stop-color: hsl(var(--aero-night-h) 30% 72%);
+    }
+    :global(.dark) .stop-bottom {
+        stop-color: hsl(var(--night-color-900));
+    }
+</style>

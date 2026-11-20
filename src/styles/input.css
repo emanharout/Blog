@@ -1,5 +1,11 @@
 @import "tailwindcss";
+/* Light-mode styles; the site uses Daybreak (see src/scripts/lightStyles.ts), the rest are dev-only previews */
+@import "./light-styles.css";
+/* Values saved from the dev-only design tuner; generated, see scripts/aero-tuner-store.mjs */
+@import "./tuned.css";
 @custom-variant dark (&:where(.dark, .dark *));
+/* Pages that opt into the glass / Frutiger Aero design (data-design="aero" on <html>, set via RootLayout's `design`) */
+@custom-variant aero (&:where([data-design='aero'], [data-design='aero'] *));
 @plugin "@tailwindcss/typography";
 
 /*
@@ -59,6 +65,8 @@
     --color-fg-border-2: hsl(var(--fg-color-border-2));
     /* Always off-white; meant for colorful backgrounds */
     --color-fg-light: hsl(var(--fg-light));
+    /* Small highlight color used sparingly (quote marks, sparkles) */
+    --color-accent: hsl(var(--accent-color));
 
     /* Grays that match the primary theme's warm/cool tone */
     --color-gray-temp-50: hsl(var(--temperature-gray-50));
@@ -71,6 +79,12 @@
     --color-gray-temp-700: hsl(var(--temperature-gray-700));
     --color-gray-temp-800: hsl(var(--temperature-gray-800));
     --color-gray-temp-900: hsl(var(--temperature-gray-900));
+
+    /* Corner radii, from the --*-radius roles (scaled by --aero-radius-scale). Use: rounded-panel, rounded-pill, … */
+    --radius-panel: var(--panel-radius);
+    --radius-box: var(--box-radius);
+    --radius-card: var(--card-radius);
+    --radius-pill: var(--pill-radius);
 
     /* Project typography families used by font-serif and font-sans. */
     /* The variables come from the `fonts` config in astro.config.mjs and already include fallbacks. */
@@ -93,6 +107,109 @@
 }
 @utility container-wide {
     max-width: calc(var(--container-wide) + 2 * var(--spacing-outer-edge));
+}
+
+/*
+ * GLASS SURFACE
+ * Frosted panel with a soft gloss on its top half. All values come from the --glass-* roles, which only the aero
+ * design defines (light and dark differ), so use it on aero pages. The background and shadows are built here rather
+ * than in a role so a panel can set its own --glass-opacity (see `glass-reading`).
+ *
+ * --glass-intensity scales everything that makes it read as glass (shine, top highlight, edge, rim light, shadow and
+ * color boost) at once; 0 leaves a flat tinted panel. --glass-rim adds a bright inner edge and glow,
+ * --glass-shadow-depth sets how far the panel floats, and --glass-boost how much it saturates what's behind it.
+ */
+@utility glass {
+    isolation: isolate;
+    /* The gloss layer (::before) needs a positioned box. Panels that are already sticky, fixed or absolute (like the
+       post page's table of contents) keep their own positioning. */
+    &:not(.sticky, .fixed, .absolute) {
+        position: relative;
+    }
+    background: linear-gradient(
+        180deg,
+        hsl(var(--glass-tint-top) / var(--glass-opacity)),
+        hsl(var(--glass-tint-bottom) / calc(var(--glass-opacity) * var(--glass-fade)))
+    );
+    border: 1px solid var(--glass-border);
+    --glass-lift: calc(var(--glass-shadow-depth) * var(--glass-intensity));
+    box-shadow:
+        /* Top highlight */
+        inset 0 1px 0 hsl(0 0% 100% / calc(var(--glass-highlight-alpha) * var(--glass-intensity))),
+        /* Rim light: a bright inner edge and a soft inner glow */
+        inset 0 0 0 1px hsl(0 0% 100% / calc(var(--glass-rim) * 0.45 * var(--glass-intensity))),
+        inset 0 0 1.5rem hsl(0 0% 100% / calc(var(--glass-rim) * 0.22 * var(--glass-intensity))),
+        /* Contact shadow and float shadow */
+        0 1px 2px hsl(var(--glass-shadow-color) / calc(var(--glass-contact-alpha) * var(--glass-lift))),
+        0 calc(var(--glass-shadow-y) * var(--glass-lift)) calc(var(--glass-shadow-blur) * var(--glass-lift))
+            var(--glass-shadow-spread) hsl(var(--glass-shadow-color) / calc(var(--glass-shadow-alpha) * var(--glass-lift)));
+    -webkit-backdrop-filter: blur(var(--glass-blur))
+        saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+    backdrop-filter: blur(var(--glass-blur)) saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        pointer-events: none;
+        background: linear-gradient(180deg, var(--glass-gloss) 0%, transparent 42%);
+    }
+}
+
+/* A calmer, more opaque glass for long reading (the post page's article). Pair with `glass`. */
+@utility glass-reading {
+    --glass-opacity: var(--glass-reading-opacity);
+}
+
+/*
+ * PRESS-TILT
+ * Cards tilt toward the pointer as if pressed where it rests: the corner under the pointer dips away, and the card
+ * sinks slightly. --tilt-x / --tilt-y / --tilt-press are set by src/scripts/cardTilt.ts (mouse and trackpad only,
+ * never with reduced motion); without them the card lies flat. [data-tilting] makes it follow the pointer closely.
+ */
+@utility tilt-card {
+    /* No transform at rest, so the card's text stays perfectly crisp; it eases back flat when the pointer leaves */
+    transition: transform 450ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    &[data-tilting] {
+        transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+            translateZ(var(--tilt-press, 0px));
+        transition-duration: 120ms;
+    }
+}
+
+/*
+ * GLOSSY ORB
+ * A round, glassy icon badge. Set its colors with --orb-from (top) and --orb-to (bottom).
+ */
+@utility orb {
+    position: relative;
+    display: grid;
+    place-items: center;
+    border-radius: 9999px;
+    color: color-mix(in oklab, white calc(var(--orb-fill) * 100%), var(--orb-to));
+    background: radial-gradient(
+        circle at 50% 120%,
+        color-mix(in oklab, var(--orb-from) calc(var(--orb-fill) * 100%), white) 0%,
+        color-mix(in oklab, var(--orb-to) calc(var(--orb-fill) * 100%), white) 75%
+    );
+    box-shadow:
+        inset 0 -6px 12px -4px hsl(0 0% 100% / 0.35),
+        inset 0 1px 1px hsl(0 0% 100% / 0.6),
+        0 0 0 1px color-mix(in oklab, var(--orb-to) calc((1 - var(--orb-fill)) * 40%), transparent),
+        0 6px 16px -6px color-mix(in oklab, var(--orb-to) calc(var(--orb-fill) * 100%), transparent);
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 4% 14% 50%;
+        border-radius: 9999px;
+        pointer-events: none;
+        opacity: var(--orb-gloss);
+        background: linear-gradient(180deg, hsl(0 0% 100% / 0.75), hsl(0 0% 100% / 0.05));
+    }
 }
 
 /* Typography plugin colors driven by one variable. Use: `prose prose-fg2` */
@@ -127,6 +244,13 @@
         html {
             scroll-behavior: auto;
         }
+    }
+
+    /* Theme switches cross-fade like dusk falling (see public/scripts/colorThemeScript.js) */
+    html.theme-switching::view-transition-old(root),
+    html.theme-switching::view-transition-new(root) {
+        animation-duration: 700ms;
+        animation-timing-function: ease-in-out;
     }
 
     /* Keep in-page anchor targets (ToC links, footnotes) from sitting flush against the viewport top */
@@ -171,6 +295,104 @@
         --slate-color-800: 217.2deg 32.6% 17.5%;
         --slate-color-900: 222.2deg 47.4% 11.2%;
 
+        /*
+         * AERO KNOBS
+         * The aero palettes and sky are built from these few values, so they are what the dev-only design tuner
+         * (AeroTuner.astro) adjusts. Hues are plain numbers (degrees); the rest are 0–1 strengths unless noted.
+         * Glass knobs differ per theme and live in the aero role blocks below.
+         */
+        --aero-sky-h: 208;
+        --aero-leaf-h: 128;
+        --aero-sun-h: 40;
+        --aero-sun-strength: 0.55;
+        --aero-rays: 0.75;
+        /* How far down the viewport the blue sky reaches before warming to gold (the gold-to-lawn band stays put) */
+        --aero-sky-fade: 63%;
+        /* Sky blue intensity: saturation is a multiplier (1 = default); depth darkens the blue toward a richer tone */
+        --aero-sky-saturation: 1.35;
+        --aero-sky-depth: 0.25;
+        --aero-lawn: 1;
+        /* 0 = crisp rolling arches, 1 = soft, edgeless mist */
+        --aero-lawn-softness: 0.55;
+        /* 1 shows the warm gold band and the lawn at the bottom of the sky; 0 lets the pale blue run to the bottom */
+        --aero-horizon: 0;
+        /* How far up the page the lawn rises (1 = default height) */
+        --aero-lawn-height: 1.45;
+        --aero-night-h: 222;
+        --aero-night-l: 7%;
+        --aero-dusk-h: 238;
+        --aero-stars: 1;
+        --aero-shooting-stars: 1;
+        --aero-parallax: 1;
+
+        /*
+         * Shape roles: big intro panels, mid-size boxes, post cards, and pill-shaped controls. Shared by light and
+         * dark mode. --aero-radius-scale scales them all (1 = full size, 0 = square corners).
+         */
+        --aero-radius-scale: 0.85;
+        --panel-radius: calc(clamp(1.75rem, 1.25rem + 1.5vw, 2.25rem) * var(--aero-radius-scale));
+        --box-radius: calc(1.5rem * var(--aero-radius-scale));
+        --card-radius: calc(1rem * var(--aero-radius-scale));
+        /* 2rem fully rounds every pill-shaped control (all are under 4rem tall) */
+        --pill-radius: calc(2rem * var(--aero-radius-scale));
+
+        /* Glossy orb badges: 1 = full colored glass bead, 0 = white disc with a colored ring and icon */
+        --orb-fill: 1;
+        --orb-gloss: 1;
+
+        /* Aero (light): a clear morning sky, college-lawn sage, and honey-gold sunlight. Muted on purpose. */
+        --azure-color-50: var(--aero-sky-h) 60% 97%;
+        --azure-color-100: var(--aero-sky-h) 55% 93%;
+        --azure-color-200: var(--aero-sky-h) 52% 85%;
+        --azure-color-300: var(--aero-sky-h) 50% 73%;
+        --azure-color-400: var(--aero-sky-h) 48% 60%;
+        --azure-color-500: var(--aero-sky-h) 50% 47%;
+        --azure-color-600: var(--aero-sky-h) 58% 37%;
+        --azure-color-700: var(--aero-sky-h) 60% 30%;
+        --azure-color-800: var(--aero-sky-h) 58% 25%;
+        --azure-color-900: var(--aero-sky-h) 55% 20%;
+        --azure-color-950: var(--aero-sky-h) 60% 13%;
+
+        --leaf-color-50: var(--aero-leaf-h) 35% 96%;
+        --leaf-color-100: var(--aero-leaf-h) 32% 91%;
+        --leaf-color-200: var(--aero-leaf-h) 30% 82%;
+        --leaf-color-300: var(--aero-leaf-h) 28% 68%;
+        --leaf-color-400: var(--aero-leaf-h) 26% 54%;
+        --leaf-color-500: var(--aero-leaf-h) 30% 45%;
+        --leaf-color-600: var(--aero-leaf-h) 32% 37%;
+        --leaf-color-700: var(--aero-leaf-h) 34% 30%;
+        --leaf-color-800: var(--aero-leaf-h) 35% 25%;
+        --leaf-color-900: var(--aero-leaf-h) 38% 18%;
+        --leaf-color-950: var(--aero-leaf-h) 40% 10%;
+
+        --sun-color-300: var(--aero-sun-h) 75% 65%;
+        --sun-color-400: var(--aero-sun-h) 70% 52%;
+        --sun-color-500: var(--aero-sun-h) 72% 44%;
+
+        /* Aero (dark): a night sky. Navy depths, starlit blue, and a dusky violet-blue */
+        --night-color-50: var(--aero-night-h) 60% 96%;
+        --night-color-100: var(--aero-night-h) 70% 92%;
+        --night-color-200: var(--aero-night-h) 80% 86%;
+        --night-color-300: var(--aero-night-h) 85% 79%;
+        --night-color-400: var(--aero-night-h) 80% 72%;
+        --night-color-500: var(--aero-night-h) 70% 64%;
+        --night-color-600: var(--aero-night-h) 60% 56%;
+        --night-color-700: var(--aero-night-h) 50% 40%;
+        --night-color-800: var(--aero-night-h) 52% 29%;
+        --night-color-900: var(--aero-night-h) 58% 18%;
+        --night-color-950: var(--aero-night-h) 70% 9%;
+
+        --dusk-color-50: var(--aero-dusk-h) 40% 96%;
+        --dusk-color-100: var(--aero-dusk-h) 38% 91%;
+        --dusk-color-200: var(--aero-dusk-h) 36% 83%;
+        --dusk-color-300: var(--aero-dusk-h) 34% 72%;
+        --dusk-color-400: var(--aero-dusk-h) 30% 62%;
+        --dusk-color-500: var(--aero-dusk-h) 26% 52%;
+        --dusk-color-600: var(--aero-dusk-h) 28% 43%;
+        --dusk-color-700: var(--aero-dusk-h) 32% 34%;
+        --dusk-color-800: var(--aero-dusk-h) 36% 26%;
+        --dusk-color-900: var(--aero-dusk-h) 42% 18%;
+        --dusk-color-950: var(--aero-dusk-h) 50% 10%;
     }
 
     /* LIGHT THEME ROLES (default) */
@@ -228,6 +450,7 @@
         --fg-color-border-2: var(--temperature-gray-300);
         /* Light text on colored bg (Hero, tags) */
         --fg-light: var(--slate-color-100);
+        --accent-color: var(--primary-color-400);
         /* Links */
         --fg-primary-link-2: var(--primary-color-600);
         --fg-primary-link-2-hover: var(--primary-color-900);
@@ -262,6 +485,165 @@
         --email-icon-color: hsl(var(--primary-color-600));
         --github-icon-color: hsl(220, 10%, 80%);
         --linkedin-icon-color: hsl(200, 70%, 40%);
+    }
+
+    /*
+     * AERO DESIGN ROLES (light): glass over a bright sky. Page backgrounds go transparent so the fixed sky backdrop
+     * (AeroBackdrop.astro) shows through; raised surfaces become frosted.
+     */
+    :root[data-design='aero'] {
+        background-color: hsl(var(--aero-sky-h) 60% 90%);
+
+        --primary-color-50: var(--azure-color-50);
+        --primary-color-100: var(--azure-color-100);
+        --primary-color-200: var(--azure-color-200);
+        --primary-color-300: var(--azure-color-300);
+        --primary-color-400: var(--azure-color-400);
+        --primary-color-500: var(--azure-color-500);
+        --primary-color-600: var(--azure-color-600);
+        --primary-color-700: var(--azure-color-700);
+        --primary-color-800: var(--azure-color-800);
+        --primary-color-900: var(--azure-color-900);
+        --primary-color-950: var(--azure-color-950);
+
+        --secondary-color-50: var(--leaf-color-50);
+        --secondary-color-100: var(--leaf-color-100);
+        --secondary-color-200: var(--leaf-color-200);
+        --secondary-color-300: var(--leaf-color-300);
+        --secondary-color-400: var(--leaf-color-400);
+        --secondary-color-500: var(--leaf-color-500);
+        --secondary-color-600: var(--leaf-color-600);
+        --secondary-color-700: var(--leaf-color-700);
+        --secondary-color-800: var(--leaf-color-800);
+        --secondary-color-900: var(--leaf-color-900);
+        --secondary-color-950: var(--leaf-color-950);
+
+        --background-color-1: var(--aero-sky-h) 60% 97% / 0;
+        --background-color-2: 42deg 40% 99% / 0.86;
+
+        /* Ink-blue text rather than bright blue */
+        --fg-color-1: calc(var(--aero-sky-h) + 7) 42% 15%;
+        --fg-color-2: calc(var(--aero-sky-h) + 7) 24% 27%;
+        --fg-color-border-2: calc(var(--aero-sky-h) + 7) 25% 55% / 0.22;
+        --fg-light: 0deg 0% 100%;
+        --accent-color: var(--leaf-color-600);
+        /* The green of "Eman" in the home heading and the quote mark (tunable with a color picker) */
+        --aero-name-green: #407d48;
+        --color-accent: var(--aero-name-green);
+
+        /* Glass knobs (tunable): calmer, less shine, hairline edges */
+        --glass-opacity: 0.8;
+        --glass-blur: 20px;
+        --glass-gloss-alpha: 0.22;
+        --glass-edge-alpha: 0.7;
+
+        --glass-reading-opacity: 0.93;
+        /* Warm ivory at the top, cool daylight at the bottom */
+        --glass-tint-top: 42 45% 99%;
+        --glass-tint-bottom: var(--aero-sky-h) 35% 98%;
+        --glass-fade: 0.75;
+        /* Glass strength knobs (tunable) */
+        --glass-intensity: 1;
+        --glass-rim: 1;
+        --glass-shadow-depth: 1;
+        --glass-boost: 160%;
+
+        --glass-border: hsl(
+            calc(var(--aero-sky-h) + 7) 25% 55% / calc(var(--glass-edge-alpha) * 0.3 * var(--glass-intensity))
+        );
+        --glass-gloss: hsl(0 0% 100% / calc(var(--glass-gloss-alpha) * var(--glass-intensity)));
+        --glass-highlight-alpha: 0.9;
+        --glass-shadow-color: calc(var(--aero-sky-h) + 7) 40% 25%;
+        --glass-contact-alpha: 0.06;
+        --glass-shadow-alpha: 0.24;
+        --glass-shadow-y: 22px;
+        --glass-shadow-blur: 44px;
+        --glass-shadow-spread: -26px;
+
+        /* Social icons in ink, sage and blue instead of loud brand colors */
+        --x-icon-color: hsl(var(--fg-color-1));
+        --github-icon-color: hsl(var(--fg-color-1));
+        --medium-icon-color: hsl(var(--leaf-color-600));
+        --email-icon-color: hsl(var(--azure-color-600));
+        --linkedin-icon-color: hsl(var(--azure-color-700));
+
+        /* Quieter badges */
+        --orb-fill: 0;
+        --orb-gloss: 0.35;
+    }
+
+    /* AERO DESIGN ROLES (dark): frosted navy panels under a starry sky */
+    :root.dark[data-design='aero'] {
+        background-color: hsl(calc(var(--aero-night-h) + 6) 70% calc(var(--aero-night-l) - 1%));
+
+        --primary-color-50: var(--night-color-50);
+        --primary-color-100: var(--night-color-100);
+        --primary-color-200: var(--night-color-200);
+        --primary-color-300: var(--night-color-300);
+        --primary-color-400: var(--night-color-400);
+        --primary-color-500: var(--night-color-500);
+        --primary-color-600: var(--night-color-600);
+        --primary-color-700: var(--night-color-700);
+        --primary-color-800: var(--night-color-800);
+        --primary-color-900: var(--night-color-900);
+        --primary-color-950: var(--night-color-950);
+
+        --secondary-color-50: var(--dusk-color-50);
+        --secondary-color-100: var(--dusk-color-100);
+        --secondary-color-200: var(--dusk-color-200);
+        --secondary-color-300: var(--dusk-color-300);
+        --secondary-color-400: var(--dusk-color-400);
+        --secondary-color-500: var(--dusk-color-500);
+        --secondary-color-600: var(--dusk-color-600);
+        --secondary-color-700: var(--dusk-color-700);
+        --secondary-color-800: var(--dusk-color-800);
+        --secondary-color-900: var(--dusk-color-900);
+        --secondary-color-950: var(--dusk-color-950);
+
+        --background-color-1: var(--aero-night-h) 70% 6% / 0;
+        --background-color-2: calc(var(--aero-night-h) + 4) 50% 14% / 0.8;
+
+        --fg-color-1: var(--aero-night-h) 50% 93%;
+        --fg-color-2: var(--aero-night-h) 32% 80%;
+        --fg-color-border-2: 0deg 0% 100% / 0.12;
+        --fg-primary-link-2: var(--night-color-300);
+        --fg-primary-link-2-hover: var(--night-color-100);
+        --accent-color: 45deg 100% 94%;
+        --color-accent: hsl(var(--accent-color));
+        --email-icon-color: hsl(var(--night-color-400));
+        --x-icon-color: hsl(220, 10%, 80%);
+        --github-icon-color: hsl(220, 10%, 80%);
+        --medium-icon-color: hsl(158, 70%, 35%);
+        --linkedin-icon-color: hsl(200, 70%, 40%);
+
+        /* Glass knobs (tunable) */
+        --glass-opacity: 0.42;
+        --glass-blur: 14px;
+        --glass-gloss-alpha: 0.06;
+        --glass-edge-alpha: 0.1;
+
+        --orb-fill: 1;
+        --orb-gloss: 1;
+
+        --glass-reading-opacity: 0.85;
+        --glass-tint-top: var(--aero-night-h) 55% 20%;
+        --glass-tint-bottom: calc(var(--aero-night-h) + 4) 60% 12%;
+        --glass-fade: 0.9;
+        /* Glass strength knobs (tunable) */
+        --glass-intensity: 1;
+        --glass-rim: 0;
+        --glass-shadow-depth: 1;
+        --glass-boost: 160%;
+
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * var(--glass-intensity)));
+        --glass-gloss: hsl(var(--aero-night-h) 90% 92% / calc(var(--glass-gloss-alpha) * var(--glass-intensity)));
+        --glass-highlight-alpha: calc(var(--glass-edge-alpha) * 0.8);
+        --glass-shadow-color: calc(var(--aero-night-h) + 8) 80% 2%;
+        --glass-contact-alpha: 0;
+        --glass-shadow-alpha: 0.85;
+        --glass-shadow-y: 24px;
+        --glass-shadow-blur: 48px;
+        --glass-shadow-spread: -24px;
     }
 }
 

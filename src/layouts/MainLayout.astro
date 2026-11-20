@@ -1,16 +1,25 @@
 ---
 import type { ComponentProps } from 'astro/types';
+import AeroBackdrop from '../components/AeroBackdrop.astro';
+import AeroTuner from '../components/AeroTuner.astro';
 import Footer from '../components/Footer.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import RootLayout from '../layouts/RootLayout.astro';
 
-type Props = ComponentProps<typeof RootLayout>;
+type Props = Omit<ComponentProps<typeof RootLayout>, 'design'> & {
+    // Occasional shooting stars in the night sky. Turned off where they'd distract from reading.
+    shootingStars?: boolean;
+};
+
+const { shootingStars = true, ...rootProps } = Astro.props;
 ---
 
-<RootLayout {...Astro.props}>
+<RootLayout {...rootProps} design="aero">
+    <AeroBackdrop shootingStars={shootingStars} />
     <SiteHeader />
     <main id="main-content" class="grow shrink-0 bg-bg-1 text-fg-1">
         <slot />
     </main>
     <Footer />
+    {import.meta.env.DEV && <AeroTuner />}
 </RootLayout>

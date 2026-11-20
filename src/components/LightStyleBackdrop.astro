@@ -1,0 +1,683 @@
+---
+// Backdrops for the light-mode styles (see src/styles/light-styles.css). Each layer covers the default daytime sky
+// and shows only when <html data-light-style> matches. With `only`, just that style's layer is rendered: production
+// renders only the site's light style; development renders all of them for previewing. Decorations scale with
+// --style-deco (the tuner's "Decoration" slider). Parallax layers use --sky-scroll from AeroBackdrop.
+
+type Props = {
+    // A light style id (see src/scripts/lightStyles.ts); render only its layer
+    only?: string;
+};
+
+const { only } = Astro.props;
+// Style ids whose backdrop layer has a different class name
+const layerFor: Record<string, string> = {
+    'atlas-armillary': 'armillary',
+    'atlas-planisphere': 'planisphere',
+    'bauhaus-circles': 'circles',
+    'illuminated-pale': 'illuminated',
+};
+const show = (layer: string) => !only || (layerFor[only] ?? only) === layer;
+
+function seededRandom(seed: number) {
+    return () => {
+        seed |= 0;
+        seed = (seed + 0x6d2b79f5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+// First Light: a few faint stars lingering near the top of the dawn sky
+const random = seededRandom(7);
+const dawnStars = Array.from({ length: 34 }, () => {
+    const x = (random() * 100).toFixed(2);
+    const y = (Math.pow(random(), 1.6) * 42).toFixed(2);
+    const alpha = (0.35 + random() * 0.5).toFixed(2);
+    return `${x}vw ${y}vh rgb(255 255 255 / ${alpha})`;
+}).join(', ');
+
+type Point = [number, number];
+
+// Celestial Atlas: an engraved celestial sphere (rings with degree ticks) and a few constellations, in a 1440x900 chart
+const sphere = { cx: 70, cy: 860, r: 440 };
+const sphereTicks = Array.from({ length: 72 }, (_, i) => {
+    const a = (i * 5 * Math.PI) / 180;
+    const inner = sphere.r - (i % 6 === 0 ? 16 : 8);
+    return `M${(sphere.cx + Math.cos(a) * inner).toFixed(1)} ${(sphere.cy + Math.sin(a) * inner).toFixed(1)} L${(sphere.cx + Math.cos(a) * sphere.r).toFixed(1)} ${(sphere.cy + Math.sin(a) * sphere.r).toFixed(1)}`;
+}).join(' ');
+const constellations: { stars: Point[]; lines: [number, number][] }[] = [
+    // A dipper
+    { stars: [[120, 170], [205, 160], [275, 192], [335, 236], [352, 318], [452, 330], [470, 252]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]] },
+    // A "W"
+    { stars: [[640, 760], [700, 805], [760, 772], [822, 826], [884, 780]], lines: [[0, 1], [1, 2], [2, 3], [3, 4]] },
+    // A hunter
+    { stars: [[1060, 520], [1215, 508], [1110, 615], [1145, 606], [1180, 597], [1080, 730], [1205, 712]], lines: [[0, 1], [0, 2], [1, 4], [2, 3], [3, 4], [2, 5], [4, 6]] },
+];
+
+// Celestial Atlas · Armillary: an armillary sphere (1440x900 view) and a scatter of engraved stars
+const armillary = { cx: 1235, cy: 690, r: 285, tilt: -18 };
+const armillaryTicks = Array.from({ length: 36 }, (_, i) => {
+    const a = (i * 10 * Math.PI) / 180;
+    const inner = armillary.r - (i % 3 === 0 ? 12 : 6);
+    return `M${(armillary.cx + Math.cos(a) * inner).toFixed(1)} ${(armillary.cy + Math.sin(a) * inner).toFixed(1)} L${(armillary.cx + Math.cos(a) * armillary.r).toFixed(1)} ${(armillary.cy + Math.sin(a) * armillary.r).toFixed(1)}`;
+}).join(' ');
+const axisAngle = (armillary.tilt * Math.PI) / 180;
+const armillaryAxis = [-1, 1]
+    .map((side) => `${(armillary.cx + side * Math.sin(axisAngle) * armillary.r * 1.2).toFixed(1)} ${(armillary.cy - side * Math.cos(axisAngle) * armillary.r * 1.2).toFixed(1)}`)
+    .join(' L');
+const engravedRandom = seededRandom(23);
+const engravedStars = Array.from({ length: 46 }, () => ({
+    x: (engravedRandom() * 560).toFixed(1),
+    y: (Math.pow(engravedRandom(), 1.2) * 430).toFixed(1),
+    r: (0.9 + Math.pow(engravedRandom(), 3) * 2.6).toFixed(2),
+}));
+
+// Celestial Atlas · Planisphere: a star wheel with an hour ring, star field and two constellations (1440x900 view)
+const wheel = { cx: 1300, cy: 850, r: 430 };
+const wheelTicks = Array.from({ length: 96 }, (_, i) => {
+    const a = (i * 3.75 * Math.PI) / 180;
+    const inner = wheel.r - (i % 4 === 0 ? 12 : 6);
+    return `M${(wheel.cx + Math.cos(a) * inner).toFixed(1)} ${(wheel.cy + Math.sin(a) * inner).toFixed(1)} L${(wheel.cx + Math.cos(a) * wheel.r).toFixed(1)} ${(wheel.cy + Math.sin(a) * wheel.r).toFixed(1)}`;
+}).join(' ');
+const romanHours = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'].map((label, i) => {
+    const a = ((i * 30 - 90) * Math.PI) / 180;
+    return { label, x: (wheel.cx + Math.cos(a) * (wheel.r - 27)).toFixed(1), y: (wheel.cy + Math.sin(a) * (wheel.r - 27) + 4).toFixed(1) };
+});
+const wheelRandom = seededRandom(41);
+const wheelStars = Array.from({ length: 110 }, () => {
+    const a = wheelRandom() * Math.PI * 2;
+    const d = Math.sqrt(wheelRandom()) * (wheel.r - 50);
+    return { x: (wheel.cx + Math.cos(a) * d).toFixed(1), y: (wheel.cy + Math.sin(a) * d).toFixed(1), r: (0.8 + Math.pow(wheelRandom(), 3) * 2.8).toFixed(2) };
+});
+const wheelConstellations: { stars: Point[]; lines: [number, number][] }[] = [
+    { stars: [[960, 560], [1030, 548], [1090, 572], [1140, 608], [1150, 672], [1232, 682], [1248, 618]], lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]] },
+    { stars: [[1150, 470], [1205, 505], [1255, 478], [1305, 520], [1360, 488]], lines: [[0, 1], [1, 2], [2, 3], [3, 4]] },
+];
+
+// Bauhaus · Circles: translucent circles around the edges [left %, top %, size rem, color, parallax speed]
+const bauhausCircles: [number, number, number, string, number][] = [
+    [-6, -8, 22, '30 60% 72% / 0.34', 0.02],
+    [8, 14, 7, '8 55% 66% / 0.38', 0.06],
+    [86, 4, 15, '42 75% 68% / 0.42', 0.03],
+    [93, 30, 5, '15 40% 28% / 0.5', 0.08],
+    [-4, 66, 12, '42 70% 72% / 0.4', 0.05],
+    [3, 80, 5.5, '80 25% 52% / 0.34', 0.09],
+    [84, 72, 24, '14 50% 70% / 0.26', 0.02],
+    [90, 62, 8, '25 55% 60% / 0.32', 0.07],
+];
+
+---
+
+<!-- WATERCOLOR: soft washes with uneven, slightly darker edges on warm paper. -->
+{
+    show('watercolor') && (
+        <div class="ls-layer ls-watercolor">
+            <svg class="ls-washes" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                    <filter id="ls-wash-edge" x="-20%" y="-20%" width="140%" height="140%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.008" numOctaves="3" seed="4" result="noise"></feTurbulence>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="70"></feDisplacementMap>
+                        <feGaussianBlur stdDeviation="1.5"></feGaussianBlur>
+                    </filter>
+                    {
+                        [
+                            ['blue', '212 55% 70%'],
+                            ['ochre', '36 70% 68%'],
+                            ['sage', '150 25% 65%'],
+                            ['ink', '222 45% 72%'],
+                        ].map(([id, color]) => (
+                            <radialGradient id={`ls-wash-${id}`}>
+                                <stop offset="0" style={`stop-color: hsl(${color}); stop-opacity: 0.12`} />
+                                <stop offset="0.78" style={`stop-color: hsl(${color}); stop-opacity: 0.17`} />
+                                <stop offset="0.94" style={`stop-color: hsl(${color}); stop-opacity: 0.3`} />
+                                <stop offset="1" style={`stop-color: hsl(${color}); stop-opacity: 0`} />
+                            </radialGradient>
+                        ))
+                    }
+                </defs>
+                <g filter="url(#ls-wash-edge)">
+                    <circle cx="170" cy="110" r="340" fill="url(#ls-wash-blue)"></circle>
+                    <circle cx="1310" cy="190" r="300" fill="url(#ls-wash-ochre)"></circle>
+                    <circle cx="1160" cy="880" r="320" fill="url(#ls-wash-sage)"></circle>
+                    <circle cx="470" cy="920" r="190" fill="url(#ls-wash-ink)"></circle>
+                </g>
+            </svg>
+            <div class="ls-grain"></div>
+        </div>
+    )
+}
+
+<!-- FIRST LIGHT: dawn gradient with the sun about to rise; a few stars still fading near the top. -->
+{
+    show('firstlight') && (
+        <div class="ls-layer ls-firstlight">
+            <div class="ls-parallax ls-dawn-sky" style="--speed: 0.05">
+                <div class="ls-dawn-stars" style={`box-shadow: ${dawnStars}`}></div>
+            </div>
+        </div>
+    )
+}
+
+<!-- DAYBREAK: a little after First Light. Pale sky blue above warm peach and gold, a soft glow low down; no stars. -->
+{
+    show('daybreak') && (
+        <div class="ls-layer ls-daybreak"></div>
+    )
+}
+
+<!-- CELESTIAL ATLAS: engraved rings and constellations on aged cream; the sphere turns imperceptibly slowly. -->
+{
+    show('atlas') && (
+        <div class="ls-layer ls-atlas">
+            <div class="ls-parallax" style="--speed: 0.03">
+                <svg class="ls-chart" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+                    <g class="ls-sphere">
+                        <circle cx={sphere.cx} cy={sphere.cy} r={sphere.r}></circle>
+                        <circle cx={sphere.cx} cy={sphere.cy} r={sphere.r - 30}></circle>
+                        <circle cx={sphere.cx} cy={sphere.cy} r={sphere.r * 0.62} class="ls-dashed"></circle>
+                        <path d={sphereTicks}></path>
+                        <path
+                            d={`M${sphere.cx - sphere.r} ${sphere.cy} H${sphere.cx + sphere.r} M${sphere.cx} ${sphere.cy - sphere.r} V${sphere.cy + sphere.r}`}
+                        ></path>
+                        <ellipse cx={sphere.cx} cy={sphere.cy} rx={sphere.r} ry={sphere.r * 0.36} transform={`rotate(-23 ${sphere.cx} ${sphere.cy})`} class="ls-dashed"></ellipse>
+                    </g>
+                    {
+                        constellations.map(({ stars, lines }) => (
+                            <g class="ls-constellation">
+                                {lines.map(([a, b]) => (
+                                    <line x1={stars[a][0]} y1={stars[a][1]} x2={stars[b][0]} y2={stars[b][1]} />
+                                ))}
+                                {stars.map(([x, y], i) => (
+                                    <circle cx={x} cy={y} r={i % 3 === 0 ? 4 : 2.8} />
+                                ))}
+                            </g>
+                        ))
+                    }
+                </svg>
+            </div>
+        </div>
+    )
+}
+
+<!-- BAUHAUS SOFT: a few calm geometric forms in muted primaries, at different depths. -->
+{
+    show('bauhaus') && (
+        <div class="ls-layer ls-bauhaus">
+            <div class="ls-parallax" style="--speed: 0.02"><div class="ls-bh ls-bh-sun"></div></div>
+            <div class="ls-parallax" style="--speed: 0.06"><div class="ls-bh ls-bh-arc"></div></div>
+            <div class="ls-parallax" style="--speed: 0.1"><div class="ls-bh ls-bh-half"></div></div>
+            <div class="ls-parallax" style="--speed: 0.04"><div class="ls-bh ls-bh-line"></div><div class="ls-bh ls-bh-dot"></div></div>
+        </div>
+    )
+}
+
+<!-- ILLUMINATED · PALE VELLUM: a fine gilt double rule around the page with small corner ornaments on pale vellum. -->
+{
+    show('illuminated') && (
+        <div class="ls-layer ls-illuminated">
+            <div class="ls-gilt-frame">
+                {
+                    ['tl', 'tr', 'bl', 'br'].map((corner) => (
+                        <svg class:list={['ls-ornament', `ls-ornament-${corner}`]} viewBox="0 0 48 48">
+                            <circle cx="14" cy="14" r="5" />
+                            <circle cx="24" cy="14" r="3" />
+                            <circle cx="14" cy="24" r="3" />
+                            <path d="M14 2 L18 14 L14 26 L10 14 Z" />
+                            <path d="M2 14 L14 10 L26 14 L14 18 Z" />
+                            <circle cx="32" cy="14" r="1.6" />
+                            <circle cx="14" cy="32" r="1.6" />
+                        </svg>
+                    ))
+                }
+            </div>
+        </div>
+    )
+}
+
+<!-- CELESTIAL ATLAS · ARMILLARY: sepia and brass on warm ivory; an armillary sphere at the lower right, stars at the upper left. -->
+{
+    show('armillary') && (
+        <div class="ls-layer ls-armillary">
+            <div class="ls-parallax" style="--speed: 0.03">
+                <svg class="ls-chart" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+                    <g class="ls-armillary-rings">
+                        <circle cx={armillary.cx} cy={armillary.cy} r={armillary.r}></circle>
+                        <circle cx={armillary.cx} cy={armillary.cy} r={armillary.r - 14}></circle>
+                        <path d={armillaryTicks}></path>
+                        <ellipse cx={armillary.cx} cy={armillary.cy} rx={armillary.r - 14} ry={(armillary.r - 14) * 0.32} transform={`rotate(${armillary.tilt} ${armillary.cx} ${armillary.cy})`}></ellipse>
+                        <ellipse class="ls-ecliptic-band" cx={armillary.cx} cy={armillary.cy} rx={armillary.r - 16} ry={(armillary.r - 16) * 0.42} transform={`rotate(22 ${armillary.cx} ${armillary.cy})`}></ellipse>
+                        <ellipse cx={armillary.cx} cy={armillary.cy} rx={armillary.r - 16} ry={(armillary.r - 16) * 0.42} transform={`rotate(22 ${armillary.cx} ${armillary.cy})`} class="ls-dashed"></ellipse>
+                        <ellipse cx={armillary.cx} cy={armillary.cy} rx={(armillary.r - 14) * 0.3} ry={armillary.r - 14} transform={`rotate(${armillary.tilt} ${armillary.cx} ${armillary.cy})`}></ellipse>
+                        <path d={`M${armillaryAxis}`}></path>
+                        <circle class="ls-armillary-globe" cx={armillary.cx} cy={armillary.cy} r="24"></circle>
+                    </g>
+                    <g class="ls-engraved-stars">
+                        {engravedStars.map((star) => <circle cx={star.x} cy={star.y} r={star.r} />)}
+                    </g>
+                    <g class="ls-constellation">
+                        {[[140, 150], [205, 200], [268, 160], [335, 216], [400, 168]].map(([x, y], i, all) => (
+                            <>
+                                {i > 0 && <line x1={all[i - 1][0]} y1={all[i - 1][1]} x2={x} y2={y} />}
+                                <circle cx={x} cy={y} r={i % 2 === 0 ? 3.6 : 2.6} />
+                            </>
+                        ))}
+                    </g>
+                </svg>
+            </div>
+        </div>
+    )
+}
+
+<!-- CELESTIAL ATLAS · PLANISPHERE: sepia and copper on warm parchment; a star wheel with an hour ring and star field. -->
+{
+    show('planisphere') && (
+        <div class="ls-layer ls-planisphere">
+            <div class="ls-parallax" style="--speed: 0.03">
+                <svg class="ls-chart" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+                    <g class="ls-wheel">
+                        <circle cx={wheel.cx} cy={wheel.cy} r={wheel.r}></circle>
+                        <circle cx={wheel.cx} cy={wheel.cy} r={wheel.r - 44}></circle>
+                        <path d={wheelTicks}></path>
+                        <circle cx={wheel.cx} cy={wheel.cy} r={(wheel.r - 44) * 0.66} class="ls-dashed"></circle>
+                        <circle cx={wheel.cx} cy={wheel.cy} r={(wheel.r - 44) * 0.33} class="ls-dashed"></circle>
+                        <circle cx={wheel.cx - 60} cy={wheel.cy - 40} r={(wheel.r - 44) * 0.78} class="ls-ecliptic"></circle>
+                        {romanHours.map((hour) => (
+                            <text x={hour.x} y={hour.y} text-anchor="middle">
+                                {hour.label}
+                            </text>
+                        ))}
+                        <g class="ls-wheel-stars">
+                            {wheelStars.map((star) => <circle cx={star.x} cy={star.y} r={star.r} />)}
+                        </g>
+                        {
+                            wheelConstellations.map(({ stars, lines }) => (
+                                <g class="ls-constellation">
+                                    {lines.map(([a, b]) => (
+                                        <line x1={stars[a][0]} y1={stars[a][1]} x2={stars[b][0]} y2={stars[b][1]} />
+                                    ))}
+                                    {stars.map(([x, y], i) => (
+                                        <circle cx={x} cy={y} r={i % 3 === 0 ? 4 : 2.8} />
+                                    ))}
+                                </g>
+                            ))
+                        }
+                    </g>
+                </svg>
+            </div>
+        </div>
+    )
+}
+
+<!-- BAUHAUS · CIRCLES: overlapping translucent circles after Kandinsky in warm tones, kept to the edges, and two fine lines. -->
+{
+    show('circles') && (
+        <div class="ls-layer ls-circles">
+            {
+                bauhausCircles.map(([left, top, size, color, speed]) => (
+                    <div class="ls-parallax" style={`--speed: ${speed}`}>
+                        <div
+                            class="ls-circle"
+                            style={`left: ${left}%; top: ${top}%; width: ${size}rem; height: ${size}rem; background: hsl(${color})`}
+                        />
+                    </div>
+                ))
+            }
+            <div class="ls-parallax" style="--speed: 0.05">
+                <div class="ls-circle-line" style="left: 4%; top: 46%; width: 22vw; rotate: -28deg"></div>
+                <div class="ls-circle-line" style="right: 3%; top: 22%; width: 14vw; rotate: 34deg"></div>
+            </div>
+        </div>
+    )
+}
+
+<!-- KINTSUGI: plain ivory stoneware with a fine speckle; no decoration. -->
+{
+    show('kintsugi') && (
+        <div class="ls-layer ls-kintsugi">
+            <div class="ls-speckle"></div>
+        </div>
+    )
+}
+
+<style is:global>
+    .ls-layer {
+        position: absolute;
+        inset: 0;
+        display: none;
+        overflow: hidden;
+    }
+    :root[data-light-style='watercolor'] .ls-watercolor,
+    :root[data-light-style='firstlight'] .ls-firstlight,
+    :root[data-light-style='daybreak'] .ls-daybreak,
+    :root[data-light-style='atlas'] .ls-atlas,
+    :root[data-light-style='atlas-armillary'] .ls-armillary,
+    :root[data-light-style='atlas-planisphere'] .ls-planisphere,
+    :root[data-light-style='bauhaus'] .ls-bauhaus,
+    :root[data-light-style='bauhaus-circles'] .ls-circles,
+    :root[data-light-style='illuminated-pale'] .ls-illuminated,
+    :root[data-light-style='kintsugi'] .ls-kintsugi {
+        display: block;
+    }
+
+    .ls-parallax {
+        position: absolute;
+        inset: 0;
+        transform: translate3d(0, calc(var(--sky-scroll, 0) * var(--speed) * var(--aero-parallax) * -1px), 0);
+    }
+
+    /* WATERCOLOR */
+    .ls-watercolor {
+        background: linear-gradient(180deg, hsl(42 40% 97%) 0%, hsl(38 34% 95%) 100%);
+    }
+    .ls-washes {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: var(--style-deco);
+    }
+    .ls-grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.06;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0 0.16 0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    /* FIRST LIGHT */
+    .ls-firstlight {
+        background:
+            radial-gradient(70rem 32rem at 50% 118%, hsl(32 95% 86% / 0.75), transparent 70%),
+            linear-gradient(
+                180deg,
+                hsl(232 36% 86%) 0%,
+                hsl(250 28% 90%) 35%,
+                hsl(320 26% 93%) 62%,
+                hsl(28 66% 93%) 85%,
+                hsl(38 72% 92%) 100%
+            );
+    }
+    .ls-dawn-sky {
+        opacity: var(--style-deco);
+        -webkit-mask-image: linear-gradient(180deg, black 0%, black 15%, transparent 48%);
+        mask-image: linear-gradient(180deg, black 0%, black 15%, transparent 48%);
+    }
+    .ls-dawn-stars {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1.5px;
+        height: 1.5px;
+        border-radius: 50%;
+        animation: ls-fade-twinkle 9s ease-in-out infinite;
+    }
+    @keyframes ls-fade-twinkle {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.55;
+        }
+    }
+
+    /* DAYBREAK */
+    .ls-daybreak {
+        background:
+            radial-gradient(60rem 26rem at 50% 112%, hsl(42 100% 84% / 0.85), transparent 70%),
+            linear-gradient(
+                180deg,
+                hsl(205 48% 88%) 0%,
+                hsl(205 40% 92%) 28%,
+                hsl(25 55% 93%) 55%,
+                hsl(28 75% 90%) 78%,
+                hsl(40 80% 88%) 100%
+            );
+    }
+
+    /* CELESTIAL ATLAS */
+    .ls-atlas {
+        background:
+            radial-gradient(120% 90% at 50% 40%, transparent 60%, hsl(35 30% 82% / 0.45) 100%),
+            linear-gradient(180deg, hsl(44 40% 95%) 0%, hsl(40 34% 93%) 100%);
+    }
+    .ls-chart {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: var(--style-deco);
+        fill: none;
+        stroke: hsl(222 30% 32% / 0.22);
+        stroke-width: 1.3;
+    }
+    .ls-sphere {
+        transform-origin: 70px 860px;
+        animation: ls-turn 480s linear infinite;
+    }
+    .ls-dashed {
+        stroke-dasharray: 3 7;
+    }
+    .ls-constellation line {
+        stroke: hsl(222 30% 32% / 0.2);
+    }
+    .ls-constellation circle {
+        fill: hsl(40 55% 45% / 0.45);
+        stroke: none;
+    }
+    @keyframes ls-turn {
+        to {
+            rotate: 360deg;
+        }
+    }
+
+    /* BAUHAUS SOFT */
+    .ls-bauhaus {
+        background: linear-gradient(180deg, hsl(40 25% 96.5%) 0%, hsl(38 20% 95%) 100%);
+    }
+    .ls-bh {
+        position: absolute;
+        opacity: var(--style-deco);
+    }
+    .ls-bh-sun {
+        top: -9rem;
+        right: -7rem;
+        width: 30rem;
+        height: 30rem;
+        border-radius: 50%;
+        background: hsl(45 75% 80% / 0.6);
+    }
+    .ls-bh-arc {
+        left: -15rem;
+        bottom: -15rem;
+        width: 30rem;
+        height: 30rem;
+        border-radius: 50%;
+        border: 2.75rem solid hsl(212 40% 72% / 0.45);
+    }
+    .ls-bh-half {
+        top: 48vh;
+        right: -3rem;
+        width: 12rem;
+        height: 6rem;
+        border-radius: 12rem 12rem 0 0;
+        background: hsl(8 55% 74% / 0.45);
+        rotate: -90deg;
+    }
+    .ls-bh-line {
+        top: 12vh;
+        left: 7vw;
+        width: 1px;
+        height: 34vh;
+        background: hsl(215 30% 25% / 0.22);
+    }
+    .ls-bh-dot {
+        top: calc(12vh + 34vh + 1.5rem);
+        left: calc(7vw - 0.45rem);
+        width: 0.9rem;
+        height: 0.9rem;
+        border-radius: 50%;
+        background: hsl(215 30% 22% / 0.55);
+    }
+
+    /* ILLUMINATED · PALE VELLUM */
+    .ls-illuminated {
+        --ls-vellum-top: hsl(42 30% 96.5%);
+        --ls-vellum-bottom: hsl(40 24% 95%);
+        --ls-mottle-a: hsl(38 30% 90% / 0.25);
+        --ls-mottle-b: hsl(34 25% 89% / 0.2);
+        --ls-rule-outer: 1px solid hsl(40 42% 52% / 0.42);
+        --ls-rule-inner: 0.5px solid hsl(40 42% 52% / 0.32);
+        --ls-ornament: hsl(40 45% 52% / 0.5);
+        background:
+            radial-gradient(50rem 30rem at 20% 20%, var(--ls-mottle-a), transparent 70%),
+            radial-gradient(40rem 30rem at 85% 80%, var(--ls-mottle-b), transparent 70%),
+            linear-gradient(180deg, var(--ls-vellum-top) 0%, var(--ls-vellum-bottom) 100%);
+    }
+    .ls-gilt-frame {
+        position: absolute;
+        inset: 14px;
+        border: var(--ls-rule-outer);
+        opacity: var(--style-deco);
+    }
+    .ls-gilt-frame::after {
+        content: '';
+        position: absolute;
+        inset: 5px;
+        border: var(--ls-rule-inner);
+    }
+    .ls-ornament {
+        position: absolute;
+        width: 3rem;
+        height: 3rem;
+        fill: var(--ls-ornament);
+    }
+    .ls-ornament-tl {
+        top: -1px;
+        left: -1px;
+    }
+    .ls-ornament-tr {
+        top: -1px;
+        right: -1px;
+        scale: -1 1;
+    }
+    .ls-ornament-bl {
+        bottom: -1px;
+        left: -1px;
+        scale: 1 -1;
+    }
+    .ls-ornament-br {
+        bottom: -1px;
+        right: -1px;
+        scale: -1 -1;
+    }
+
+    /* KINTSUGI */
+    .ls-kintsugi {
+        background:
+            radial-gradient(60rem 36rem at 50% 0%, hsl(40 30% 97% / 0.8), transparent 70%),
+            linear-gradient(180deg, hsl(40 22% 94%) 0%, hsl(38 18% 91.5%) 100%);
+    }
+    .ls-speckle {
+        position: absolute;
+        inset: 0;
+        opacity: 0.35;
+        mix-blend-mode: multiply;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.26 0 0 0 0 0.2 0 0 0 9 -6.2'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
+    }
+
+    /* CELESTIAL ATLAS · ARMILLARY */
+    .ls-armillary {
+        background:
+            radial-gradient(120% 90% at 50% 40%, transparent 60%, hsl(34 28% 84% / 0.45) 100%),
+            linear-gradient(180deg, hsl(40 32% 96%) 0%, hsl(37 26% 93.5%) 100%);
+    }
+    .ls-armillary .ls-chart {
+        stroke: hsl(26 38% 30% / 0.24);
+    }
+    .ls-armillary .ls-constellation line {
+        stroke: hsl(26 38% 30% / 0.22);
+    }
+    .ls-armillary-rings {
+        transform-origin: 1235px 690px;
+        animation: ls-turn 720s linear infinite;
+    }
+    .ls-ecliptic-band {
+        stroke: hsl(40 55% 45% / 0.12);
+        stroke-width: 12;
+    }
+    .ls-armillary-globe {
+        fill: hsl(26 38% 30% / 0.08);
+    }
+    .ls-engraved-stars circle {
+        fill: hsl(26 38% 30% / 0.4);
+        stroke: none;
+    }
+
+    /* CELESTIAL ATLAS · PLANISPHERE */
+    .ls-planisphere {
+        background:
+            radial-gradient(120% 90% at 50% 40%, transparent 60%, hsl(30 30% 84% / 0.4) 100%),
+            linear-gradient(180deg, hsl(38 34% 95.5%) 0%, hsl(34 28% 93%) 100%);
+    }
+    .ls-planisphere .ls-chart {
+        stroke: hsl(18 35% 30% / 0.28);
+    }
+    .ls-planisphere .ls-constellation line {
+        stroke: hsl(18 35% 30% / 0.24);
+    }
+    .ls-wheel {
+        transform-origin: 1300px 850px;
+        animation: ls-turn 900s linear infinite reverse;
+    }
+    .ls-ecliptic {
+        stroke: hsl(18 55% 45% / 0.22);
+        stroke-dasharray: 1 5;
+        stroke-width: 2;
+    }
+    .ls-wheel text {
+        fill: hsl(18 35% 30% / 0.5);
+        stroke: none;
+        font: 500 15px var(--font-serif);
+        letter-spacing: 0.05em;
+    }
+    .ls-wheel-stars circle {
+        fill: hsl(20 35% 28% / 0.46);
+        stroke: none;
+    }
+    .ls-planisphere .ls-constellation circle {
+        fill: hsl(18 55% 45% / 0.55);
+    }
+
+    /* BAUHAUS · CIRCLES */
+    .ls-circles {
+        background: linear-gradient(180deg, hsl(38 30% 96.5%) 0%, hsl(34 26% 95%) 100%);
+    }
+    .ls-circle {
+        position: absolute;
+        border-radius: 50%;
+        mix-blend-mode: multiply;
+        opacity: var(--style-deco);
+    }
+    .ls-circle-line {
+        position: absolute;
+        height: 1px;
+        background: hsl(20 30% 22% / 0.3);
+        opacity: var(--style-deco);
+        transform-origin: 0 50%;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ls-sphere,
+        .ls-armillary-rings,
+        .ls-wheel,
+        .ls-dawn-stars {
+            animation: none;
+        }
+        .ls-parallax {
+            transform: none;
+        }
+    }
+</style>

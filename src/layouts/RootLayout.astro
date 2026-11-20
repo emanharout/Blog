@@ -7,6 +7,7 @@ import { Font } from 'astro:assets';
 import '../styles/input.css';
 import '../styles/shiki.css';
 import { SITE_NAME } from '../scripts/constants';
+import { DEFAULT_LIGHT_STYLE } from '../scripts/lightStyles';
 
 interface Props {
     title: string;
@@ -15,9 +16,11 @@ interface Props {
     image?: string;
     imageAlt?: string;
     ogType?: 'website' | 'article';
+    // Opt-in page design. 'aero' swaps the theme roles for the glass / Frutiger Aero look (see src/styles/input.css).
+    design?: 'aero';
 }
 
-const { title, description, image = '/favicon.png', imageAlt, ogType = 'website' } = Astro.props;
+const { title, description, image = '/favicon.png', imageAlt, ogType = 'website', design } = Astro.props;
 
 const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -27,7 +30,7 @@ const socialImageAlt = imageAlt ?? description;
 ---
 
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="en" class="h-full" data-design={design} data-light-style={design === 'aero' ? DEFAULT_LIGHT_STYLE : undefined}>
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -57,6 +60,27 @@ const socialImageAlt = imageAlt ?? description;
         <meta name="twitter:image" content={absoluteImageURL} />
         <meta name="twitter:image:alt" content={socialImageAlt} />
 
+        {
+            /*
+              Dev only: preview another light-mode style (see src/scripts/lightStyles.ts) from ?light-style=… or the
+              design tuner's choice, before first paint. 'default' is Refined Aero (no attribute). Production always
+              uses DEFAULT_LIGHT_STYLE, set on <html> above.
+            */
+            import.meta.env.DEV && (
+                <script is:inline>
+                    (() => {
+                        try {
+                            const fromUrl = new URLSearchParams(location.search).get('light-style');
+                            const style = fromUrl ?? localStorage.getItem('light-style');
+                            if (style === 'default') delete document.documentElement.dataset.lightStyle;
+                            else if (style) document.documentElement.dataset.lightStyle = style;
+                        } catch {
+                            // Storage unavailable; use the default style.
+                        }
+                    })();
+                </script>
+            )
+        }
         <!-- Keep this inline/public script in <head> so theme class is applied before first paint. -->
         <!-- This avoids a flash of wrong theme; tradeoff is that this script is not Astro-processed. -->
         <script is:inline src="/scripts/colorThemeScript.js"></script>

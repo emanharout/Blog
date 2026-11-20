@@ -1,0 +1,220 @@
+---
+// Dev-only page (registered in astro.config.mjs only for `astro dev`): every experimental light style side by side,
+// each in a live, scaled-down preview of the same page.
+import { LIGHT_STYLES } from '../scripts/lightStyles';
+
+const pages = [
+    { path: '/', label: 'Home' },
+    { path: '/blog', label: 'All posts' },
+    { path: '/blog/introduction-to-swift-metatypes', label: 'A post' },
+    { path: '/about', label: 'About' },
+    { path: '/search', label: 'Search' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Light styles · compare</title>
+        <style>
+            :root {
+                color-scheme: light;
+                font-family: ui-sans-serif, system-ui, sans-serif;
+                --bg: #eceef1;
+                --fg: #1d2330;
+                --muted: #5b6475;
+                --card: #ffffff;
+                --line: #d5d9e0;
+            }
+            body {
+                margin: 0;
+                background: var(--bg);
+                color: var(--fg);
+            }
+            header {
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0.75rem 1.25rem;
+                padding: 0.75rem 1rem;
+                background: color-mix(in srgb, var(--bg) 88%, transparent);
+                backdrop-filter: blur(8px);
+                border-bottom: 1px solid var(--line);
+            }
+            h1 {
+                margin: 0 auto 0 0;
+                font-size: 1rem;
+            }
+            label {
+                font-size: 0.85rem;
+                color: var(--muted);
+            }
+            select {
+                margin-left: 0.35rem;
+                font: inherit;
+                color: var(--fg);
+                padding: 0.25rem 0.4rem;
+                border: 1px solid var(--line);
+                border-radius: 6px;
+                background: var(--card);
+            }
+            main {
+                display: grid;
+                grid-template-columns: repeat(var(--columns, 2), minmax(0, 1fr));
+                gap: 1rem;
+                padding: 1rem;
+            }
+            figure {
+                margin: 0;
+                background: var(--card);
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            figcaption {
+                display: flex;
+                align-items: baseline;
+                gap: 0.5rem;
+                padding: 0.55rem 0.75rem;
+                border-bottom: 1px solid var(--line);
+                font-size: 0.85rem;
+            }
+            figcaption strong {
+                white-space: nowrap;
+            }
+            figcaption span {
+                flex: 1;
+                color: var(--muted);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            figcaption a {
+                color: var(--muted);
+                white-space: nowrap;
+            }
+            .frame {
+                position: relative;
+                overflow: hidden;
+            }
+            .frame iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                border: 0;
+                transform-origin: 0 0;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Light styles, side by side</h1>
+            <label
+                >Page
+                <select id="page">
+                    {pages.map((page) => <option value={page.path}>{page.label}</option>)}
+                </select>
+            </label>
+            <label
+                >Preview as
+                <select id="device">
+                    <option value="1280x860">Desktop</option>
+                    <option value="390x844">Phone</option>
+                </select>
+            </label>
+            <label
+                >Columns
+                <select id="columns">
+                    <option value="1">1</option>
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                </select>
+            </label>
+        </header>
+        <main>
+            {
+                LIGHT_STYLES.map((style) => (
+                    <figure data-style={style.id}>
+                        <figcaption>
+                            <strong>{style.name}</strong>
+                            <span>{style.blurb}</span>
+                            <a target="_blank" data-open>
+                                Open ↗
+                            </a>
+                        </figcaption>
+                        <div class="frame">
+                            <iframe title={`${style.name} preview`} loading="lazy" />
+                        </div>
+                    </figure>
+                ))
+            }
+        </main>
+
+        <script>
+            const pageSelect = document.getElementById('page') as HTMLSelectElement;
+            const deviceSelect = document.getElementById('device') as HTMLSelectElement;
+            const columnsSelect = document.getElementById('columns') as HTMLSelectElement;
+            const main = document.querySelector('main')!;
+            const figures = [...document.querySelectorAll<HTMLElement>('figure[data-style]')];
+
+            // Remember the controls in the URL so a reload keeps them
+            const params = new URLSearchParams(location.search);
+            pageSelect.value = params.get('page') ?? '/';
+            deviceSelect.value = params.get('device') ?? '1280x860';
+            columnsSelect.value = params.get('columns') ?? '2';
+
+            function size() {
+                const [width, height] = deviceSelect.value.split('x').map(Number);
+                return { width, height };
+            }
+
+            function load() {
+                const page = pageSelect.value;
+                figures.forEach((figure) => {
+                    const url = `${page}?light-style=${figure.dataset.style}&theme=light`;
+                    const iframe = figure.querySelector('iframe')!;
+                    if (iframe.getAttribute('src') !== url) iframe.src = url;
+                    figure.querySelector<HTMLAnchorElement>('[data-open]')!.href = url;
+                });
+                const url = new URL(location.href);
+                url.searchParams.set('page', page);
+                url.searchParams.set('device', deviceSelect.value);
+                url.searchParams.set('columns', columnsSelect.value);
+                history.replaceState(null, '', url);
+            }
+
+            // Render each page at its real width and scale it down to fit its column
+            function layout() {
+                main.style.setProperty('--columns', columnsSelect.value);
+                const { width, height } = size();
+                figures.forEach((figure) => {
+                    const frame = figure.querySelector<HTMLElement>('.frame')!;
+                    const iframe = frame.querySelector('iframe')!;
+                    const scale = frame.clientWidth / width;
+                    iframe.style.width = `${width}px`;
+                    iframe.style.height = `${height}px`;
+                    iframe.style.transform = `scale(${scale})`;
+                    frame.style.height = `${height * scale}px`;
+                });
+            }
+
+            pageSelect.addEventListener('change', load);
+            deviceSelect.addEventListener('change', () => {
+                load();
+                layout();
+            });
+            columnsSelect.addEventListener('change', () => {
+                load();
+                requestAnimationFrame(layout);
+            });
+            new ResizeObserver(layout).observe(main);
+            load();
+            layout();
+        </script>
+    </body>
+</html>

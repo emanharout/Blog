@@ -1,0 +1,14 @@
+/*
+ * SAVED TUNER VALUES. Generated from tuned.json by scripts/aero-tuner-store.mjs when you press Save in the dev-only
+ * design tuner; edit through the tuner (or edit tuned.json and save again). These override the factory defaults in
+ * input.css and light-styles.css; [data-tuner-factory] is set only momentarily by the tuner to read those defaults.
+ */
+
+@layer base {
+    :root[data-design='aero'][data-light-style='daybreak']:not(.dark):not([data-tuner-factory]) {
+        --glass-gloss-alpha: 0.42;
+        --glass-opacity: 0.7;
+        --glass-rim: 0.9;
+        --glass-shadow-depth: 0.7;
+    }
+}

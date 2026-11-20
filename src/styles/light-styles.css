@@ -1,0 +1,380 @@
+/*
+ * LIGHT-MODE STYLES
+ * Each block restyles light mode when <html data-light-style="…"> is set. RootLayout sets it to the site's light style
+ * (DEFAULT_LIGHT_STYLE in src/scripts/lightStyles.ts, currently Daybreak); in development the design tuner and
+ * ?light-style=… can switch to any other style for previewing. Dark mode is never affected (every selector has
+ * :not(.dark)). Backdrops live in LightStyleBackdrop.astro; saved tuner values in tuned.css override these.
+ */
+
+@layer base {
+    /* Shared by every experimental style: palettes from two hues, and roles derived from them */
+    :root[data-design='aero'][data-light-style]:not(.dark) {
+        --style-primary-h: 215;
+        --style-primary-s: 40%;
+        --style-secondary-h: 150;
+        --style-secondary-s: 20%;
+        /* Strength of the style's backdrop decoration (0 = none) */
+        --style-deco: 1;
+
+        --primary-color-50: var(--style-primary-h) var(--style-primary-s) 97%;
+        --primary-color-100: var(--style-primary-h) var(--style-primary-s) 93%;
+        --primary-color-200: var(--style-primary-h) var(--style-primary-s) 85%;
+        --primary-color-300: var(--style-primary-h) var(--style-primary-s) 73%;
+        --primary-color-400: var(--style-primary-h) var(--style-primary-s) 60%;
+        --primary-color-500: var(--style-primary-h) var(--style-primary-s) 47%;
+        --primary-color-600: var(--style-primary-h) var(--style-primary-s) 37%;
+        --primary-color-700: var(--style-primary-h) var(--style-primary-s) 30%;
+        --primary-color-800: var(--style-primary-h) var(--style-primary-s) 25%;
+        --primary-color-900: var(--style-primary-h) var(--style-primary-s) 20%;
+        --primary-color-950: var(--style-primary-h) var(--style-primary-s) 13%;
+
+        --secondary-color-50: var(--style-secondary-h) var(--style-secondary-s) 97%;
+        --secondary-color-100: var(--style-secondary-h) var(--style-secondary-s) 93%;
+        --secondary-color-200: var(--style-secondary-h) var(--style-secondary-s) 85%;
+        --secondary-color-300: var(--style-secondary-h) var(--style-secondary-s) 73%;
+        --secondary-color-400: var(--style-secondary-h) var(--style-secondary-s) 60%;
+        --secondary-color-500: var(--style-secondary-h) var(--style-secondary-s) 47%;
+        --secondary-color-600: var(--style-secondary-h) var(--style-secondary-s) 37%;
+        --secondary-color-700: var(--style-secondary-h) var(--style-secondary-s) 30%;
+        --secondary-color-800: var(--style-secondary-h) var(--style-secondary-s) 25%;
+        --secondary-color-900: var(--style-secondary-h) var(--style-secondary-s) 20%;
+        --secondary-color-950: var(--style-secondary-h) var(--style-secondary-s) 13%;
+
+        --background-color-1: 0 0% 100% / 0;
+        --fg-color-border-2: var(--style-primary-h) 15% 40% / 0.18;
+        --fg-light: 0deg 0% 100%;
+
+        --x-icon-color: hsl(var(--fg-color-1));
+        --github-icon-color: hsl(var(--fg-color-1));
+        --medium-icon-color: hsl(var(--secondary-color-600));
+        --email-icon-color: hsl(var(--primary-color-600));
+        --linkedin-icon-color: hsl(var(--primary-color-700));
+
+        --glass-intensity: 1;
+        --glass-shadow-depth: 1;
+        --glass-shadow-y: 22px;
+        --glass-shadow-blur: 44px;
+        --glass-shadow-spread: -26px;
+        --glass-border: hsl(
+            var(--style-primary-h) 15% 45% / calc(var(--glass-edge-alpha) * 0.3 * var(--glass-intensity))
+        );
+        --glass-gloss: hsl(0 0% 100% / calc(var(--glass-gloss-alpha) * var(--glass-intensity)));
+        --logo-shadow: hsl(var(--style-primary-h) 30% 25% / 0.25);
+        /* Logo in shades of the primary color only (mixing two hues can turn muddy) */
+        --logo-top: hsl(var(--primary-color-400));
+        --logo-bottom: hsl(var(--primary-color-700));
+    }
+
+    /* WATERCOLOR: warm paper with soft washes. Ink blue and sienna; panels read as paper. */
+    :root[data-design='aero'][data-light-style='watercolor']:not(.dark) {
+        background-color: hsl(40 35% 96%);
+        --style-primary-h: 222;
+        --style-primary-s: 38%;
+        --style-secondary-h: 18;
+        --style-secondary-s: 45%;
+        --aero-name-green: #8f4e32;
+
+        --fg-color-1: 222 25% 15%;
+        --fg-color-2: 25 8% 30%;
+        --background-color-2: 40 40% 99% / 0.92;
+
+        --glass-opacity: 0.82;
+        --glass-blur: 6px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0;
+        --glass-boost: 100%;
+        --glass-tint-top: 42 45% 99.5%;
+        --glass-tint-bottom: 40 35% 98%;
+        --glass-fade: 0.95;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 30 30% 25%;
+        --glass-shadow-alpha: 0.14;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* FIRST LIGHT: the hour after night. Periwinkle to peach, pearly glass, the last stars fading. */
+    :root[data-design='aero'][data-light-style='firstlight']:not(.dark) {
+        background-color: hsl(240 30% 93%);
+        --style-primary-h: 230;
+        --style-primary-s: 32%;
+        --style-secondary-h: 12;
+        --style-secondary-s: 38%;
+        --aero-name-green: #454e87;
+
+        --fg-color-1: 232 28% 16%;
+        --fg-color-2: 232 12% 31%;
+        --background-color-2: 250 40% 99% / 0.9;
+
+        --glass-opacity: 0.6;
+        --glass-blur: 18px;
+        --glass-gloss-alpha: 0.28;
+        --glass-edge-alpha: 0.8;
+        --glass-rim: 0.8;
+        --glass-boost: 130%;
+        --glass-tint-top: 0 0% 100%;
+        --glass-tint-bottom: 260 40% 98.5%;
+        --glass-fade: 0.75;
+        --glass-highlight-alpha: 0.95;
+        --glass-shadow-color: 240 30% 30%;
+        --glass-shadow-alpha: 0.16;
+        --glass-contact-alpha: 0.04;
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0.4;
+    }
+
+    /* DAYBREAK: a little after First Light. The sun has just risen: pale sky blue over peach and gold, pearly glass, no stars. */
+    :root[data-design='aero'][data-light-style='daybreak']:not(.dark) {
+        background-color: hsl(32 60% 93%);
+        --style-primary-h: 212;
+        --style-primary-s: 35%;
+        --style-secondary-h: 20;
+        --style-secondary-s: 55%;
+        --aero-name-green: #9b4a31;
+
+        --fg-color-1: 218 25% 15%;
+        --fg-color-2: 218 10% 30%;
+        --background-color-2: 30 60% 99% / 0.9;
+
+        --glass-opacity: 0.6;
+        --glass-blur: 18px;
+        --glass-gloss-alpha: 0.26;
+        --glass-edge-alpha: 0.8;
+        --glass-rim: 0.8;
+        --glass-boost: 130%;
+        --glass-tint-top: 30 60% 99.5%;
+        --glass-tint-bottom: 28 50% 97.5%;
+        --glass-fade: 0.76;
+        --glass-highlight-alpha: 0.95;
+        --glass-shadow-color: 25 35% 30%;
+        --glass-shadow-alpha: 0.17;
+        --glass-contact-alpha: 0.04;
+        --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0.4;
+    }
+
+    /* CELESTIAL ATLAS: an old star chart by daylight. Aged cream, navy ink and brass; engraved rings and constellations (the daytime twin of the night sky). */
+    :root[data-design='aero'][data-light-style='atlas']:not(.dark) {
+        background-color: hsl(42 38% 94%);
+        --style-primary-h: 222;
+        --style-primary-s: 45%;
+        --style-secondary-h: 40;
+        --style-secondary-s: 45%;
+        --aero-name-green: #2d4376;
+
+        --fg-color-1: 222 32% 15%;
+        --fg-color-2: 30 10% 29%;
+        --background-color-2: 42 40% 99% / 0.92;
+
+        --glass-opacity: 0.86;
+        --glass-blur: 6px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 100%;
+        --glass-tint-top: 44 45% 99%;
+        --glass-tint-bottom: 42 35% 97.5%;
+        --glass-fade: 0.95;
+        --glass-highlight-alpha: 0.7;
+        --glass-shadow-color: 35 30% 22%;
+        --glass-shadow-alpha: 0.15;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* BAUHAUS SOFT: modernist calm. Off-white, muted blue, red and yellow geometry; matte panels. */
+    :root[data-design='aero'][data-light-style='bauhaus']:not(.dark) {
+        background-color: hsl(40 25% 96%);
+        --style-primary-h: 215;
+        --style-primary-s: 45%;
+        --style-secondary-h: 8;
+        --style-secondary-s: 50%;
+        --aero-name-green: #2d5286;
+
+        --fg-color-1: 215 30% 14%;
+        --fg-color-2: 215 10% 30%;
+        --background-color-2: 40 25% 99% / 0.94;
+
+        --glass-opacity: 0.88;
+        --glass-blur: 10px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 105%;
+        --glass-tint-top: 40 25% 99.5%;
+        --glass-tint-bottom: 40 20% 98.5%;
+        --glass-fade: 1;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 215 25% 20%;
+        --glass-shadow-alpha: 0.1;
+        --glass-contact-alpha: 0.06;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* KINTSUGI: plain ivory stoneware with a fine speckle. Charcoal indigo and bronze; no decoration. */
+    :root[data-design='aero'][data-light-style='kintsugi']:not(.dark) {
+        background-color: hsl(40 20% 93%);
+        --style-primary-h: 220;
+        --style-primary-s: 18%;
+        --style-secondary-h: 40;
+        --style-secondary-s: 55%;
+        --aero-name-green: #855e23;
+
+        --fg-color-1: 220 15% 13%;
+        --fg-color-2: 220 6% 30%;
+        --background-color-2: 40 25% 99% / 0.93;
+
+        --glass-opacity: 0.85;
+        --glass-blur: 8px;
+        --glass-gloss-alpha: 0.25;
+        --glass-edge-alpha: 0.55;
+        --glass-rim: 0.4;
+        --glass-boost: 100%;
+        --glass-tint-top: 40 30% 99.5%;
+        --glass-tint-bottom: 40 20% 97.5%;
+        --glass-fade: 0.92;
+        --glass-highlight-alpha: 0.85;
+        --glass-shadow-color: 30 20% 20%;
+        --glass-shadow-alpha: 0.14;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0.3;
+    }
+
+    /* ILLUMINATED · PALE VELLUM: the manuscript style, softened. Paler, less yellow vellum, a finer and lighter gilt rule, a quieter red. */
+    :root[data-design='aero'][data-light-style='illuminated-pale']:not(.dark) {
+        background-color: hsl(40 24% 95.5%);
+        --style-primary-h: 222;
+        --style-primary-s: 45%;
+        --style-secondary-h: 4;
+        --style-secondary-s: 42%;
+        --aero-name-green: #943e38;
+
+        --fg-color-1: 25 18% 13%;
+        --fg-color-2: 25 8% 29%;
+        --background-color-2: 40 25% 99% / 0.94;
+
+        --glass-opacity: 0.88;
+        --glass-blur: 4px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.2;
+        --glass-boost: 100%;
+        --glass-tint-top: 42 25% 99.5%;
+        --glass-tint-bottom: 40 20% 98%;
+        --glass-fade: 0.97;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 30 20% 22%;
+        --glass-shadow-alpha: 0.13;
+        --glass-contact-alpha: 0.05;
+        --glass-border: hsl(40 40% 50% / calc(var(--glass-edge-alpha) * 0.45 * var(--glass-intensity)));
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* CELESTIAL ATLAS · ARMILLARY: warm ivory, sepia ink and brass; an engraved armillary sphere (its rings turn imperceptibly) and scattered stars. */
+    :root[data-design='aero'][data-light-style='atlas-armillary']:not(.dark) {
+        background-color: hsl(38 30% 95%);
+        --style-primary-h: 26;
+        --style-primary-s: 40%;
+        --style-secondary-h: 40;
+        --style-secondary-s: 50%;
+        --aero-name-green: #6f462a;
+
+        --fg-color-1: 26 28% 13%;
+        --fg-color-2: 26 10% 29%;
+        --background-color-2: 40 32% 99% / 0.92;
+
+        --glass-opacity: 0.86;
+        --glass-blur: 6px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 100%;
+        --glass-tint-top: 40 35% 99.5%;
+        --glass-tint-bottom: 38 28% 98%;
+        --glass-fade: 0.95;
+        --glass-highlight-alpha: 0.7;
+        --glass-shadow-color: 28 30% 22%;
+        --glass-shadow-alpha: 0.14;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* CELESTIAL ATLAS · PLANISPHERE: a rotating star wheel. Warm parchment, sepia and copper; an hour ring with numerals, star field and constellations. */
+    :root[data-design='aero'][data-light-style='atlas-planisphere']:not(.dark) {
+        background-color: hsl(36 32% 94.5%);
+        --style-primary-h: 18;
+        --style-primary-s: 48%;
+        --style-secondary-h: 32;
+        --style-secondary-s: 40%;
+        --aero-name-green: #8c422c;
+
+        --fg-color-1: 20 28% 13%;
+        --fg-color-2: 22 10% 29%;
+        --background-color-2: 38 34% 99% / 0.92;
+
+        --glass-opacity: 0.86;
+        --glass-blur: 6px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 100%;
+        --glass-tint-top: 38 38% 99.5%;
+        --glass-tint-bottom: 35 30% 98%;
+        --glass-fade: 0.95;
+        --glass-highlight-alpha: 0.7;
+        --glass-shadow-color: 22 30% 22%;
+        --glass-shadow-alpha: 0.14;
+        --glass-contact-alpha: 0.05;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+
+    /* BAUHAUS · CIRCLES: overlapping translucent circles after Kandinsky around the edges; warm off-white, brick, ochre and mustard. */
+    :root[data-design='aero'][data-light-style='bauhaus-circles']:not(.dark) {
+        background-color: hsl(38 28% 96%);
+        --style-primary-h: 12;
+        --style-primary-s: 48%;
+        --style-secondary-h: 40;
+        --style-secondary-s: 55%;
+        --aero-name-green: #914430;
+
+        --fg-color-1: 20 25% 13%;
+        --fg-color-2: 20 8% 29%;
+        --background-color-2: 38 28% 99% / 0.94;
+
+        --glass-opacity: 0.88;
+        --glass-blur: 10px;
+        --glass-gloss-alpha: 0;
+        --glass-edge-alpha: 0.6;
+        --glass-rim: 0.3;
+        --glass-boost: 105%;
+        --glass-tint-top: 38 30% 99.5%;
+        --glass-tint-bottom: 36 24% 98.5%;
+        --glass-fade: 1;
+        --glass-highlight-alpha: 0.6;
+        --glass-shadow-color: 20 25% 20%;
+        --glass-shadow-alpha: 0.1;
+        --glass-contact-alpha: 0.06;
+
+        --orb-fill: 0;
+        --orb-gloss: 0;
+    }
+}
