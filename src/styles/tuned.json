@@ -1,0 +1,11 @@
+{
+    "light": {
+        "daybreak": {
+            "glass-gloss-alpha": "0.42",
+            "glass-opacity": "0.7",
+            "glass-rim": "0.9",
+            "glass-shadow-depth": "0.7"
+        }
+    },
+    "dark": {}
+}

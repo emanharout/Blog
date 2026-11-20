@@ -1,14 +1,19 @@
 ---
 // Dev-only design tuner (rendered by MainLayout only when `import.meta.env.DEV`). Sliders adjust the --aero-* and
-// --glass-* knobs from src/styles/input.css live, separately for light and dark mode. Changes are kept in this
-// browser's localStorage (one set per light style); "Copy values" copies them as CSS so they can be made permanent.
-// It also switches between the experimental light styles in src/scripts/lightStyles.ts.
+// --glass-* knobs live, separately for light and dark mode (and for each experimental light style).
+//
+// Each knob has three layers (see scripts/aero-tuner-store.mjs): factory defaults (what the theme was designed with),
+// saved values (written to src/styles/tuned.css by Save) and working values (unsaved tweaks, kept in localStorage).
+// The panel can save, revert to saved, load factory defaults, and flip between new and saved values, for the whole
+// page or one field. Behavior lives in src/scripts/aeroTuner.ts.
 import { LIGHT_STYLES } from '../scripts/lightStyles';
 
 type Theme = 'light' | 'dark';
 type Knob = {
     name: string;
     label: string;
+    // Longer explanation, shown as a tooltip after a short hover (and read by screen readers)
+    tip: string;
     // Sliders by default; 'color' shows a color picker (value is a hex color); 'toggle' a checkbox (value 1 or 0)
     type?: 'range' | 'color' | 'toggle';
     min?: number;
@@ -31,60 +36,67 @@ const defaultOnly: ('default' | 'styled')[] = ['default'];
 const styledOnly: ('default' | 'styled')[] = ['styled'];
 
 const both: Theme[] = ['light', 'dark'];
+const skySwatch = 'hsl(var(--aero-sky-h) calc(70% * var(--aero-sky-saturation)) calc(81% - 23% * var(--aero-sky-depth)))';
 
 const groups: { title: string; knobs: Knob[] }[] = [
     {
         title: 'Colors',
         knobs: [
-            { name: 'aero-name-green', label: 'Name color', type: 'color', themes: ['light'] },
-            { name: 'style-primary-h', label: 'Primary hue', min: 0, max: 360, step: 1, themes: ['light'], styles: styledOnly, swatch: 'hsl(var(--primary-color-600))' },
-            { name: 'style-secondary-h', label: 'Secondary hue', min: 0, max: 360, step: 1, themes: ['light'], styles: styledOnly, swatch: 'hsl(var(--secondary-color-600))' },
-            { name: 'style-deco', label: 'Decoration', min: 0, max: 2, step: 0.05, themes: ['light'], styles: styledOnly },
-            { name: 'aero-sky-h', label: 'Sky blue', min: 180, max: 235, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--azure-color-500))' },
-            { name: 'aero-leaf-h', label: 'Lawn green', min: 80, max: 175, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--leaf-color-500))' },
-            { name: 'aero-sun-h', label: 'Sunshine', min: 25, max: 60, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--sun-color-400))' },
-            { name: 'aero-sky-saturation', label: 'Sky saturation', min: 0, max: 1.6, step: 0.05, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--aero-sky-h) calc(70% * var(--aero-sky-saturation)) calc(81% - 23% * var(--aero-sky-depth)))' },
-            { name: 'aero-sky-depth', label: 'Sky depth', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--aero-sky-h) calc(70% * var(--aero-sky-saturation)) calc(81% - 23% * var(--aero-sky-depth)))' },
-            { name: 'aero-sky-fade', label: 'Blue reaches down', min: 15, max: 82, step: 1, unit: '%', themes: ['light'], styles: defaultOnly },
-            { name: 'aero-sun-strength', label: 'Sun glow', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly },
-            { name: 'aero-rays', label: 'Window light', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly },
-            { name: 'aero-horizon', label: 'Show gold band and lawn', type: 'toggle', themes: ['light'], styles: defaultOnly },
-            { name: 'aero-lawn', label: 'Lawn', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
-            { name: 'aero-lawn-height', label: 'Lawn height', min: 0.5, max: 3, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
-            { name: 'aero-lawn-softness', label: 'Lawn edge (arches → mist)', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
-            { name: 'aero-night-h', label: 'Navy hue', min: 200, max: 265, step: 1, themes: ['dark'], swatch: 'hsl(var(--night-color-600))' },
-            { name: 'aero-night-l', label: 'Sky brightness', min: 2, max: 16, step: 0.5, unit: '%', themes: ['dark'], swatch: 'hsl(var(--aero-night-h) 68% var(--aero-night-l))' },
-            { name: 'aero-dusk-h', label: 'Dusk hue', min: 215, max: 290, step: 1, themes: ['dark'], swatch: 'hsl(var(--dusk-color-500))' },
-            { name: 'aero-stars', label: 'Stars', min: 0, max: 1, step: 0.05, themes: ['dark'] },
-            { name: 'aero-moon-glow', label: 'Moon glow', min: 0, max: 2.5, step: 0.05, themes: ['dark'] },
-            { name: 'aero-shooting-stars', label: 'Shooting stars', min: 0, max: 1, step: 0.05, themes: ['dark'] },
+            { name: 'aero-name-green', label: 'Name & quote color', tip: 'Color of “Eman” in the home page heading and of the quote mark beside the verse.', type: 'color', themes: ['light'] },
+            { name: 'style-primary-h', label: 'Main hue', tip: "Hue of this style's main color: links, the logo, alternating tags, buttons and badge rings.", min: 0, max: 360, step: 1, themes: ['light'], styles: styledOnly, swatch: 'hsl(var(--primary-color-600))' },
+            { name: 'style-secondary-h', label: 'Second hue', tip: "Hue of this style's second color: the other alternating tags and the Wonder Blog badge.", min: 0, max: 360, step: 1, themes: ['light'], styles: styledOnly, swatch: 'hsl(var(--secondary-color-600))' },
+            { name: 'style-deco', label: 'Background decoration', tip: "Strength of this style's backdrop details (stars, rings, washes, shapes, frames). 0 hides them.", min: 0, max: 2, step: 0.05, themes: ['light'], styles: styledOnly },
+            { name: 'aero-sky-h', label: 'Sky hue', tip: 'Which blue the sky and accents use: lower is more turquoise, higher more periwinkle.', min: 180, max: 235, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--azure-color-500))' },
+            { name: 'aero-leaf-h', label: 'Green hue', tip: "Hue of the greens: the lawn, the Wonder tag and badge, and the logo's lower half.", min: 80, max: 175, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--leaf-color-500))' },
+            { name: 'aero-sun-h', label: 'Sunlight hue', tip: 'Hue of the warm sunlight: the corner glow, window light and gold band. Lower is more orange.', min: 25, max: 60, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--sun-color-400))' },
+            { name: 'aero-sky-saturation', label: 'Sky color strength', tip: 'How vivid the blue sky is. 1 is the default; lower is greyer, higher purer.', min: 0, max: 1.6, step: 0.05, themes: ['light'], styles: defaultOnly, swatch: skySwatch },
+            { name: 'aero-sky-depth', label: 'Sky depth', tip: 'How deep and rich the blue at the top of the sky is. Higher is a darker, fuller blue.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, swatch: skySwatch },
+            { name: 'aero-sky-fade', label: 'How far the blue reaches', tip: 'Where the blue sky stops and warms toward the horizon, as a share of the screen height.', min: 15, max: 82, step: 1, unit: '%', themes: ['light'], styles: defaultOnly },
+            { name: 'aero-sun-strength', label: 'Corner sun glow', tip: 'Strength of the warm sunlight glowing in from the top-right corner.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly },
+            { name: 'aero-rays', label: 'Window light shafts', tip: 'Strength of the soft diagonal shafts of light, as if through tall windows.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly },
+            { name: 'aero-horizon', label: 'Show horizon (gold band & lawn)', tip: 'Shows the warm gold band and the lawn at the bottom of the sky. Off lets the pale blue run to the bottom.', type: 'toggle', themes: ['light'], styles: defaultOnly },
+            { name: 'aero-lawn', label: 'Lawn strength', tip: 'How visible the lawn is.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
+            { name: 'aero-lawn-height', label: 'Lawn height', tip: 'How far up the page the lawn rises. 1 is the default height.', min: 0.5, max: 3, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
+            { name: 'aero-lawn-softness', label: 'Lawn edge: arches ↔ mist', tip: '0 draws crisp rolling arches; 1 a soft, edgeless mist. In between blends the two.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
+            { name: 'aero-night-h', label: 'Night sky hue', tip: 'Hue of the night sky and dark-mode accents: lower is bluer, higher more violet.', min: 200, max: 265, step: 1, themes: ['dark'], swatch: 'hsl(var(--night-color-600))' },
+            { name: 'aero-night-l', label: 'Night sky brightness', tip: 'How light the night sky is. Higher is a softer, lighter navy.', min: 2, max: 16, step: 0.5, unit: '%', themes: ['dark'], swatch: 'hsl(var(--aero-night-h) 68% var(--aero-night-l))' },
+            { name: 'aero-dusk-h', label: 'Dusk accent hue', tip: "Hue of dark mode's second color: alternating tags and the Wonder Blog badge.", min: 215, max: 290, step: 1, themes: ['dark'], swatch: 'hsl(var(--dusk-color-500))' },
+            { name: 'aero-stars', label: 'Star brightness', tip: 'How visible the starfield is. 0 hides it.', min: 0, max: 1, step: 0.05, themes: ['dark'] },
+            { name: 'aero-shooting-stars', label: 'Shooting stars', tip: 'How visible the occasional shooting stars are. 0 turns them off.', min: 0, max: 1, step: 0.05, themes: ['dark'] },
         ],
     },
     {
         title: 'Glass',
         knobs: [
-            { name: 'glass-intensity', label: 'Glass intensity', min: 0, max: 2, step: 0.05, themes: both },
-            { name: 'glass-rim', label: 'Rim light', min: 0, max: 1, step: 0.05, themes: both },
-            { name: 'glass-shadow-depth', label: 'Shadow depth', min: 0, max: 2.5, step: 0.05, themes: both },
-            { name: 'glass-boost', label: 'Color boost', min: 100, max: 300, step: 5, unit: '%', themes: both },
-            { name: 'glass-opacity', label: 'Opacity', min: 0, max: 1, step: 0.01, themes: both },
-            { name: 'glass-reading-opacity', label: 'Post panel opacity', min: 0, max: 1, step: 0.01, themes: both },
-            { name: 'glass-blur', label: 'Frost (blur)', min: 0, max: 40, step: 1, unit: 'px', themes: both },
-            { name: 'glass-gloss-alpha', label: 'Shine', min: 0, max: 1, step: 0.01, themes: both },
-            { name: 'glass-edge-alpha', label: 'Edge', min: 0, max: 1, step: 0.01, themes: both },
+            { name: 'glass-intensity', label: 'Glass effect (overall)', tip: 'One control for how much the panels read as glass: shine, edge highlights, rim light, shadow and color boost together. 0 makes them flat.', min: 0, max: 2, step: 0.05, themes: both },
+            { name: 'glass-rim', label: 'Rim light (inner edge glow)', tip: 'A bright inner edge and soft inner glow that make panels look like thick, polished glass.', min: 0, max: 1, step: 0.05, themes: both },
+            { name: 'glass-shadow-depth', label: 'Shadow depth (float)', tip: 'How far the panels seem to float above the page.', min: 0, max: 2.5, step: 0.05, themes: both },
+            { name: 'glass-boost', label: 'Color boost behind glass', tip: 'How much the glass intensifies the colors seen through it.', min: 100, max: 300, step: 5, unit: '%', themes: both },
+            { name: 'glass-opacity', label: 'Panel opacity (tint)', tip: 'How solid the panels are. Lower lets more of the background show through.', min: 0, max: 1, step: 0.01, themes: both },
+            { name: 'glass-reading-opacity', label: 'Post page panel opacity', tip: 'Opacity of the article panel on post pages, kept high for comfortable reading.', min: 0, max: 1, step: 0.01, themes: both },
+            { name: 'glass-blur', label: 'Frost (background blur)', tip: "How much the background behind panels is blurred. Only visible where there's detail behind a panel.", min: 0, max: 40, step: 1, unit: 'px', themes: both },
+            { name: 'glass-gloss-alpha', label: 'Top shine', tip: 'The glossy sheen across the top half of each panel.', min: 0, max: 1, step: 0.01, themes: both },
+            { name: 'glass-edge-alpha', label: 'Edge highlight', tip: "Strength of each panel's thin outline and the bright line along its top edge.", min: 0, max: 1, step: 0.01, themes: both },
         ],
     },
     {
         title: 'Shape',
         knobs: [
-            { name: 'aero-radius-scale', label: 'Corner roundness (both modes)', min: 0, max: 2, step: 0.05, themes: both, shared: true },
+            { name: 'aero-radius-scale', label: 'Corner roundness (both modes)', tip: 'Scales every corner on the site, in light and dark mode together. 1 is the default; 0 is square.', min: 0, max: 2, step: 0.05, themes: both, shared: true },
         ],
     },
     {
         title: 'Motion',
-        knobs: [{ name: 'aero-parallax', label: 'Scroll depth', min: 0, max: 3, step: 0.1, themes: both }],
+        knobs: [
+            { name: 'aero-parallax', label: 'Scroll depth (parallax)', tip: 'How much the background layers drift as you scroll, for a sense of depth. 0 keeps them still.', min: 0, max: 3, step: 0.1, themes: both },
+        ],
     },
 ];
+
+const flipClasses =
+    'aero-tuner-flip hidden group-data-changed:inline-flex items-center justify-center size-5 rounded border border-fg-border-2 text-[0.7rem] leading-none hover:bg-white/40 dark:hover:bg-white/10 aria-pressed:bg-primary-700 aria-pressed:text-white';
+const buttonClasses =
+    'rounded-full border border-fg-border-2 px-3 py-1.5 hover:bg-white/30 disabled:opacity-40 dark:hover:bg-white/10 aria-pressed:bg-primary-700 aria-pressed:text-white';
 ---
 
 <div id="aero-tuner" class="fixed bottom-4 left-4 z-50 font-sans text-sm text-fg-1">
@@ -103,12 +115,13 @@ const groups: { title: string; knobs: Knob[] }[] = [
             <circle cx="18" cy="18" r="2"></circle>
         </svg>
         Tune design
+        <span id="aero-tuner-badge" hidden class="rounded-full bg-primary-700 px-1.5 text-xs text-white"></span>
     </button>
 
     <div
         id="aero-tuner-panel"
         hidden
-        class="absolute bottom-full left-0 mb-2 w-[min(20rem,calc(100vw-2rem))] max-h-[min(36rem,calc(100vh-6rem))]
+        class="absolute bottom-full left-0 mb-2 w-[min(21rem,calc(100vw-2rem))] max-h-[min(38rem,calc(100vh-6rem))]
         overflow-y-auto rounded-2xl border border-fg-border-2 bg-bg-2 p-4 shadow-xl backdrop-blur-2xl"
     >
         <div class="flex items-baseline justify-between gap-2">
@@ -116,7 +129,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             <span class="text-xs text-fg-2">Tuning <strong id="aero-tuner-theme">light</strong> mode</span>
         </div>
         <p class="mt-1 text-xs text-fg-2">
-            Switch the site theme to tune the other mode. Only visible in local development.
+            Switch the site theme to tune the other mode. Hover a field for what it does. Only visible in local development.
         </p>
 
         <label id="aero-tuner-style-row" class="mt-3 block">
@@ -138,52 +151,72 @@ const groups: { title: string; knobs: Knob[] }[] = [
                     <legend class="mb-1 text-xs font-semibold uppercase tracking-wider text-fg-2">{title}</legend>
                     {knobs.map((knob) => (
                         <label
-                            class="aero-tuner-row mt-2 block transition-opacity data-disabled:opacity-40"
+                            class="aero-tuner-row group mt-2 block transition-opacity data-disabled:opacity-40"
                             data-themes={knob.themes.join(' ')}
                             data-depends-on={knob.dependsOn}
                             data-styles={knob.styles?.join(' ')}
+                            data-tip={knob.tip}
+                            data-row-for={knob.name}
                         >
-                            {knob.type === 'toggle' ? (
-                                <span class="flex cursor-pointer items-center justify-between gap-2">
+                            <span id={`aero-tip-${knob.name}`} hidden>
+                                {knob.tip}
+                            </span>
+                            <span class="flex items-center justify-between gap-2">
+                                <span class="flex items-center gap-2">
+                                    <span
+                                        class="hidden size-1.5 shrink-0 rounded-full bg-primary-600 group-data-changed:inline-block"
+                                        title="Unsaved change"
+                                    />
+                                    {knob.swatch && (
+                                        <span
+                                            class="inline-block size-3 shrink-0 rounded-full ring-1 ring-black/10 dark:ring-white/20"
+                                            style={`background: ${knob.swatch}`}
+                                            aria-hidden="true"
+                                        />
+                                    )}
                                     {knob.label}
-                                    <input
-                                        type="checkbox"
-                                        class="size-4 accent-primary-600"
-                                        data-knob={knob.name}
-                                        data-unit=""
-                                    />
                                 </span>
-                            ) : (
-                                <>
-                                    <span class="flex items-center justify-between gap-2">
-                                        <span class="flex items-center gap-2">
-                                            {knob.swatch && (
-                                                <span
-                                                    class="inline-block size-3 rounded-full ring-1 ring-black/10 dark:ring-white/20"
-                                                    style={`background: ${knob.swatch}`}
-                                                    aria-hidden="true"
-                                                />
-                                            )}
-                                            {knob.label}
-                                        </span>
+                                <span class="flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        class={flipClasses}
+                                        data-flip-for={knob.name}
+                                        aria-pressed="false"
+                                        aria-label={`Flip ${knob.label} between new and saved value`}
+                                        data-tip="Flip this field between your new value and your saved one."
+                                    >
+                                        ⇄
+                                    </button>
+                                    {knob.type === 'toggle' ? (
+                                        <input
+                                            type="checkbox"
+                                            class="size-4 accent-primary-600"
+                                            data-knob={knob.name}
+                                            data-unit=""
+                                            aria-describedby={`aero-tip-${knob.name}`}
+                                        />
+                                    ) : (
                                         <output class="tabular-nums text-xs text-fg-2" data-output-for={knob.name} />
-                                    </span>
-                                    <input
-                                        type={knob.type ?? 'range'}
-                                        class:list={[
-                                            'mt-1',
-                                            knob.type === 'color'
-                                                ? 'h-8 w-full cursor-pointer rounded border border-fg-border-2 bg-transparent'
-                                                : 'w-full accent-primary-600',
-                                        ]}
-                                        min={knob.min}
-                                        max={knob.max}
-                                        step={knob.step}
-                                        data-knob={knob.name}
-                                        data-unit={knob.unit ?? ''}
-                                        data-shared={knob.shared ? '' : undefined}
-                                    />
-                                </>
+                                    )}
+                                </span>
+                            </span>
+                            {knob.type !== 'toggle' && (
+                                <input
+                                    type={knob.type ?? 'range'}
+                                    class:list={[
+                                        'mt-1',
+                                        knob.type === 'color'
+                                            ? 'h-8 w-full cursor-pointer rounded border border-fg-border-2 bg-transparent'
+                                            : 'w-full accent-primary-600',
+                                    ]}
+                                    min={knob.min}
+                                    max={knob.max}
+                                    step={knob.step}
+                                    data-knob={knob.name}
+                                    data-unit={knob.unit ?? ''}
+                                    data-shared={knob.shared ? '' : undefined}
+                                    aria-describedby={`aero-tip-${knob.name}`}
+                                />
                             )}
                         </label>
                     ))}
@@ -191,23 +224,68 @@ const groups: { title: string; knobs: Knob[] }[] = [
             ))
         }
 
-        <div class="mt-5 flex flex-wrap gap-2">
-            <button
-                id="aero-tuner-copy"
-                type="button"
-                class="rounded-full bg-primary-700 px-3.5 py-1.5 font-medium text-white hover:bg-primary-600"
-            >
-                Copy values
-            </button>
-            <button
-                id="aero-tuner-reset"
-                type="button"
-                class="rounded-full border border-fg-border-2 px-3.5 py-1.5 hover:bg-white/30 dark:hover:bg-white/10"
-            >
-                Reset this mode
-            </button>
+        <!-- Sticky so Save and the compare controls are always in reach; solid so sliders don't show through. -->
+        <div
+            class="sticky -bottom-4 z-10 -mx-4 mt-5 border-t border-fg-border-2 bg-white px-4 pb-4 pt-3
+            shadow-[0_-8px_16px_-12px_rgb(0_0_0/0.25)] dark:bg-[hsl(226_40%_13%)]"
+        >
+            <p class="mb-2 flex items-center justify-between text-xs text-fg-2">
+                <span id="aero-tuner-unsaved">No unsaved changes</span>
+                <span id="aero-tuner-mode-note"></span>
+            </p>
+            <div class="grid grid-cols-2 gap-2">
+                <button
+                    id="aero-tuner-save"
+                    type="button"
+                    class="col-span-2 rounded-full bg-primary-700 px-3 py-1.5 font-medium text-white hover:bg-primary-600 disabled:opacity-40"
+                    data-tip="Save your new values for this mode (and light style) into the project. They become your saved values, and production uses them."
+                >
+                    Save
+                </button>
+                <button
+                    id="aero-tuner-compare"
+                    type="button"
+                    class={`col-span-2 ${buttonClasses}`}
+                    aria-pressed="false"
+                    data-tip="Flip the whole page between your new values and your saved ones, to compare. Keyboard shortcut: \ (backslash)."
+                >
+                    Compare new ⇄ saved <kbd class="ml-1 rounded border border-current px-1 text-[0.65rem] opacity-70">\</kbd>
+                </button>
+                <button
+                    id="aero-tuner-revert"
+                    type="button"
+                    class={buttonClasses}
+                    data-tip="Discard unsaved changes in this mode and go back to your saved values."
+                >
+                    Revert to saved
+                </button>
+                <button
+                    id="aero-tuner-factory"
+                    type="button"
+                    class={buttonClasses}
+                    data-tip="Load the values this theme was designed with. They stay unsaved until you press Save, and Revert brings your saved values back."
+                >
+                    Factory defaults
+                </button>
+                <button
+                    id="aero-tuner-copy"
+                    type="button"
+                    class={`col-span-2 ${buttonClasses}`}
+                    data-tip="Copy your unsaved values as CSS, to share or paste elsewhere."
+                >
+                    Copy new values as CSS
+                </button>
+            </div>
+            <p id="aero-tuner-status" class="mt-2 min-h-4 text-xs text-fg-2" aria-live="polite"></p>
         </div>
-        <p id="aero-tuner-status" class="mt-2 min-h-4 text-xs text-fg-2" aria-live="polite"></p>
+    </div>
+
+    <div
+        id="aero-tuner-tip"
+        role="tooltip"
+        hidden
+        class="pointer-events-none fixed z-[60] max-w-64 rounded-lg bg-gray-900/95 px-2.5 py-1.5 text-xs leading-snug text-white shadow-lg"
+    >
     </div>
 </div>
 

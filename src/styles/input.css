@@ -1,6 +1,8 @@
 @import "tailwindcss";
 /* Dev-only light-mode style experiments; inert unless <html data-light-style> is set */
 @import "./light-styles.css";
+/* Values saved from the dev-only design tuner; generated, see scripts/aero-tuner-store.mjs */
+@import "./tuned.css";
 @custom-variant dark (&:where(.dark, .dark *));
 /* Pages that opt into the glass / Frutiger Aero design (data-design="aero" on <html>, set via RootLayout's `design`) */
 @custom-variant aero (&:where([data-design='aero'], [data-design='aero'] *));
@@ -299,7 +301,6 @@
         --aero-night-l: 7%;
         --aero-dusk-h: 238;
         --aero-stars: 1;
-        --aero-moon-glow: 1;
         --aero-shooting-stars: 1;
         --aero-parallax: 1;
 

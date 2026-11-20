@@ -136,10 +136,8 @@ const bauhausCircles: [number, number, number, string, number][] = [
     </div>
 </div>
 
-<!-- DAYBREAK: a little after First Light. The sun has just risen; pale sky blue above warm peach and gold, no stars. -->
-<div class="ls-layer ls-daybreak">
-    <div class="ls-parallax" style="--speed: 0.03"><div class="ls-risen-sun"></div></div>
-</div>
+<!-- DAYBREAK: a little after First Light. Pale sky blue above warm peach and gold, a soft glow low down; no stars. -->
+<div class="ls-layer ls-daybreak"></div>
 
 <!-- CELESTIAL ATLAS: engraved rings and constellations on aged cream; the sphere turns imperceptibly slowly. -->
 <div class="ls-layer ls-atlas">
@@ -381,19 +379,6 @@ const bauhausCircles: [number, number, number, string, number][] = [
                 hsl(28 75% 90%) 78%,
                 hsl(40 80% 88%) 100%
             );
-    }
-    /* The sun, just above the horizon and softened by haze */
-    .ls-risen-sun {
-        position: absolute;
-        left: 50%;
-        bottom: -5rem;
-        width: 13rem;
-        height: 13rem;
-        translate: -50% 0;
-        border-radius: 50%;
-        opacity: calc(0.85 * var(--style-deco));
-        background: radial-gradient(circle, hsl(45 100% 96%) 0 38%, hsl(40 100% 85% / 0.6) 52%, transparent 70%);
-        filter: blur(2px);
     }
 
     /* CELESTIAL ATLAS */
