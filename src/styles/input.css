@@ -537,8 +537,8 @@
 
         /*
          * MAIN / SECONDARY / TERTIARY (tunable). Main: links, buttons, the logo, half the tags. Secondary: the other
-         * tags and the Wonder badge. Tertiary: the accent ("Eman", quote mark, footer icons, nav underline), at a
-         * lightness fixed per theme. Light styles and dark mode set their own. Background hues (sky, lawn, sun) are
+         * tags and the Wonder badge. Tertiary: the accent ("Eman", quote mark, footer icons, nav underline, in both
+         * themes), at a lightness fixed per theme. Light styles and dark mode set their own. Background hues (sky, lawn, sun) are
          * separate knobs.
          */
         --main-h: 208;
@@ -625,12 +625,12 @@
         /* Main / secondary / tertiary (tunable); the night sky's own hue is --aero-night-h */
         --main-h: 222;
         --main-s: 60%;
-        --secondary-h: 238;
-        --secondary-s: 28%;
-        /* Tertiary (accent): a pale cream by default. In dark mode only the home page quote mark uses it. */
-        --tertiary-h: 45;
-        --tertiary-s: 100%;
-        --tertiary-l: 94%;
+        --secondary-h: 340;
+        --secondary-s: 30%;
+        /* Tertiary (accent): starlight gold, on the same elements as in light mode */
+        --tertiary-h: 40;
+        --tertiary-s: 90%;
+        --tertiary-l: 75%;
         --accent-color: var(--tertiary-h) var(--tertiary-s) var(--tertiary-l);
         --color-accent: hsl(var(--accent-color));
 

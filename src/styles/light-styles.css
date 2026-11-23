@@ -13,7 +13,7 @@
         --main-s: 40%;
         --secondary-h: 150;
         --secondary-s: 20%;
-        /* Tertiary (accent): "Eman", the quote mark, footer icons and nav underline. Lightness is fixed per style. */
+        /* Tertiary (accent): "Eman", the quote mark, footer icons and nav underline, as in dark mode. Lightness is fixed per style. */
         --tertiary-h: 150;
         --tertiary-s: 20%;
         --tertiary-l: 38%;
@@ -135,8 +135,8 @@
         background-color: hsl(32 60% 93%);
         --main-h: 212;
         --main-s: 35%;
-        --secondary-h: 20;
-        --secondary-s: 55%;
+        --secondary-h: 345;
+        --secondary-s: 35%;
         --tertiary-h: 14.2;
         --tertiary-s: 52%;
         --tertiary-l: 40%;
@@ -160,11 +160,11 @@
         --glass-contact-alpha: 0.04;
         --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
 
-        /* Logo colored like the sunrise behind it: sky blue, a peach blush, then deeper peach */
-        --logo-top: hsl(206 62% 52%);
-        --logo-mid: hsl(12 48% 64%);
-        --logo-bottom: hsl(22 64% 52%);
-        --logo-shadow: hsl(22 45% 30% / 0.25);
+        /* Logo colored like the sunrise behind it, from the three hues: main blue, a tertiary blush, secondary rose */
+        --logo-top: hsl(var(--main-h) 62% 52%);
+        --logo-mid: hsl(var(--tertiary-h) 48% 64%);
+        --logo-bottom: hsl(var(--secondary-h) 55% 55%);
+        --logo-shadow: hsl(var(--main-h) 45% 30% / 0.25);
 
         --orb-fill: 0;
         --orb-gloss: 0.4;

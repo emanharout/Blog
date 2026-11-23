@@ -52,7 +52,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'main-h',
                 label: 'Main hue',
-                tip: 'The main color: links, buttons, the logo (Daybreak’s logo keeps its own fixed colors), half the tags and the Programming Blog badge. It never changes the background.',
+                tip: 'The main color: links, buttons, the logo, tag pages, half the card tags and the Programming Blog badge. It never changes the background.',
                 type: 'picker',
                 sat: paletteSat('main-s'),
                 themes: both,
@@ -61,7 +61,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'secondary-h',
                 label: 'Secondary hue',
-                tip: 'The second color: the other half of the tags and the Wonder Blog badge. In dark mode and Refined Aero, also part of the logo. It never changes the background.',
+                tip: 'The second color: the other half of the card tags, the Wonder Blog badge and part of the logo. It never changes the background.',
                 type: 'picker',
                 sat: paletteSat('secondary-s'),
                 themes: both,
@@ -70,7 +70,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'tertiary-h',
                 label: 'Tertiary hue',
-                tip: 'The accent. In light mode: “Eman” in the home page heading, the quote mark beside the verse, the footer icons and the nav underline. In dark mode: only the quote mark. How light it is stays fixed per theme: deep in light mode, a pale tint in dark mode.',
+                tip: 'The accent, in both themes: “Eman” in the home page heading, the quote mark beside the verse, the footer icons and the nav underline. How light it is stays fixed per theme: deep in light mode, bright in dark mode.',
                 type: 'picker',
                 sat: paletteSat('tertiary-s'),
                 themes: both,
