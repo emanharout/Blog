@@ -9,39 +9,43 @@
 @layer base {
     /* Shared by every experimental style: palettes from two hues, and roles derived from them */
     :root[data-design='aero'][data-light-style]:not(.dark) {
-        --style-primary-h: 215;
-        --style-primary-s: 40%;
-        --style-secondary-h: 150;
-        --style-secondary-s: 20%;
+        --main-h: 215;
+        --main-s: 40%;
+        --secondary-h: 150;
+        --secondary-s: 20%;
+        /* Tertiary (accent): "Eman", the quote mark, footer icons and nav underline. Lightness is fixed per style. */
+        --tertiary-h: 150;
+        --tertiary-s: 20%;
+        --tertiary-l: 38%;
         /* Strength of the style's backdrop decoration (0 = none) */
         --style-deco: 1;
 
-        --primary-color-50: var(--style-primary-h) var(--style-primary-s) 97%;
-        --primary-color-100: var(--style-primary-h) var(--style-primary-s) 93%;
-        --primary-color-200: var(--style-primary-h) var(--style-primary-s) 85%;
-        --primary-color-300: var(--style-primary-h) var(--style-primary-s) 73%;
-        --primary-color-400: var(--style-primary-h) var(--style-primary-s) 60%;
-        --primary-color-500: var(--style-primary-h) var(--style-primary-s) 47%;
-        --primary-color-600: var(--style-primary-h) var(--style-primary-s) 37%;
-        --primary-color-700: var(--style-primary-h) var(--style-primary-s) 30%;
-        --primary-color-800: var(--style-primary-h) var(--style-primary-s) 25%;
-        --primary-color-900: var(--style-primary-h) var(--style-primary-s) 20%;
-        --primary-color-950: var(--style-primary-h) var(--style-primary-s) 13%;
+        --primary-color-50: var(--main-h) var(--main-s) 97%;
+        --primary-color-100: var(--main-h) var(--main-s) 93%;
+        --primary-color-200: var(--main-h) var(--main-s) 85%;
+        --primary-color-300: var(--main-h) var(--main-s) 73%;
+        --primary-color-400: var(--main-h) var(--main-s) 60%;
+        --primary-color-500: var(--main-h) var(--main-s) 47%;
+        --primary-color-600: var(--main-h) var(--main-s) 37%;
+        --primary-color-700: var(--main-h) var(--main-s) 30%;
+        --primary-color-800: var(--main-h) var(--main-s) 25%;
+        --primary-color-900: var(--main-h) var(--main-s) 20%;
+        --primary-color-950: var(--main-h) var(--main-s) 13%;
 
-        --secondary-color-50: var(--style-secondary-h) var(--style-secondary-s) 97%;
-        --secondary-color-100: var(--style-secondary-h) var(--style-secondary-s) 93%;
-        --secondary-color-200: var(--style-secondary-h) var(--style-secondary-s) 85%;
-        --secondary-color-300: var(--style-secondary-h) var(--style-secondary-s) 73%;
-        --secondary-color-400: var(--style-secondary-h) var(--style-secondary-s) 60%;
-        --secondary-color-500: var(--style-secondary-h) var(--style-secondary-s) 47%;
-        --secondary-color-600: var(--style-secondary-h) var(--style-secondary-s) 37%;
-        --secondary-color-700: var(--style-secondary-h) var(--style-secondary-s) 30%;
-        --secondary-color-800: var(--style-secondary-h) var(--style-secondary-s) 25%;
-        --secondary-color-900: var(--style-secondary-h) var(--style-secondary-s) 20%;
-        --secondary-color-950: var(--style-secondary-h) var(--style-secondary-s) 13%;
+        --secondary-color-50: var(--secondary-h) var(--secondary-s) 97%;
+        --secondary-color-100: var(--secondary-h) var(--secondary-s) 93%;
+        --secondary-color-200: var(--secondary-h) var(--secondary-s) 85%;
+        --secondary-color-300: var(--secondary-h) var(--secondary-s) 73%;
+        --secondary-color-400: var(--secondary-h) var(--secondary-s) 60%;
+        --secondary-color-500: var(--secondary-h) var(--secondary-s) 47%;
+        --secondary-color-600: var(--secondary-h) var(--secondary-s) 37%;
+        --secondary-color-700: var(--secondary-h) var(--secondary-s) 30%;
+        --secondary-color-800: var(--secondary-h) var(--secondary-s) 25%;
+        --secondary-color-900: var(--secondary-h) var(--secondary-s) 20%;
+        --secondary-color-950: var(--secondary-h) var(--secondary-s) 13%;
 
         --background-color-1: 0 0% 100% / 0;
-        --fg-color-border-2: var(--style-primary-h) 15% 40% / 0.18;
+        --fg-color-border-2: var(--main-h) 15% 40% / 0.18;
         --fg-light: 0deg 0% 100%;
 
         --glass-intensity: 1;
@@ -50,10 +54,10 @@
         --glass-shadow-blur: 44px;
         --glass-shadow-spread: -26px;
         --glass-border: hsl(
-            var(--style-primary-h) 15% 45% / calc(var(--glass-edge-alpha) * 0.3 * var(--glass-intensity))
+            var(--main-h) 15% 45% / calc(var(--glass-edge-alpha) * 0.3 * var(--glass-intensity))
         );
         --glass-gloss: hsl(0 0% 100% / calc(var(--glass-gloss-alpha) * var(--glass-intensity)));
-        --logo-shadow: hsl(var(--style-primary-h) 30% 25% / 0.25);
+        --logo-shadow: hsl(var(--main-h) 30% 25% / 0.25);
         /* Logo in shades of the primary color only (mixing two hues can turn muddy) */
         --logo-top: hsl(var(--primary-color-400));
         --logo-bottom: hsl(var(--primary-color-700));
@@ -62,11 +66,13 @@
     /* WATERCOLOR: warm paper with soft washes. Ink blue and sienna; panels read as paper. */
     :root[data-design='aero'][data-light-style='watercolor']:not(.dark) {
         background-color: hsl(40 35% 96%);
-        --style-primary-h: 222;
-        --style-primary-s: 38%;
-        --style-secondary-h: 18;
-        --style-secondary-s: 45%;
-        --aero-name-green: #8f4e32;
+        --main-h: 222;
+        --main-s: 38%;
+        --secondary-h: 18;
+        --secondary-s: 45%;
+        --tertiary-h: 18.1;
+        --tertiary-s: 48.2%;
+        --tertiary-l: 37.8%;
 
         --fg-color-1: 222 25% 15%;
         --fg-color-2: 25 8% 30%;
@@ -93,11 +99,13 @@
     /* FIRST LIGHT: the hour after night. Periwinkle to peach, pearly glass, the last stars fading. */
     :root[data-design='aero'][data-light-style='firstlight']:not(.dark) {
         background-color: hsl(240 30% 93%);
-        --style-primary-h: 230;
-        --style-primary-s: 32%;
-        --style-secondary-h: 12;
-        --style-secondary-s: 38%;
-        --aero-name-green: #454e87;
+        --main-h: 230;
+        --main-s: 32%;
+        --secondary-h: 12;
+        --secondary-s: 38%;
+        --tertiary-h: 231.8;
+        --tertiary-s: 32.4%;
+        --tertiary-l: 40%;
 
         --fg-color-1: 232 28% 16%;
         --fg-color-2: 232 12% 31%;
@@ -125,11 +133,13 @@
     /* DAYBREAK: a little after First Light. The sun has just risen: pale sky blue over peach and gold, pearly glass, no stars. */
     :root[data-design='aero'][data-light-style='daybreak']:not(.dark) {
         background-color: hsl(32 60% 93%);
-        --style-primary-h: 212;
-        --style-primary-s: 35%;
-        --style-secondary-h: 20;
-        --style-secondary-s: 55%;
-        --aero-name-green: #9b4a31;
+        --main-h: 212;
+        --main-s: 35%;
+        --secondary-h: 20;
+        --secondary-s: 55%;
+        --tertiary-h: 14.2;
+        --tertiary-s: 52%;
+        --tertiary-l: 40%;
 
         --fg-color-1: 218 25% 15%;
         --fg-color-2: 218 10% 30%;
@@ -163,11 +173,13 @@
     /* CELESTIAL ATLAS: an old star chart by daylight. Aged cream, navy ink and brass; engraved rings and constellations (the daytime twin of the night sky). */
     :root[data-design='aero'][data-light-style='atlas']:not(.dark) {
         background-color: hsl(42 38% 94%);
-        --style-primary-h: 222;
-        --style-primary-s: 45%;
-        --style-secondary-h: 40;
-        --style-secondary-s: 45%;
-        --aero-name-green: #2d4376;
+        --main-h: 222;
+        --main-s: 45%;
+        --secondary-h: 40;
+        --secondary-s: 45%;
+        --tertiary-h: 221.9;
+        --tertiary-s: 44.8%;
+        --tertiary-l: 32%;
 
         --fg-color-1: 222 32% 15%;
         --fg-color-2: 30 10% 29%;
@@ -194,11 +206,13 @@
     /* BAUHAUS SOFT: modernist calm. Off-white, muted blue, red and yellow geometry; matte panels. */
     :root[data-design='aero'][data-light-style='bauhaus']:not(.dark) {
         background-color: hsl(40 25% 96%);
-        --style-primary-h: 215;
-        --style-primary-s: 45%;
-        --style-secondary-h: 8;
-        --style-secondary-s: 50%;
-        --aero-name-green: #2d5286;
+        --main-h: 215;
+        --main-s: 45%;
+        --secondary-h: 8;
+        --secondary-s: 50%;
+        --tertiary-h: 215.1;
+        --tertiary-s: 49.7%;
+        --tertiary-l: 35.1%;
 
         --fg-color-1: 215 30% 14%;
         --fg-color-2: 215 10% 30%;
@@ -225,11 +239,13 @@
     /* KINTSUGI: plain ivory stoneware with a fine speckle. Charcoal indigo and bronze; no decoration. */
     :root[data-design='aero'][data-light-style='kintsugi']:not(.dark) {
         background-color: hsl(40 20% 93%);
-        --style-primary-h: 220;
-        --style-primary-s: 18%;
-        --style-secondary-h: 40;
-        --style-secondary-s: 55%;
-        --aero-name-green: #855e23;
+        --main-h: 220;
+        --main-s: 18%;
+        --secondary-h: 40;
+        --secondary-s: 55%;
+        --tertiary-h: 36.1;
+        --tertiary-s: 58.3%;
+        --tertiary-l: 32.9%;
 
         --fg-color-1: 220 15% 13%;
         --fg-color-2: 220 6% 30%;
@@ -256,11 +272,13 @@
     /* ILLUMINATED · PALE VELLUM: the manuscript style, softened. Paler, less yellow vellum, a finer and lighter gilt rule, a quieter red. */
     :root[data-design='aero'][data-light-style='illuminated-pale']:not(.dark) {
         background-color: hsl(40 24% 95.5%);
-        --style-primary-h: 222;
-        --style-primary-s: 45%;
-        --style-secondary-h: 4;
-        --style-secondary-s: 42%;
-        --aero-name-green: #943e38;
+        --main-h: 222;
+        --main-s: 45%;
+        --secondary-h: 4;
+        --secondary-s: 42%;
+        --tertiary-h: 3.9;
+        --tertiary-s: 45.1%;
+        --tertiary-l: 40%;
 
         --fg-color-1: 25 18% 13%;
         --fg-color-2: 25 8% 29%;
@@ -288,11 +306,13 @@
     /* CELESTIAL ATLAS · ARMILLARY: warm ivory, sepia ink and brass; an engraved armillary sphere (its rings turn imperceptibly) and scattered stars. */
     :root[data-design='aero'][data-light-style='atlas-armillary']:not(.dark) {
         background-color: hsl(38 30% 95%);
-        --style-primary-h: 26;
-        --style-primary-s: 40%;
-        --style-secondary-h: 40;
-        --style-secondary-s: 50%;
-        --aero-name-green: #6f462a;
+        --main-h: 26;
+        --main-s: 40%;
+        --secondary-h: 40;
+        --secondary-s: 50%;
+        --tertiary-h: 24.3;
+        --tertiary-s: 45.1%;
+        --tertiary-l: 30%;
 
         --fg-color-1: 26 28% 13%;
         --fg-color-2: 26 10% 29%;
@@ -319,11 +339,13 @@
     /* CELESTIAL ATLAS · PLANISPHERE: a rotating star wheel. Warm parchment, sepia and copper; an hour ring with numerals, star field and constellations. */
     :root[data-design='aero'][data-light-style='atlas-planisphere']:not(.dark) {
         background-color: hsl(36 32% 94.5%);
-        --style-primary-h: 18;
-        --style-primary-s: 48%;
-        --style-secondary-h: 32;
-        --style-secondary-s: 40%;
-        --aero-name-green: #8c422c;
+        --main-h: 18;
+        --main-s: 48%;
+        --secondary-h: 32;
+        --secondary-s: 40%;
+        --tertiary-h: 13.8;
+        --tertiary-s: 52.2%;
+        --tertiary-l: 36.1%;
 
         --fg-color-1: 20 28% 13%;
         --fg-color-2: 22 10% 29%;
@@ -350,11 +372,13 @@
     /* BAUHAUS · CIRCLES: overlapping translucent circles after Kandinsky around the edges; warm off-white, brick, ochre and mustard. */
     :root[data-design='aero'][data-light-style='bauhaus-circles']:not(.dark) {
         background-color: hsl(38 28% 96%);
-        --style-primary-h: 12;
-        --style-primary-s: 48%;
-        --style-secondary-h: 40;
-        --style-secondary-s: 55%;
-        --aero-name-green: #914430;
+        --main-h: 12;
+        --main-s: 48%;
+        --secondary-h: 40;
+        --secondary-s: 55%;
+        --tertiary-h: 12.4;
+        --tertiary-s: 50.3%;
+        --tertiary-l: 37.8%;
 
         --fg-color-1: 20 25% 13%;
         --fg-color-2: 20 8% 29%;
