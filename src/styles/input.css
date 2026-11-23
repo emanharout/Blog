@@ -666,6 +666,17 @@
 }
 
 @layer components {
+    /* Highlighted (selected) text uses the secondary hue: a pale tint under dark text by day, a deep shade under
+       white text by night */
+    ::selection {
+        background-color: hsl(var(--secondary-color-200));
+        color: hsl(var(--fg-color-1));
+    }
+    .dark ::selection {
+        background-color: hsl(var(--secondary-color-700));
+        color: hsl(0 0% 100%);
+    }
+
     /* Blockquotes: no automatic quote marks (a decorative SVG is added by blockQuoteSvgScript.ts) */
     .prose blockquote {
         font-style: normal;
