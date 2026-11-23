@@ -627,10 +627,14 @@
         --main-s: 60%;
         --secondary-h: 340;
         --secondary-s: 30%;
-        /* Tertiary (accent): starlight gold, on the same elements as in light mode */
-        --tertiary-h: 40;
-        --tertiary-s: 90%;
-        --tertiary-l: 75%;
+        /*
+         * Tertiary (accent), on the same elements as in light mode. Lightness 74% keeps it clear of the white heading
+         * text. The hue and saturation in use are the saved honey gold (44 / 65%) in tuned.css; these are the factory
+         * defaults underneath.
+         */
+        --tertiary-h: 27;
+        --tertiary-s: 48%;
+        --tertiary-l: 74%;
         --accent-color: var(--tertiary-h) var(--tertiary-s) var(--tertiary-l);
         --color-accent: hsl(var(--accent-color));
 

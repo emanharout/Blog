@@ -11,4 +11,9 @@
         --glass-rim: 0.9;
         --glass-shadow-depth: 0.7;
     }
+
+    :root.dark[data-design='aero']:not([data-tuner-factory]) {
+        --tertiary-h: 44;
+        --tertiary-s: 65%;
+    }
 }
