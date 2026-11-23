@@ -150,7 +150,7 @@ const shootingStars: [number, number, number, number, number][] = [
         background:
             radial-gradient(
                 70rem 45rem at 100% -5%,
-                hsl(var(--aero-sun-h) 90% 86% / var(--aero-sun-strength)),
+                hsl(var(--aero-sun-h) calc(90% * var(--aero-sun-saturation)) 86% / var(--aero-sun-strength)),
                 transparent 60%
             ),
             linear-gradient(
@@ -163,13 +163,13 @@ const shootingStars: [number, number, number, number, number][] = [
                 var(--sky-pale) min(var(--aero-sky-fade), 82%),
                 color-mix(
                         in oklab,
-                        hsl(calc(var(--aero-sun-h) + 6) 70% 94%) calc(var(--aero-horizon) * 100%),
+                        hsl(calc(var(--aero-sun-h) + 6) calc(70% * var(--aero-sun-saturation)) 94%) calc(var(--aero-horizon) * 100%),
                         var(--sky-pale)
                     )
                     85%,
                 color-mix(
                         in oklab,
-                        hsl(var(--aero-leaf-h) 30% 89%) calc(var(--aero-horizon) * 100%),
+                        hsl(var(--aero-leaf-h) calc(30% * var(--aero-leaf-saturation)) 89%) calc(var(--aero-horizon) * 100%),
                         var(--sky-pale)
                     )
                     100%
@@ -186,8 +186,8 @@ const shootingStars: [number, number, number, number, number][] = [
         opacity: calc(var(--aero-sun-strength) / 0.55);
         background: radial-gradient(
             circle,
-            hsl(calc(var(--aero-sun-h) + 8) 100% 96% / 0.9) 0%,
-            hsl(var(--aero-sun-h) 90% 82% / 0.35) 35%,
+            hsl(calc(var(--aero-sun-h) + 8) calc(100% * var(--aero-sun-saturation)) 96% / 0.9) 0%,
+            hsl(var(--aero-sun-h) calc(90% * var(--aero-sun-saturation)) 82% / 0.35) 35%,
             transparent 70%
         );
     }
@@ -203,7 +203,7 @@ const shootingStars: [number, number, number, number, number][] = [
         background: repeating-linear-gradient(
             112deg,
             transparent 0 7rem,
-            hsl(calc(var(--aero-sun-h) + 8) 100% 97% / 0.7) 8.5rem 11rem,
+            hsl(calc(var(--aero-sun-h) + 8) calc(100% * var(--aero-sun-saturation)) 97% / 0.7) 8.5rem 11rem,
             transparent 12.5rem 19rem
         );
         filter: blur(14px);
@@ -225,10 +225,10 @@ const shootingStars: [number, number, number, number, number][] = [
         filter: blur(calc(var(--aero-lawn-softness) * 18px));
     }
     .lawn-far {
-        fill: hsl(var(--aero-leaf-h) 24% 80% / 0.4);
+        fill: hsl(var(--aero-leaf-h) calc(24% * var(--aero-leaf-saturation)) 80% / 0.4);
     }
     .lawn-near {
-        fill: hsl(var(--aero-leaf-h) 26% 72% / 0.38);
+        fill: hsl(var(--aero-leaf-h) calc(26% * var(--aero-leaf-saturation)) 72% / 0.38);
     }
 
     .lawn {
@@ -239,9 +239,9 @@ const shootingStars: [number, number, number, number, number][] = [
         height: calc(min(30vh, 17rem) * var(--aero-lawn-height));
         opacity: calc(var(--aero-lawn) * var(--aero-lawn-softness) * var(--aero-horizon));
         background:
-            radial-gradient(60% 75% at 25% 100%, hsl(var(--aero-leaf-h) 26% 74% / 0.45), transparent 100%),
-            radial-gradient(55% 65% at 78% 100%, hsl(var(--aero-leaf-h) 24% 76% / 0.4), transparent 100%),
-            linear-gradient(180deg, transparent 0%, hsl(var(--aero-leaf-h) 25% 78% / 0.35) 100%);
+            radial-gradient(60% 75% at 25% 100%, hsl(var(--aero-leaf-h) calc(26% * var(--aero-leaf-saturation)) 74% / 0.45), transparent 100%),
+            radial-gradient(55% 65% at 78% 100%, hsl(var(--aero-leaf-h) calc(24% * var(--aero-leaf-saturation)) 76% / 0.4), transparent 100%),
+            linear-gradient(180deg, transparent 0%, hsl(var(--aero-leaf-h) calc(25% * var(--aero-leaf-saturation)) 78% / 0.35) 100%);
         filter: blur(12px);
     }
 
@@ -251,15 +251,15 @@ const shootingStars: [number, number, number, number, number][] = [
         background:
             radial-gradient(
                 70rem 45rem at 50% -15%,
-                hsl(var(--aero-night-h) 60% calc(var(--aero-night-l) + 15%) / 0.9),
+                hsl(var(--aero-night-h) calc(60% * var(--aero-night-saturation)) calc(var(--aero-night-l) + 15%) / 0.9),
                 transparent 70%
             ),
-            radial-gradient(40rem 30rem at 90% 0%, hsl(calc(var(--aero-night-h) - 7) 60% 70% / 0.08), transparent 70%),
+            radial-gradient(40rem 30rem at 90% 0%, hsl(calc(var(--aero-night-h) - 7) calc(60% * var(--aero-night-saturation)) 70% / 0.08), transparent 70%),
             linear-gradient(
                 180deg,
-                hsl(calc(var(--aero-night-h) + 4) 64% calc(var(--aero-night-l) + 4%)) 0%,
-                hsl(calc(var(--aero-night-h) + 6) 68% var(--aero-night-l)) 55%,
-                hsl(calc(var(--aero-night-h) + 8) 70% calc(var(--aero-night-l) - 2%)) 100%
+                hsl(calc(var(--aero-night-h) + 4) calc(64% * var(--aero-night-saturation)) calc(var(--aero-night-l) + 4%)) 0%,
+                hsl(calc(var(--aero-night-h) + 6) calc(68% * var(--aero-night-saturation)) var(--aero-night-l)) 55%,
+                hsl(calc(var(--aero-night-h) + 8) calc(70% * var(--aero-night-saturation)) calc(var(--aero-night-l) - 2%)) 100%
             );
     }
 
@@ -269,7 +269,7 @@ const shootingStars: [number, number, number, number, number][] = [
     .milky-way {
         position: absolute;
         inset: -30% -20%;
-        background: radial-gradient(ellipse 45% 9% at 50% 50%, hsl(var(--aero-night-h) 70% 85% / 0.07), transparent 100%);
+        background: radial-gradient(ellipse 45% 9% at 50% 50%, hsl(var(--aero-night-h) calc(70% * var(--aero-night-saturation)) 85% / 0.07), transparent 100%);
         transform: rotate(-24deg);
     }
 
@@ -326,7 +326,7 @@ const shootingStars: [number, number, number, number, number][] = [
         width: 7rem;
         height: 1.5px;
         border-radius: 9999px;
-        background: linear-gradient(90deg, hsl(0 0% 100%), hsl(var(--aero-night-h) 100% 85% / 0.5) 30%, transparent);
+        background: linear-gradient(90deg, hsl(0 0% 100%), hsl(var(--aero-night-h) calc(100% * var(--aero-night-saturation)) 85% / 0.5) 30%, transparent);
         filter: drop-shadow(0 0 4px hsl(0 0% 100% / 0.7));
         opacity: 0;
     }

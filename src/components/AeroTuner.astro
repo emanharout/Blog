@@ -1,6 +1,7 @@
 ---
-// Dev-only design tuner (rendered by MainLayout only when `import.meta.env.DEV`). Sliders adjust the --aero-* and
-// --glass-* knobs live, separately for light and dark mode (and for each experimental light style).
+// Dev-only design tuner (rendered by MainLayout only when `import.meta.env.DEV`). Sliders adjust the color knobs
+// (--main-*, --secondary-*, --tertiary-*), --aero-* and --glass-* knobs live, separately for light and dark mode (and
+// for each experimental light style). Color pickers are one row holding two knobs: a hue and a saturation.
 //
 // Each knob has three layers (see scripts/aero-tuner-store.mjs): factory defaults (what the theme was designed with),
 // saved values (written to src/styles/tuned.css by Save) and working values (unsaved tweaks, kept in localStorage).
@@ -14,12 +15,15 @@ type Knob = {
     label: string;
     // Longer explanation, shown as a tooltip after a short hover (and read by screen readers)
     tip: string;
-    // Sliders by default; 'color' shows a color picker (value is a hex color); 'toggle' a checkbox (value 1 or 0)
-    type?: 'range' | 'color' | 'toggle';
+    // Sliders by default; 'toggle' a checkbox (value 1 or 0); 'picker' a color picker: a hue slider (this knob, 0–360)
+    // plus a saturation slider (the `sat` knob) on one row
+    type?: 'range' | 'toggle' | 'picker';
     min?: number;
     max?: number;
     step?: number;
     unit?: string;
+    // For pickers: the saturation knob. Palettes take an absolute percentage; background hues a multiplier (1 = as designed)
+    sat?: { name: string; min: number; max: number; step: number; unit?: string };
     themes: Theme[];
     // Shared knobs set the same value in light and dark mode
     shared?: boolean;
@@ -37,30 +41,91 @@ const styledOnly: ('default' | 'styled')[] = ['styled'];
 
 const both: Theme[] = ['light', 'dark'];
 const skySwatch = 'hsl(var(--aero-sky-h) calc(70% * var(--aero-sky-saturation)) calc(81% - 23% * var(--aero-sky-depth)))';
+// Saturation of a palette (an absolute percentage) and of a background hue (a multiplier, 1 = as designed)
+const paletteSat = (name: string) => ({ name, min: 0, max: 100, step: 1, unit: '%' });
+const backgroundSat = (name: string, max = 2) => ({ name, min: 0, max, step: 0.05 });
 
 const groups: { title: string; knobs: Knob[] }[] = [
     {
         title: 'Colors',
         knobs: [
-            { name: 'aero-name-green', label: 'Accent color', tip: 'Color of “Eman” in the home page heading, the quote mark beside the verse, and the footer icons.', type: 'color', themes: ['light'] },
-            { name: 'style-primary-h', label: 'Main hue', tip: "Hue of this style's main color: links, the logo, alternating tags, buttons and badge rings.", min: 0, max: 360, step: 1, themes: ['light'], styles: styledOnly, swatch: 'hsl(var(--primary-color-600))' },
-            { name: 'style-secondary-h', label: 'Second hue', tip: "Hue of this style's second color: the other alternating tags and the Wonder Blog badge.", min: 0, max: 360, step: 1, themes: ['light'], styles: styledOnly, swatch: 'hsl(var(--secondary-color-600))' },
+            {
+                name: 'main-h',
+                label: 'Main hue',
+                tip: 'The main color: links, buttons, the logo, tag pages, half the card tags and the Programming Blog badge. It never changes the background.',
+                type: 'picker',
+                sat: paletteSat('main-s'),
+                themes: both,
+                swatch: 'hsl(var(--primary-color-600))',
+            },
+            {
+                name: 'secondary-h',
+                label: 'Secondary hue',
+                tip: 'The second color: the other half of the card tags, the Wonder Blog badge and part of the logo. It never changes the background.',
+                type: 'picker',
+                sat: paletteSat('secondary-s'),
+                themes: both,
+                swatch: 'hsl(var(--secondary-color-600))',
+            },
+            {
+                name: 'tertiary-h',
+                label: 'Tertiary hue',
+                tip: 'The accent, in both themes: “Eman” in the home page heading, the quote mark beside the verse, the footer icons and the nav underline. How light it is stays fixed per theme: deep in light mode, bright in dark mode.',
+                type: 'picker',
+                sat: paletteSat('tertiary-s'),
+                themes: both,
+                swatch: 'var(--color-accent)',
+            },
             { name: 'style-deco', label: 'Background decoration', tip: "Strength of this style's backdrop details (stars, rings, washes, shapes, frames). 0 hides them.", min: 0, max: 2, step: 0.05, themes: ['light'], styles: styledOnly },
-            { name: 'aero-sky-h', label: 'Sky hue', tip: 'Which blue the sky and accents use: lower is more turquoise, higher more periwinkle.', min: 180, max: 235, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--azure-color-500))' },
-            { name: 'aero-leaf-h', label: 'Green hue', tip: "Hue of the greens: the lawn, the Wonder tag and badge, and the logo's lower half.", min: 80, max: 175, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--leaf-color-500))' },
-            { name: 'aero-sun-h', label: 'Sunlight hue', tip: 'Hue of the warm sunlight: the corner glow, window light and gold band. Lower is more orange.', min: 25, max: 60, step: 1, themes: ['light'], styles: defaultOnly, swatch: 'hsl(var(--sun-color-400))' },
-            { name: 'aero-sky-saturation', label: 'Sky color strength', tip: 'How vivid the blue sky is. 1 is the default; lower is greyer, higher purer.', min: 0, max: 1.6, step: 0.05, themes: ['light'], styles: defaultOnly, swatch: skySwatch },
+            {
+                name: 'aero-sky-h',
+                label: 'Sky hue',
+                tip: 'Background only: the sky, and the faint tint of text, panels and borders. Saturation is how vivid the sky is (1 = as designed). Links and buttons use Main hue.',
+                type: 'picker',
+                sat: backgroundSat('aero-sky-saturation', 1.6),
+                themes: ['light'],
+                styles: defaultOnly,
+                swatch: skySwatch,
+            },
             { name: 'aero-sky-depth', label: 'Sky depth', tip: 'How deep and rich the blue at the top of the sky is. Higher is a darker, fuller blue.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, swatch: skySwatch },
             { name: 'aero-sky-fade', label: 'How far the blue reaches', tip: 'Where the blue sky stops and warms toward the horizon, as a share of the screen height.', min: 15, max: 82, step: 1, unit: '%', themes: ['light'], styles: defaultOnly },
+            {
+                name: 'aero-sun-h',
+                label: 'Sunlight hue',
+                tip: 'Background only: the warm sunlight in the corner glow, window light and gold band. Saturation is how vivid it is (1 = as designed).',
+                type: 'picker',
+                sat: backgroundSat('aero-sun-saturation'),
+                themes: ['light'],
+                styles: defaultOnly,
+                swatch: 'hsl(var(--aero-sun-h) calc(70% * var(--aero-sun-saturation)) 52%)',
+            },
             { name: 'aero-sun-strength', label: 'Corner sun glow', tip: 'Strength of the warm sunlight glowing in from the top-right corner.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly },
             { name: 'aero-rays', label: 'Window light shafts', tip: 'Strength of the soft diagonal shafts of light, as if through tall windows.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly },
             { name: 'aero-horizon', label: 'Show horizon (gold band & lawn)', tip: 'Shows the warm gold band and the lawn at the bottom of the sky. Off lets the pale blue run to the bottom.', type: 'toggle', themes: ['light'], styles: defaultOnly },
+            {
+                name: 'aero-leaf-h',
+                label: 'Lawn hue',
+                tip: 'Background only: the lawn at the bottom of the sky. Saturation is how vivid it is (1 = as designed). The Wonder tags and badge use Secondary hue.',
+                type: 'picker',
+                sat: backgroundSat('aero-leaf-saturation'),
+                themes: ['light'],
+                styles: defaultOnly,
+                dependsOn: 'aero-horizon',
+                swatch: 'hsl(var(--aero-leaf-h) calc(26% * var(--aero-leaf-saturation)) 72%)',
+            },
             { name: 'aero-lawn', label: 'Lawn strength', tip: 'How visible the lawn is.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
             { name: 'aero-lawn-height', label: 'Lawn height', tip: 'How far up the page the lawn rises. 1 is the default height.', min: 0.5, max: 3, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
             { name: 'aero-lawn-softness', label: 'Lawn edge: arches ↔ mist', tip: '0 draws crisp rolling arches; 1 a soft, edgeless mist. In between blends the two.', min: 0, max: 1, step: 0.05, themes: ['light'], styles: defaultOnly, dependsOn: 'aero-horizon' },
-            { name: 'aero-night-h', label: 'Night sky hue', tip: 'Hue of the night sky and dark-mode accents: lower is bluer, higher more violet.', min: 200, max: 265, step: 1, themes: ['dark'], swatch: 'hsl(var(--night-color-600))' },
-            { name: 'aero-night-l', label: 'Night sky brightness', tip: 'How light the night sky is. Higher is a softer, lighter navy.', min: 2, max: 16, step: 0.5, unit: '%', themes: ['dark'], swatch: 'hsl(var(--aero-night-h) 68% var(--aero-night-l))' },
-            { name: 'aero-dusk-h', label: 'Dusk accent hue', tip: "Hue of dark mode's second color: alternating tags and the Wonder Blog badge.", min: 215, max: 290, step: 1, themes: ['dark'], swatch: 'hsl(var(--dusk-color-500))' },
+            {
+                name: 'aero-night-h',
+                label: 'Night sky hue',
+                tip: 'Background only: the night sky behind the page, and the faint tint of panels, glass and text. Saturation is how vivid the sky is (1 = as designed). Links, buttons and tags use Main and Secondary hue.',
+                type: 'picker',
+                sat: backgroundSat('aero-night-saturation'),
+                themes: ['dark'],
+                swatch: 'hsl(var(--aero-night-h) calc(68% * var(--aero-night-saturation)) calc(var(--aero-night-l) + 12%))',
+            },
+            { name: 'aero-night-l', label: 'Night sky brightness', tip: 'How light the night sky is. Higher is a softer, lighter navy.', min: 2, max: 16, step: 0.5, unit: '%', themes: ['dark'], swatch: 'hsl(var(--aero-night-h) calc(68% * var(--aero-night-saturation)) var(--aero-night-l))' },
             { name: 'aero-stars', label: 'Star brightness', tip: 'How visible the starfield is. 0 hides it.', min: 0, max: 1, step: 0.05, themes: ['dark'] },
             { name: 'aero-shooting-stars', label: 'Shooting stars', tip: 'How visible the occasional shooting stars are. 0 turns them off.', min: 0, max: 1, step: 0.05, themes: ['dark'] },
         ],
@@ -92,6 +157,11 @@ const groups: { title: string; knobs: Knob[] }[] = [
         ],
     },
 ];
+
+// Picker tracks: a full rainbow for hue, and grey to fully vivid at the picker's current hue for saturation (live,
+// since the hue variable is inherited from <html>)
+const hueTrack = `background: linear-gradient(to right, ${Array.from({ length: 25 }, (_, i) => `hsl(${i * 15} 70% 55%)`).join(', ')})`;
+const satTrack = (hue: string) => `background: linear-gradient(to right, hsl(var(--${hue}) 0% 55%), hsl(var(--${hue}) 100% 50%))`;
 
 const flipClasses =
     'aero-tuner-flip hidden group-data-changed:inline-flex items-center justify-center size-5 rounded border border-fg-border-2 text-[0.7rem] leading-none hover:bg-white/40 dark:hover:bg-white/10 aria-pressed:bg-primary-700 aria-pressed:text-white';
@@ -196,27 +266,59 @@ const buttonClasses =
                                             aria-describedby={`aero-tip-${knob.name}`}
                                         />
                                     ) : (
-                                        <output class="tabular-nums text-xs text-fg-2" data-output-for={knob.name} />
+                                        <span class="tabular-nums text-xs text-fg-2">
+                                            <output data-output-for={knob.name} />
+                                            {knob.sat && (
+                                                <>
+                                                    {' · '}
+                                                    <output data-output-for={knob.sat.name} />
+                                                </>
+                                            )}
+                                        </span>
                                     )}
                                 </span>
                             </span>
-                            {knob.type !== 'toggle' && (
-                                <input
-                                    type={knob.type ?? 'range'}
-                                    class:list={[
-                                        'mt-1',
-                                        knob.type === 'color'
-                                            ? 'h-8 w-full cursor-pointer rounded border border-fg-border-2 bg-transparent'
-                                            : 'w-full accent-primary-600',
-                                    ]}
-                                    min={knob.min}
-                                    max={knob.max}
-                                    step={knob.step}
-                                    data-knob={knob.name}
-                                    data-unit={knob.unit ?? ''}
-                                    data-shared={knob.shared ? '' : undefined}
-                                    aria-describedby={`aero-tip-${knob.name}`}
-                                />
+                            {knob.type === 'picker' && knob.sat ? (
+                                <span class="mt-1.5 grid gap-1.5">
+                                    <input
+                                        type="range"
+                                        class="aero-tuner-track w-full"
+                                        style={hueTrack}
+                                        min="0"
+                                        max="360"
+                                        step="1"
+                                        data-knob={knob.name}
+                                        data-unit=""
+                                        aria-label={`${knob.label}: hue`}
+                                        aria-describedby={`aero-tip-${knob.name}`}
+                                    />
+                                    <input
+                                        type="range"
+                                        class="aero-tuner-track w-full"
+                                        style={satTrack(knob.name)}
+                                        min={knob.sat.min}
+                                        max={knob.sat.max}
+                                        step={knob.sat.step}
+                                        data-knob={knob.sat.name}
+                                        data-unit={knob.sat.unit ?? ''}
+                                        aria-label={`${knob.label}: saturation`}
+                                        aria-describedby={`aero-tip-${knob.name}`}
+                                    />
+                                </span>
+                            ) : (
+                                knob.type !== 'toggle' && (
+                                    <input
+                                        type="range"
+                                        class="mt-1 w-full accent-primary-600"
+                                        min={knob.min}
+                                        max={knob.max}
+                                        step={knob.step}
+                                        data-knob={knob.name}
+                                        data-unit={knob.unit ?? ''}
+                                        data-shared={knob.shared ? '' : undefined}
+                                        aria-describedby={`aero-tip-${knob.name}`}
+                                    />
+                                )
                             )}
                         </label>
                     ))}
@@ -288,6 +390,34 @@ const buttonClasses =
     >
     </div>
 </div>
+
+<style>
+    /* Picker sliders: the hue or saturation track (set inline) with a white ring thumb that shows the color under it */
+    .aero-tuner-track {
+        appearance: none;
+        height: 0.75rem;
+        border-radius: 9999px;
+        box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+        cursor: pointer;
+    }
+    .aero-tuner-track::-webkit-slider-thumb {
+        appearance: none;
+        width: 1.1rem;
+        height: 1.1rem;
+        border-radius: 9999px;
+        background: transparent;
+        border: 3px solid white;
+        box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35), 0 1px 3px rgb(0 0 0 / 0.3);
+    }
+    .aero-tuner-track::-moz-range-thumb {
+        width: 1.1rem;
+        height: 1.1rem;
+        border-radius: 9999px;
+        background: transparent;
+        border: 3px solid white;
+        box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35), 0 1px 3px rgb(0 0 0 / 0.3);
+    }
+</style>
 
 <script>
     // The tuner's code is a separate module so production builds (where DEV is false) drop it entirely.

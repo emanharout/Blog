@@ -42,6 +42,10 @@ const tip = document.getElementById('aero-tuner-tip');
 const rows = [...document.querySelectorAll<HTMLElement>('.aero-tuner-row')];
 const inputs = [...document.querySelectorAll<HTMLInputElement>('#aero-tuner input[data-knob]')];
 const knobNames = inputs.map((input) => input.dataset.knob!);
+// A row holds one knob, or two for a color picker (hue and saturation)
+const rowOf = new Map(inputs.map((input) => [input.dataset.knob!, input.closest<HTMLElement>('.aero-tuner-row')]));
+const knobsIn = (row: HTMLElement) =>
+    [...row.querySelectorAll<HTMLInputElement>('input[data-knob]')].map((input) => input.dataset.knob!);
 const sharedKnobs = new Set(inputs.filter((input) => input.dataset.shared !== undefined).map((input) => input.dataset.knob!));
 
 // ---------- Working values (localStorage) ----------
@@ -49,8 +53,11 @@ const sharedKnobs = new Set(inputs.filter((input) => input.dataset.shared !== un
 function load(): { overrides: Overrides; open: boolean } {
     try {
         const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
+        // Drop values for knobs that no longer exist (renamed or removed), so they don't count as unsaved changes
+        const known = (values: Values = {}): Values =>
+            Object.fromEntries(Object.entries(values).filter(([name]) => knobNames.includes(name)));
         return {
-            overrides: { light: stored.overrides?.light ?? {}, dark: stored.overrides?.dark ?? {} },
+            overrides: { light: known(stored.overrides?.light), dark: known(stored.overrides?.dark) },
             open: Boolean(stored.open),
         };
     } catch {
@@ -114,7 +121,7 @@ function same(a: string | undefined, b: string | undefined): boolean {
     return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 
-const isVisible = (name: string) => !rows.find((row) => row.dataset.rowFor === name)?.hidden;
+const isVisible = (name: string) => !rowOf.get(name)?.hidden;
 
 // Visible fields in this mode whose working value differs from the saved one
 function unsavedChanges(theme = currentTheme()): Values {
@@ -156,15 +163,16 @@ function refresh() {
         const name = input.dataset.knob!;
         const value = computed.getPropertyValue(`--${name}`).trim();
         if (input.type === 'checkbox') input.checked = parseFloat(value) >= 0.5;
-        else input.value = input.type === 'color' ? value : String(parseFloat(value));
+        else input.value = String(parseFloat(value));
         const output = document.querySelector(`[data-output-for="${name}"]`);
         if (output) output.textContent = format(value, input.dataset.unit ?? '');
-
-        const row = rows.find((r) => r.dataset.rowFor === name);
-        const changed = name in changes;
-        if (!changed) flipped[theme].delete(name);
-        row?.toggleAttribute('data-changed', changed);
-        row?.querySelector('[data-flip-for]')?.setAttribute('aria-pressed', String(flipped[theme].has(name)));
+        if (!(name in changes)) flipped[theme].delete(name);
+    });
+    rows.forEach((row) => {
+        const names = knobsIn(row);
+        row.toggleAttribute('data-changed', names.some((name) => name in changes));
+        const pressed = names.some((name) => flipped[theme].has(name));
+        row.querySelector('[data-flip-for]')?.setAttribute('aria-pressed', String(pressed));
     });
     updateDisabled();
 
@@ -192,9 +200,8 @@ function updateDisabled() {
             ? (document.querySelector<HTMLInputElement>(`#aero-tuner input[data-knob="${controller}"]`)?.checked ?? true)
             : true;
         row.toggleAttribute('data-disabled', !controllerOn);
-        const name = row.dataset.rowFor!;
         row.querySelectorAll<HTMLInputElement>('input').forEach((input) => {
-            input.disabled = !controllerOn || showingSaved || flipped[theme].has(name);
+            input.disabled = !controllerOn || showingSaved || flipped[theme].has(input.dataset.knob!);
         });
         row.querySelectorAll<HTMLButtonElement>('[data-flip-for]').forEach((button) => {
             button.disabled = showingSaved;
@@ -224,14 +231,17 @@ inputs.forEach((input) => {
     });
 });
 
-// Flip one field between its new and saved value
+// Flip one field (both knobs of a color picker) between its new and saved value
 document.querySelectorAll<HTMLButtonElement>('[data-flip-for]').forEach((button) => {
     button.addEventListener('click', (event) => {
         event.preventDefault();
-        const name = button.dataset.flipFor!;
-        const set = flipped[currentTheme()];
-        if (set.has(name)) set.delete(name);
-        else set.add(name);
+        const row = button.closest<HTMLElement>('.aero-tuner-row');
+        const theme = currentTheme();
+        const set = flipped[theme];
+        // Only knobs with unsaved changes can flip
+        const names = row ? knobsIn(row).filter((name) => name in state.overrides[theme]) : [];
+        const on = names.some((name) => set.has(name));
+        names.forEach((name) => (on ? set.delete(name) : set.add(name)));
         writeStyles();
         refresh();
     });
@@ -253,7 +263,7 @@ document.addEventListener('keydown', (event) => {
         target?.isContentEditable ||
         target?.tagName === 'TEXTAREA' ||
         target?.tagName === 'SELECT' ||
-        (target?.tagName === 'INPUT' && !['range', 'checkbox', 'color'].includes((target as HTMLInputElement).type));
+        (target?.tagName === 'INPUT' && !['range', 'checkbox'].includes((target as HTMLInputElement).type));
     if (typing) return;
     event.preventDefault();
     toggleCompare();
