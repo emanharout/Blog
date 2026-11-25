@@ -13,7 +13,7 @@
         --main-s: 40%;
         --secondary-h: 150;
         --secondary-s: 20%;
-        /* Tertiary (accent): "Eman", the quote mark, footer icons and nav underline, as in dark mode. Lightness is fixed per style. */
+        /* Tertiary (accent): "Eman", the quote mark, footer icons, nav underline and active table of contents entry, as in dark mode. Lightness is fixed per style. */
         --tertiary-h: 150;
         --tertiary-s: 20%;
         --tertiary-l: 38%;

@@ -14,12 +14,17 @@ const { heading } = Astro.props;
 
 <!-- h3 headings are indented under their h2 -->
 <li class:list={['leading-snug', { 'pl-4': heading.depth === 3 }]}>
-    <!-- Active-section color is toggled by tableOfContents.ts via the `data-active` attribute. -->
+    <!--
+      tableOfContents.ts sets `data-active` on the section being read. It gets the tertiary (accent) color and a bar on
+      its left, so it doesn't rely on color alone. The bar sits in the panel's padding and never shifts the text.
+    -->
     <a
         href={`#${heading.slug}`}
-        class="table-of-content-link inline-block my-0.5 py-0.5
+        class="table-of-content-link relative inline-block my-0.5 py-0.5
         text-gray-temp-500 hover:text-gray-temp-700 dark:text-gray-temp-400 dark:hover:text-gray-temp-300
-        data-active:text-fg-primary-link-2 data-active:hover:text-fg-primary-link-2-hover"
+        data-active:text-accent data-active:hover:text-accent
+        data-active:before:absolute data-active:before:inset-y-1 data-active:before:-left-2.5
+        data-active:before:border-l-2 data-active:before:border-accent"
     >
         {heading.text}
     </a>
