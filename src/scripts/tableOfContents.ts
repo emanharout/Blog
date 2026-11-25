@@ -7,10 +7,6 @@
 // (input.css), so that a heading jumped to counts as the topmost.
 const TOP_LINE = 48;
 
-// Space between each end of the faint bar and the edges of its entries. Matches the active entry's bar
-// (TableOfContentsHeading.astro).
-const BAR_INSET = 4;
-
 const links = [...document.querySelectorAll<HTMLAnchorElement>('.table-of-content-link')];
 const segments = document.querySelectorAll<HTMLElement>('[data-toc-segment]');
 const tocLists = document.querySelectorAll<HTMLElement>('[data-toc-list]');
@@ -235,9 +231,11 @@ function updateOnScreenMarks(activeId: string | undefined) {
         const lastRect = rectOf(lastIndex);
         if (!firstRect || !lastRect) return;
 
+        // The same inset as the active entry's bar (TableOfContentsHeading.astro)
+        const inset = parseFloat(getComputedStyle(list).getPropertyValue('--toc-bar-inset')) || 0;
         const listTop = list.getBoundingClientRect().top;
-        bar.style.top = `${firstRect.top - listTop + BAR_INSET}px`;
-        bar.style.height = `${Math.max(0, lastRect.bottom - firstRect.top - 2 * BAR_INSET)}px`;
+        bar.style.top = `${firstRect.top - listTop + inset}px`;
+        bar.style.height = `${Math.max(0, lastRect.bottom - firstRect.top - 2 * inset)}px`;
     });
 }
 

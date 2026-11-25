@@ -28,7 +28,7 @@ const { heading, roomy = false } = Astro.props;
             roomy ? 'flex min-h-11 items-center' : 'inline-block my-0.5 py-0.5',
             'text-gray-temp-500 hover:text-gray-temp-700 dark:text-gray-temp-400 dark:hover:text-gray-temp-300',
             'data-active:text-accent data-active:hover:text-accent',
-            'data-active:before:absolute data-active:before:inset-y-1',
+            'data-active:before:absolute data-active:before:inset-y-(--toc-bar-inset)',
             'data-active:before:border-l-2 data-active:before:border-accent',
             heading.depth === 3 ? 'data-active:before:-left-6.5' : 'data-active:before:-left-2.5',
         ]}
