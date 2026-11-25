@@ -1,9 +1,10 @@
-// Highlights the one table-of-contents entry for the section being read: the last heading scrolled past a "reading
-// line" near the top of the window. Toggles `data-active` on every ToC link (sidebar and inline) to that heading.
+// Highlights the one table-of-contents entry for the section at the very top of the window: the reader hasn't finished
+// it until it scrolls out of view. Toggles `data-active` on every ToC link (sidebar and inline) to that heading.
 
-// The reading line's distance from the top, as a fraction of the window height. Must sit below the headings'
-// `scroll-margin-top` (input.css), so that a heading jumped to counts as scrolled past.
-const READING_LINE = 0.25;
+// A heading within this many pixels of the top of the window starts the topmost section. Matches the space above the
+// `##` headings, so the section before is no longer readable by then. Must exceed the headings' `scroll-margin-top`
+// (input.css), so that a heading jumped to counts as the topmost.
+const TOP_LINE = 48;
 
 const links = [...document.querySelectorAll<HTMLAnchorElement>('.table-of-content-link')];
 const headingId = (link: HTMLAnchorElement) => decodeURIComponent(link.hash.slice(1));
@@ -20,20 +21,9 @@ let clickedId: string | undefined;
 function findActiveId(): string | undefined {
     if (clickedId !== undefined) return clickedId;
 
-    const { scrollHeight, clientHeight } = document.documentElement;
-    const maxScroll = scrollHeight - clientHeight;
-    const readingLine = clientHeight * READING_LINE;
-
-    // Over the last stretch of the page the line slides down to the bottom of the window, so that every heading passes
-    // it, including those of short sections at the end.
-    const slideDistance = clientHeight - readingLine;
-    const slideStart = Math.max(0, maxScroll - slideDistance);
-    const slide = maxScroll > 0 ? Math.min(1, Math.max(0, (window.scrollY - slideStart) / (maxScroll - slideStart))) : 0;
-    const line = readingLine + slide * slideDistance;
-
     // Above the first heading (the post's image and intro), the first entry is highlighted.
-    const activeHeading = headings.findLast((heading) => heading.getBoundingClientRect().top <= line) ?? headings[0];
-    return activeHeading?.id;
+    const topHeading = headings.findLast((heading) => heading.getBoundingClientRect().top <= TOP_LINE) ?? headings[0];
+    return topHeading?.id;
 }
 
 function updateActiveLinks() {
