@@ -32,6 +32,12 @@ function createHeadingHierarchy(headings: MarkdownHeading[]) {
 
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
 const hasToC = toc.length > 1;
+// One faint bar beside all the other sections on screen; tableOfContents.ts sizes it and sets `data-visible`.
+// Lines up with the active entry's bar (TableOfContentsHeading.astro).
+const onScreenBarClasses = [
+    'absolute -left-2.5 border-l-2 border-accent/40',
+    'opacity-0 data-visible:opacity-100 transition-opacity duration-150 motion-reduce:transition-none',
+];
 const titleId = `table-of-contents-title-${variant}`;
 ---
 
@@ -51,9 +57,12 @@ const titleId = `table-of-contents-title-${variant}`;
             >
                 Table of Contents
             </h2>
-            <ul class="text-[0.925rem] font-normal xl:font-medium xl:tracking-[.002rem]">
-                {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
-            </ul>
+            <div data-toc-list class="relative">
+                <ul class="text-[0.925rem] font-normal xl:font-medium xl:tracking-[.002rem]">
+                    {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
+                </ul>
+                <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+            </div>
         </nav>
     )
 }
@@ -69,9 +78,12 @@ const titleId = `table-of-contents-title-${variant}`;
                 <span aria-hidden="true" class="transition-transform group-open:rotate-180">▾</span>
             </summary>
             <nav aria-labelledby={titleId} class="px-4 pb-3">
-                <ul class="text-[0.95rem]">
-                    {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
-                </ul>
+                <div data-toc-list class="relative">
+                    <ul class="text-[0.95rem]">
+                        {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
+                    </ul>
+                    <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                </div>
             </nav>
         </details>
     )

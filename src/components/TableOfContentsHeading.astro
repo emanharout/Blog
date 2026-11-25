@@ -16,15 +16,19 @@ const { heading } = Astro.props;
 <li class:list={['leading-snug', { 'pl-4': heading.depth === 3 }]}>
     <!--
       tableOfContents.ts sets `data-active` on the topmost section on screen. It gets the tertiary (accent) color and a
-      bar on its left, so it doesn't rely on color alone. The bar sits in the panel's padding and never shifts the text.
+      bar on its left, so it doesn't rely on color alone. The bar sits in the panel's padding, at the same place for h2s
+      and h3s, and never shifts the text.
     -->
     <a
         href={`#${heading.slug}`}
-        class="table-of-content-link relative inline-block my-0.5 py-0.5
-        text-gray-temp-500 hover:text-gray-temp-700 dark:text-gray-temp-400 dark:hover:text-gray-temp-300
-        data-active:text-accent data-active:hover:text-accent
-        data-active:before:absolute data-active:before:inset-y-1 data-active:before:-left-2.5
-        data-active:before:border-l-2 data-active:before:border-accent"
+        class:list={[
+            'table-of-content-link relative inline-block my-0.5 py-0.5',
+            'text-gray-temp-500 hover:text-gray-temp-700 dark:text-gray-temp-400 dark:hover:text-gray-temp-300',
+            'data-active:text-accent data-active:hover:text-accent',
+            'data-active:before:absolute data-active:before:inset-y-1',
+            'data-active:before:border-l-2 data-active:before:border-accent',
+            heading.depth === 3 ? 'data-active:before:-left-6.5' : 'data-active:before:-left-2.5',
+        ]}
     >
         {heading.text}
     </a>
