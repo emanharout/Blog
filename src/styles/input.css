@@ -275,13 +275,14 @@
         scroll-margin-top: 1.5rem;
     }
 
-    /* From `sm` to `lg`, the table of contents strip (TableOfContents.astro) covers the top of post pages */
+    /* From `sm` to `lg`, the table of contents strip (TableOfContents.astro) floats at the top of post pages */
     :root {
-        --toc-strip-height: 2.75rem;
+        --toc-strip-top: 0.5rem;
+        --toc-strip-height: 3.5rem;
     }
     @media (40rem <= width < 64rem) {
         .article-content :target {
-            scroll-margin-top: calc(var(--toc-strip-height) + 1.5rem);
+            scroll-margin-top: calc(var(--toc-strip-top) + var(--toc-strip-height) + 1.5rem);
         }
     }
 

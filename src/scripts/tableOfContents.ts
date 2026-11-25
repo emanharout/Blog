@@ -59,6 +59,7 @@ const strip = document.querySelector<HTMLElement>('[data-toc-strip]');
 const stripButton = strip?.querySelector<HTMLButtonElement>('button');
 const stripPanel = document.getElementById(stripButton?.getAttribute('aria-controls') ?? '');
 const stripCurrent = strip?.querySelector<HTMLElement>('[data-toc-strip-current]');
+const stripSegments = strip?.querySelectorAll<HTMLElement>('[data-toc-segment]');
 const stripParent = strip?.querySelector<HTMLElement>('[data-toc-strip-parent]');
 const article = document.querySelector<HTMLElement>('.article-content');
 
@@ -80,7 +81,7 @@ function updateStrip() {
     const isShown =
         strip.getClientRects().length > 0 &&
         inlineToc.getBoundingClientRect().bottom <= 0 &&
-        article.getBoundingClientRect().bottom > stripButton.offsetHeight;
+        article.getBoundingClientRect().bottom > stripBottom();
     strip.toggleAttribute('data-shown', isShown);
     if (!isShown) setStripOpen(false);
 }
@@ -96,9 +97,15 @@ function updateStripLabel(activeId: string | undefined) {
     stripParent.textContent = parentLink?.textContent?.trim() ?? '';
 }
 
+// Where the closed strip ends, measured from the top of the window. Layout offsets, so sliding in doesn't change it.
+function stripBottom(): number {
+    const box = stripButton?.parentElement;
+    return box && stripButton ? box.offsetTop + box.clientTop + stripButton.offsetHeight : 0;
+}
+
 // How much of the top of the window the strip covers
 function stripHeight(): number {
-    return strip?.hasAttribute('data-shown') ? (stripButton?.offsetHeight ?? 0) : 0;
+    return strip?.hasAttribute('data-shown') ? stripBottom() : 0;
 }
 
 // Using these doesn't scroll the page.
@@ -126,13 +133,19 @@ function findActiveId(): string | undefined {
     return headings[Math.max(0, findTopIndex())]?.id;
 }
 
-function updateOnScreenBars() {
+function updateOnScreenMarks(activeId: string | undefined) {
     // From the topmost section (even if its heading has scrolled away) to the last one whose heading is fully on screen.
     const firstIndex = Math.max(0, findTopIndex());
     const lastIndex = headings.findLastIndex(
         (heading) => heading.getBoundingClientRect().bottom <= document.documentElement.clientHeight,
     );
     const isAnyOnScreen = lastIndex >= firstIndex;
+
+    stripSegments?.forEach((segment, index) => {
+        const isActive = segment.dataset.tocSegment === activeId;
+        segment.toggleAttribute('data-active', isActive);
+        segment.toggleAttribute('data-on-screen', !isActive && index >= firstIndex && index <= lastIndex);
+    });
 
     tocLists.forEach((list) => {
         const bar = list.querySelector<HTMLElement>('[data-toc-bar]');
@@ -161,7 +174,7 @@ function updateActiveLinks() {
     const activeId = findActiveId();
     links.forEach((link) => link.toggleAttribute('data-active', headingId(link) === activeId));
     updateStripLabel(activeId);
-    updateOnScreenBars();
+    updateOnScreenMarks(activeId);
 }
 
 let isUpdateQueued = false;

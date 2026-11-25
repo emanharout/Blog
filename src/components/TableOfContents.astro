@@ -9,8 +9,9 @@ type Props = {
     // `inline`: collapsible block at the top of the article, below `lg`.
     // `sheet`: floating button, below `sm`, once the inline block has scrolled away. Opens the list in a panel that
     // slides up from the bottom. Place it outside the article card, which would clip it.
-    // `strip`: slim bar at the top of the window, from `sm` to `lg`, once the inline block has scrolled away. As wide as
-    // the article card. Names the current section (and its parent) and drops down the list. Also goes outside the card.
+    // `strip`: slim panel floating at the top of the window, from `sm` to `lg`, once the inline block has scrolled away.
+    // As wide as the article's text. Names the current section (and its parent), shows one progress segment per section
+    // and drops down the list. Also goes outside the card.
     variant: 'sidebar' | 'inline' | 'sheet' | 'strip';
 };
 
@@ -36,6 +37,8 @@ function createHeadingHierarchy(headings: MarkdownHeading[]) {
 
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
 const hasToC = toc.length > 1;
+// Every entry, in document order
+const sections = toc.flatMap((heading) => [heading, ...heading.subheadings]);
 // One faint bar beside all the sections on screen; tableOfContents.ts sizes it and sets `data-visible`. It lines up
 // with the active entry's solid bar (TableOfContentsHeading.astro), which is drawn over it.
 const onScreenBarClasses = [
@@ -150,56 +153,70 @@ const titleId = `table-of-contents-title-${variant}`;
     )
 }
 {
-    // The gutter, width and text padding match the article's section and card in BlogArticle.astro.
+    // The gutter, width and inset match the article's section, card and text in BlogArticle.astro (2rem is what
+    // `--article-pad` comes to from `sm` up; the 1px is the card's border).
     hasToC && variant === 'strip' && (
         <nav
             data-toc-strip
             aria-label="Jump to section"
-            class="hidden sm:block lg:hidden print:hidden fixed inset-x-0 top-0 z-40 px-4 pointer-events-none
+            class="hidden sm:block lg:hidden print:hidden fixed inset-x-0 top-0 z-40 px-4 pt-(--toc-strip-top) pointer-events-none
             invisible -translate-y-full data-shown:visible data-shown:translate-y-0
             transition-[translate,visibility] duration-200 motion-reduce:transition-none"
         >
-            <div
-                class="w-full max-w-[65ch] mx-auto overflow-hidden pointer-events-auto
-                rounded-b-xl aero:rounded-b-box border border-t-0 border-fg-border-2 bg-bg-2 shadow-md aero:backdrop-blur-xl"
-            >
-                <button
-                    type="button"
-                    aria-expanded="false"
-                    aria-controls="table-of-contents-strip-panel"
-                    class="flex h-(--toc-strip-height) w-full items-center justify-between gap-3 px-8 text-left cursor-pointer
-                    focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
-                >
-                    <!-- In a subsection, its parent section comes first; it gives up its space before the current one does. -->
-                    <span class="flex min-w-0 items-center gap-2 text-sm font-medium">
-                        <span class="sr-only">Table of contents. Current section: </span>
-                        <span data-toc-strip-parent class="min-w-0 shrink-[3] truncate text-gray-temp-500 dark:text-gray-temp-400 empty:hidden" />
-                        <span aria-hidden="true" class="shrink-0 text-gray-temp-500 dark:text-gray-temp-400 [:empty+&]:hidden">›</span>
-                        <span data-toc-strip-current class="min-w-0 truncate text-accent">{toc[0].text}</span>
-                    </span>
-                    <svg
-                        aria-hidden="true"
-                        viewBox="0 0 24 24"
-                        class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
-                        transition-transform motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M6 9l6 6 6-6" />
-                    </svg>
-                </button>
+            <div class="w-full max-w-[65ch] mx-auto px-[calc(2rem+1px)]">
                 <div
-                    id="table-of-contents-strip-panel"
-                    class="hidden data-open:block max-h-[70dvh] overflow-y-auto overscroll-contain px-8 pb-3"
+                    class="overflow-hidden pointer-events-auto
+                    rounded-xl aero:rounded-box border border-fg-border-2 bg-bg-2 shadow-md aero:backdrop-blur-xl"
                 >
-                    <div data-toc-list class="relative">
-                        <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
-                        <ul class="text-[0.95rem]">
-                            {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
-                        </ul>
+                    <button
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="table-of-contents-strip-panel"
+                        class="relative flex h-(--toc-strip-height) w-full items-center justify-between gap-3 px-5 pb-3 text-left cursor-pointer
+                        focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
+                    >
+                        <!-- In a subsection, its parent section comes first; it gives up its space before the current one does. -->
+                        <span class="flex min-w-0 items-center gap-2 text-sm font-medium">
+                            <span class="sr-only">Table of contents. Current section: </span>
+                            <span data-toc-strip-parent class="min-w-0 shrink-[3] truncate text-gray-temp-500 dark:text-gray-temp-400 empty:hidden" />
+                            <span aria-hidden="true" class="shrink-0 text-gray-temp-500 dark:text-gray-temp-400 [:empty+&]:hidden">›</span>
+                            <span data-toc-strip-current class="min-w-0 truncate text-accent">{toc[0].text}</span>
+                        </span>
+                        <svg
+                            aria-hidden="true"
+                            viewBox="0 0 24 24"
+                            class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
+                            transition-transform motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                        <!-- One segment per section: solid for the active one, faint for the others on screen -->
+                        <span aria-hidden="true" class="absolute inset-x-5 bottom-2 flex gap-1">
+                            {sections.map((section) => (
+                                <span
+                                    data-toc-segment={section.slug}
+                                    class="h-[3px] flex-1 rounded-full bg-gray-temp-500/25
+                                    data-on-screen:bg-accent/40 data-active:bg-accent
+                                    transition-colors duration-150 motion-reduce:transition-none"
+                                />
+                            ))}
+                        </span>
+                    </button>
+                    <div
+                        id="table-of-contents-strip-panel"
+                        class="hidden data-open:block max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pb-3"
+                    >
+                        <div data-toc-list class="relative">
+                            <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                            <ul class="text-[0.95rem]">
+                                {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
