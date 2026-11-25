@@ -49,6 +49,10 @@ const onScreenBarClasses = [
 // Scrolled entries fade out under the title, over 0.75rem. Each list's top padding keeps its first entry's text and bar
 // below the fade while it's scrolled to the top.
 const topFadeClasses = '[mask-image:linear-gradient(to_bottom,transparent,black_0.75rem)]';
+// The sidebar and phone list also fade out at the bottom, over the same height. Their bottom padding keeps the last
+// entry clear of it once scrolled to the end.
+const edgeFadeClasses =
+    '[mask-image:linear-gradient(to_bottom,transparent,black_0.75rem,black_calc(100%-0.75rem),transparent)]';
 const titleId = `table-of-contents-title-${variant}`;
 ---
 
@@ -72,7 +76,7 @@ const titleId = `table-of-contents-title-${variant}`;
             <!-- No `overscroll-contain`: a short list should let the page scroll under the pointer. -->
             <div
                 data-toc-scroller
-                class:list={['min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pt-3 pb-2 scroll-smooth motion-reduce:scroll-auto', topFadeClasses]}
+                class:list={['min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pt-3 pb-3 scroll-smooth motion-reduce:scroll-auto', edgeFadeClasses]}
             >
                 <div data-toc-list class="relative">
                     <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
@@ -176,7 +180,7 @@ const titleId = `table-of-contents-title-${variant}`;
                 <nav
                     data-toc-scroller
                     aria-labelledby={titleId}
-                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pt-1 pb-4', topFadeClasses]}
+                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pt-1 pb-4', edgeFadeClasses]}
                 >
                     <div data-toc-list class="relative [--toc-bar-inset:8px]">
                         <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
