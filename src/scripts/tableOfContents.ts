@@ -1,6 +1,6 @@
 // Highlights the one table-of-contents entry for the section at the very top of the window: the reader hasn't finished
 // it until it scrolls out of view. Toggles `data-active` on every ToC link (sidebar and inline) to that heading, and
-// stretches one faint bar beside the entries of any later sections that have come on screen.
+// stretches one faint bar beside the entries of every section on screen, under the active entry's solid bar.
 
 // A heading within this many pixels of the top of the window starts the topmost section. Matches the space above the
 // `##` headings, so the section before is no longer readable by then. Must exceed the headings' `scroll-margin-top`
@@ -24,6 +24,11 @@ const headings = [...new Set(links.map(headingId))]
 // not be able to reach the top of the window.
 let clickedId: string | undefined;
 
+// The section at the very top of the window, or -1 above the first heading (the post's image and intro).
+function findTopIndex(): number {
+    return headings.findLastIndex((heading) => heading.getBoundingClientRect().top <= TOP_LINE);
+}
+
 function findActiveId(): string | undefined {
     if (clickedId !== undefined) return clickedId;
 
@@ -33,45 +38,43 @@ function findActiveId(): string | undefined {
     const isScrollable = scrollHeight > clientHeight;
     if (isScrollable && window.scrollY + window.innerHeight >= scrollHeight - 2) return headings.at(-1)?.id;
 
-    // Above the first heading (the post's image and intro), the first entry is highlighted.
-    const topHeading = headings.findLast((heading) => heading.getBoundingClientRect().top <= TOP_LINE) ?? headings[0];
-    return topHeading?.id;
+    // Above the first heading, the first entry is highlighted.
+    return headings[Math.max(0, findTopIndex())]?.id;
 }
 
-function updateOnScreenBars(activeId: string | undefined) {
-    const activeIndex = headings.findIndex((heading) => heading.id === activeId);
-    const onScreenIds = headings
-        .slice(activeIndex + 1)
-        .filter((heading) => {
-            const { top, bottom } = heading.getBoundingClientRect();
-            return top >= 0 && bottom <= document.documentElement.clientHeight;
-        })
-        .map((heading) => heading.id);
+function updateOnScreenBars() {
+    // From the topmost section (even if its heading has scrolled away) to the last one whose heading is fully on screen.
+    const firstIndex = Math.max(0, findTopIndex());
+    const lastIndex = headings.findLastIndex(
+        (heading) => heading.getBoundingClientRect().bottom <= document.documentElement.clientHeight,
+    );
+    const isAnyOnScreen = lastIndex >= firstIndex;
 
     tocLists.forEach((list) => {
         const bar = list.querySelector<HTMLElement>('[data-toc-bar]');
         if (!bar) return;
 
-        bar.toggleAttribute('data-visible', onScreenIds.length > 0);
+        bar.toggleAttribute('data-visible', isAnyOnScreen);
         // Keep the last position when there is nothing to mark, so the bar fades out in place.
-        if (onScreenIds.length === 0) return;
+        if (!isAnyOnScreen) return;
 
-        // Sections on screen are always neighbors, so the bar runs from the first one's entry to the last one's.
-        const entries = [...list.querySelectorAll<HTMLAnchorElement>('.table-of-content-link')].filter((link) =>
-            onScreenIds.includes(headingId(link)),
-        );
+        const listLinks = [...list.querySelectorAll<HTMLAnchorElement>('.table-of-content-link')];
+        const rectOf = (index: number) =>
+            listLinks.find((link) => headingId(link) === headings[index].id)?.getBoundingClientRect();
+        const firstRect = rectOf(firstIndex);
+        const lastRect = rectOf(lastIndex);
+        if (!firstRect || !lastRect) return;
+
         const listTop = list.getBoundingClientRect().top;
-        const top = entries[0].getBoundingClientRect().top - listTop + BAR_INSET;
-        const bottom = entries[entries.length - 1].getBoundingClientRect().bottom - listTop - BAR_INSET;
-        bar.style.top = `${top}px`;
-        bar.style.height = `${Math.max(0, bottom - top)}px`;
+        bar.style.top = `${firstRect.top - listTop + BAR_INSET}px`;
+        bar.style.height = `${Math.max(0, lastRect.bottom - firstRect.top - 2 * BAR_INSET)}px`;
     });
 }
 
 function updateActiveLinks() {
     const activeId = findActiveId();
     links.forEach((link) => link.toggleAttribute('data-active', headingId(link) === activeId));
-    updateOnScreenBars(activeId);
+    updateOnScreenBars();
 }
 
 let isUpdateQueued = false;
