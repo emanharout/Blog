@@ -275,6 +275,22 @@
         scroll-margin-top: 1.5rem;
     }
 
+    /* From `sm` to `lg`, the table of contents strip (TableOfContents.astro) floats at the top of post pages */
+    :root {
+        --toc-strip-top: 0.5rem;
+        --toc-strip-height: 3.5rem;
+    }
+    @media (40rem <= width < 64rem) {
+        .article-content :target {
+            scroll-margin-top: calc(var(--toc-strip-top) + var(--toc-strip-height) + 1.5rem);
+        }
+    }
+
+    /* The page stays put behind the open table of contents sheet (TableOfContents.astro) */
+    html:has([data-toc-sheet][open]) {
+        overflow: hidden;
+    }
+
     /* RAW PALETTES */
     :root {
         --violet-color-50: 250deg 100% 97.65%;

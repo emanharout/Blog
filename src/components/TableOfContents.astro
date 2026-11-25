@@ -7,7 +7,12 @@ type Props = {
     headings: MarkdownHeading[];
     // `sidebar`: sticky panel beside the article, `lg` and up.
     // `inline`: collapsible block at the top of the article, below `lg`.
-    variant: 'sidebar' | 'inline';
+    // `sheet`: floating button, below `sm`, once the inline block has scrolled away. Opens the list in a panel that
+    // slides up from the bottom. Place it outside the article card, which would clip it.
+    // `strip`: slim panel floating at the top of the window, from `sm` to `lg`, once the inline block has scrolled away.
+    // As wide as the article's text. Names the current section (and its parent), shows one progress segment per section
+    // and drops down the list. Also goes outside the card.
+    variant: 'sidebar' | 'inline' | 'sheet' | 'strip';
 };
 
 const { headings, variant } = Astro.props;
@@ -32,36 +37,47 @@ function createHeadingHierarchy(headings: MarkdownHeading[]) {
 
 const toc: HeadingHierarchy[] = createHeadingHierarchy(headings ?? []);
 const hasToC = toc.length > 1;
+// Every entry, in document order
+const sections = toc.flatMap((heading) => [heading, ...heading.subheadings]);
 // One faint bar beside all the sections on screen; tableOfContents.ts sizes it and sets `data-visible`. It lines up
 // with the active entry's solid bar (TableOfContentsHeading.astro), which is drawn over it.
 const onScreenBarClasses = [
     'absolute -left-2.5 border-l-2 border-accent/40',
     'opacity-0 data-visible:opacity-100 transition-[top,height,opacity] duration-150 motion-reduce:transition-none',
 ];
+// Scrolled entries fade out under the title. The fade is as tall as the padding, so at the top nothing is faded.
+const topFadeClasses = 'pt-3 [mask-image:linear-gradient(to_bottom,transparent,black_0.75rem)]';
 const titleId = `table-of-contents-title-${variant}`;
 ---
 
 {
     hasToC && variant === 'sidebar' && (
         <nav
+            data-toc-sidebar
             aria-labelledby={titleId}
-            class="hidden lg:block sticky top-4
-            w-full max-w-[30ch] mt-[1px] mr-3 py-2 px-4
+            class="hidden lg:flex flex-col sticky top-4 max-h-[min(32rem,70dvh)]
+            w-full max-w-[30ch] mt-[1px] mr-3 pt-2
             bg-bg-2 rounded-r-lg rounded-tl-lg shadow-md
             aero:glass aero:mt-[calc(1rem+2px)] aero:rounded-card"
         >
             <h2
                 id={titleId}
-                class="mt-2 mb-3 text-center uppercase font-medium text-sm text-gray-temp-500 dark:text-gray-temp-300
+                class="shrink-0 mt-2 px-4 text-center uppercase font-medium text-sm text-gray-temp-500 dark:text-gray-temp-300
                 xl:text-[0.925rem] xl:tracking-[.025rem] xl:font-semibold"
             >
                 Table of Contents
             </h2>
-            <div data-toc-list class="relative">
-                <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
-                <ul class="text-[0.925rem] font-normal xl:font-medium xl:tracking-[.002rem]">
-                    {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
-                </ul>
+            <!-- No `overscroll-contain`: a short list should let the page scroll under the pointer. -->
+            <div
+                data-toc-scroller
+                class:list={['min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pb-2 scroll-smooth motion-reduce:scroll-auto', topFadeClasses]}
+            >
+                <div data-toc-list class="relative">
+                    <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                    <ul class="text-[0.925rem] font-normal xl:font-medium xl:tracking-[.002rem]">
+                        {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
+                    </ul>
+                </div>
             </div>
         </nav>
     )
@@ -86,5 +102,142 @@ const titleId = `table-of-contents-title-${variant}`;
                 </div>
             </nav>
         </details>
+    )
+}
+{
+    hasToC && variant === 'sheet' && (
+        <>
+            <button
+                type="button"
+                data-toc-button
+                aria-label="Table of contents"
+                aria-haspopup="dialog"
+                class="sm:hidden print:hidden fixed right-4 bottom-4 z-40 grid size-11 place-items-center rounded-full
+                cursor-pointer text-accent bg-bg-2 border border-fg-border-2 shadow-md aero:backdrop-blur-xl
+                invisible opacity-0 data-shown:visible data-shown:opacity-100
+                transition-[opacity,visibility] duration-200 motion-reduce:transition-none
+                focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+            >
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+                </svg>
+            </button>
+            <dialog
+                data-toc-sheet
+                aria-labelledby={titleId}
+                class="fixed inset-x-0 top-auto bottom-0 flex-col open:flex w-full max-w-none max-h-[70dvh] overflow-hidden
+                rounded-t-2xl border border-b-0 border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl
+                translate-y-full open:translate-y-0 starting:open:translate-y-full
+                transition-[translate,display,overlay] transition-discrete duration-300 ease-out motion-reduce:transition-none
+                backdrop:bg-black/40 backdrop:opacity-0 open:backdrop:opacity-100 starting:open:backdrop:opacity-0
+                backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete backdrop:duration-300
+                motion-reduce:backdrop:transition-none"
+            >
+                <!-- Stays put while the list scrolls -->
+                <div class="flex shrink-0 items-center justify-between px-[clamp(1.25rem,5vw,2rem)] pt-2">
+                    <h2 id={titleId} class="uppercase text-sm font-medium tracking-wide text-gray-temp-500 dark:text-gray-temp-300">
+                        Table of Contents
+                    </h2>
+                    <button
+                        type="button"
+                        data-toc-close
+                        aria-label="Close"
+                        class="-mr-3 grid size-11 place-items-center rounded-full cursor-pointer
+                        focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
+                    >
+                        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M6 6l12 12M18 6L6 18" />
+                        </svg>
+                    </button>
+                </div>
+                <nav
+                    data-toc-scroller
+                    aria-labelledby={titleId}
+                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pb-4', topFadeClasses]}
+                >
+                    <div data-toc-list class="relative">
+                        <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                        <ul class="text-[0.95rem]">
+                            {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
+                        </ul>
+                    </div>
+                </nav>
+            </dialog>
+        </>
+    )
+}
+{
+    // The gutter, width and inset match the article's section, card and text in BlogArticle.astro (2rem is what
+    // `--article-pad` comes to from `sm` up; the 1px is the card's border).
+    hasToC && variant === 'strip' && (
+        <nav
+            data-toc-strip
+            aria-label="Jump to section"
+            class="hidden sm:block lg:hidden print:hidden fixed inset-x-0 top-0 z-40 px-4 pt-(--toc-strip-top) pointer-events-none
+            invisible -translate-y-full data-shown:visible data-shown:translate-y-0
+            transition-[translate,visibility] duration-200 motion-reduce:transition-none"
+        >
+            <div class="w-full max-w-[65ch] mx-auto px-[calc(2rem+1px)]">
+                <div
+                    class="overflow-hidden pointer-events-auto
+                    rounded-xl aero:rounded-box border border-fg-border-2 bg-bg-2 shadow-md aero:backdrop-blur-xl"
+                >
+                    <button
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls="table-of-contents-strip-panel"
+                        class="relative flex h-(--toc-strip-height) w-full items-center justify-between gap-3 px-5 pb-3 text-left cursor-pointer
+                        focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
+                    >
+                        <!-- In a subsection, its parent section comes first; it gives up its space before the current one does. -->
+                        <span class="flex min-w-0 items-center gap-2 text-sm font-medium">
+                            <span class="sr-only">Table of contents. Current section: </span>
+                            <span data-toc-strip-parent class="min-w-0 shrink-[3] truncate text-gray-temp-500 dark:text-gray-temp-400 empty:hidden" />
+                            <span aria-hidden="true" class="shrink-0 text-gray-temp-500 dark:text-gray-temp-400 [:empty+&]:hidden">›</span>
+                            <span data-toc-strip-current class="min-w-0 truncate text-accent">{toc[0].text}</span>
+                        </span>
+                        <svg
+                            aria-hidden="true"
+                            viewBox="0 0 24 24"
+                            class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
+                            transition-transform duration-300 motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                        <!-- One segment per section: solid for the active one, faint for the others on screen -->
+                        <span aria-hidden="true" class="absolute inset-x-5 bottom-2 flex gap-1">
+                            {sections.map((section) => (
+                                <span
+                                    data-toc-segment={section.slug}
+                                    class="h-[3px] flex-1 rounded-full bg-gray-temp-500/25
+                                    data-on-screen:bg-accent/40 data-active:bg-accent
+                                    transition-colors duration-150 motion-reduce:transition-none"
+                                />
+                            ))}
+                        </span>
+                    </button>
+                    <!-- tableOfContents.ts sets the height to the list's own, so the list keeps its size while it's revealed. -->
+                    <div
+                        id="table-of-contents-strip-panel"
+                        class="h-0 overflow-hidden invisible data-open:visible
+                        transition-[height,visibility] duration-300 ease-out motion-reduce:transition-none"
+                    >
+                        <div data-toc-scroller class:list={['max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pb-3', topFadeClasses]}>
+                            <div data-toc-list class="relative">
+                                <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                                <ul class="text-[0.95rem]">
+                                    {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
     )
 }
