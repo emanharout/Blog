@@ -537,8 +537,8 @@
 
         /*
          * MAIN / SECONDARY / TERTIARY (tunable). Main: links, buttons, the logo, half the tags. Secondary: the other
-         * tags and the Wonder badge. Tertiary: the accent ("Eman", quote mark, footer icons, nav underline, in both
-         * themes), at a lightness fixed per theme. Light styles and dark mode set their own. Background hues (sky, lawn, sun) are
+         * tags and the Wonder badge. Tertiary: the accent ("Eman", quote mark, footer icons, nav underline, active
+         * table of contents entry, in both themes), at a lightness fixed per theme. Light styles and dark mode set their own. Background hues (sky, lawn, sun) are
          * separate knobs.
          */
         --main-h: 208;
