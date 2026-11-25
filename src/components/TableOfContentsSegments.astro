@@ -1,0 +1,26 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+type Props = {
+    sections: MarkdownHeading[];
+};
+
+const { sections } = Astro.props;
+---
+
+<!--
+  One segment per section: solid for the active one, faint for the others on screen (set by tableOfContents.ts). Sits along
+  the bottom of a positioned parent.
+-->
+<span aria-hidden="true" class="absolute inset-x-5 bottom-2 flex gap-1">
+    {
+        sections.map((section) => (
+            <span
+                data-toc-segment={section.slug}
+                class="h-[3px] flex-1 rounded-full bg-gray-temp-500/25
+                data-on-screen:bg-accent/40 data-active:bg-accent
+                transition-colors duration-150 motion-reduce:transition-none"
+            />
+        ))
+    }
+</span>

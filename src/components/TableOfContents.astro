@@ -2,6 +2,7 @@
 import type { MarkdownHeading } from 'astro';
 import type { HeadingHierarchy } from './TableOfContentsHeading.astro';
 import TableOfContentsHeading from './TableOfContentsHeading.astro';
+import TableOfContentsSegments from './TableOfContentsSegments.astro';
 
 type Props = {
     headings: MarkdownHeading[];
@@ -83,17 +84,38 @@ const titleId = `table-of-contents-title-${variant}`;
     )
 }
 {
+    // Styled like the strip, which takes over from it as the page scrolls.
+    // Animates where the browser can interpolate to the list's own height (`interpolate-size`), else opens at once.
     hasToC && variant === 'inline' && (
-        <details class="not-prose group lg:hidden my-6 rounded-lg border border-fg-border-2 bg-bg-1/40">
+        <details
+            class="not-prose group lg:hidden my-6 overflow-hidden rounded-xl aero:rounded-box
+            border border-fg-border-2 bg-bg-2 shadow-md
+            [interpolate-size:allow-keywords] details-content:h-0 open:details-content:h-auto details-content:overflow-hidden
+            details-content:transition-[height,content-visibility] details-content:transition-discrete
+            details-content:duration-300 details-content:ease-out motion-reduce:details-content:transition-none"
+        >
             <summary
-                class="flex items-center justify-between cursor-pointer list-none px-4 py-3
-                uppercase text-sm font-medium tracking-wide text-gray-temp-500 dark:text-gray-temp-300
-                [&::-webkit-details-marker]:hidden"
+                class="relative flex h-(--toc-strip-height) items-center justify-between gap-3 px-5 pb-3 cursor-pointer list-none
+                [&::-webkit-details-marker]:hidden rounded-xl aero:rounded-box
+                focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
             >
-                <span id={titleId}>Table of Contents</span>
-                <span aria-hidden="true" class="transition-transform group-open:rotate-180">▾</span>
+                <span id={titleId} class="text-sm font-medium text-fg-1">Table of Contents</span>
+                <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
+                    transition-transform duration-300 motion-reduce:transition-none group-open:rotate-180"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M6 9l6 6 6-6" />
+                </svg>
+                <TableOfContentsSegments sections={sections} />
             </summary>
-            <nav aria-labelledby={titleId} class="px-4 pb-3">
+            <nav aria-labelledby={titleId} class="px-5 pt-3 pb-3">
                 <div data-toc-list class="relative">
                     <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
                     <ul class="text-[0.95rem]">
@@ -209,17 +231,7 @@ const titleId = `table-of-contents-title-${variant}`;
                         >
                             <path d="M6 9l6 6 6-6" />
                         </svg>
-                        <!-- One segment per section: solid for the active one, faint for the others on screen -->
-                        <span aria-hidden="true" class="absolute inset-x-5 bottom-2 flex gap-1">
-                            {sections.map((section) => (
-                                <span
-                                    data-toc-segment={section.slug}
-                                    class="h-[3px] flex-1 rounded-full bg-gray-temp-500/25
-                                    data-on-screen:bg-accent/40 data-active:bg-accent
-                                    transition-colors duration-150 motion-reduce:transition-none"
-                                />
-                            ))}
-                        </span>
+                        <TableOfContentsSegments sections={sections} />
                     </button>
                     <!-- tableOfContents.ts sets the height to the list's own, so the list keeps its size while it's revealed. -->
                     <div

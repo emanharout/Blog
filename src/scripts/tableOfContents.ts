@@ -12,6 +12,7 @@ const TOP_LINE = 48;
 const BAR_INSET = 4;
 
 const links = [...document.querySelectorAll<HTMLAnchorElement>('.table-of-content-link')];
+const segments = document.querySelectorAll<HTMLElement>('[data-toc-segment]');
 const tocLists = document.querySelectorAll<HTMLElement>('[data-toc-list]');
 const headingId = (link: HTMLAnchorElement) => decodeURIComponent(link.hash.slice(1));
 
@@ -62,7 +63,6 @@ const stripButton = strip?.querySelector<HTMLButtonElement>('button');
 const stripPanel = document.getElementById(stripButton?.getAttribute('aria-controls') ?? '');
 const stripScroller = stripPanel?.querySelector<HTMLElement>('[data-toc-scroller]');
 const stripCurrent = strip?.querySelector<HTMLElement>('[data-toc-strip-current]');
-const stripSegments = strip?.querySelectorAll<HTMLElement>('[data-toc-segment]');
 const stripParent = strip?.querySelector<HTMLElement>('[data-toc-strip-parent]');
 const article = document.querySelector<HTMLElement>('.article-content');
 
@@ -213,8 +213,9 @@ function updateOnScreenMarks(activeId: string | undefined) {
     );
     const isAnyOnScreen = lastIndex >= firstIndex;
 
-    stripSegments?.forEach((segment, index) => {
-        const isActive = segment.dataset.tocSegment === activeId;
+    segments.forEach((segment) => {
+        const index = headings.findIndex((heading) => heading.id === segment.dataset.tocSegment);
+        const isActive = headings[index]?.id === activeId;
         segment.toggleAttribute('data-active', isActive);
         segment.toggleAttribute('data-on-screen', !isActive && index >= firstIndex && index <= lastIndex);
     });
