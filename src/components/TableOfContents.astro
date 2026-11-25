@@ -7,7 +7,11 @@ type Props = {
     headings: MarkdownHeading[];
     // `sidebar`: sticky panel beside the article, `lg` and up.
     // `inline`: collapsible block at the top of the article, below `lg`.
-    variant: 'sidebar' | 'inline';
+    // `sheet`: floating button, below `sm`, once the inline block has scrolled away. Opens the list in a panel that
+    // slides up from the bottom. Place it outside the article card, which would clip it.
+    // `strip`: slim bar at the top of the window, from `sm` to `lg`, once the inline block has scrolled away. As wide as
+    // the article card. Names the current section (and its parent) and drops down the list. Also goes outside the card.
+    variant: 'sidebar' | 'inline' | 'sheet' | 'strip';
 };
 
 const { headings, variant } = Astro.props;
@@ -86,5 +90,119 @@ const titleId = `table-of-contents-title-${variant}`;
                 </div>
             </nav>
         </details>
+    )
+}
+{
+    hasToC && variant === 'sheet' && (
+        <>
+            <button
+                type="button"
+                data-toc-button
+                aria-label="Table of contents"
+                aria-haspopup="dialog"
+                class="sm:hidden print:hidden fixed right-4 bottom-4 z-40 grid size-11 place-items-center rounded-full
+                cursor-pointer text-accent bg-bg-2 border border-fg-border-2 shadow-md aero:backdrop-blur-xl
+                invisible opacity-0 data-shown:visible data-shown:opacity-100
+                transition-[opacity,visibility] duration-200 motion-reduce:transition-none
+                focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+            >
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+                </svg>
+            </button>
+            <dialog
+                data-toc-sheet
+                aria-labelledby={titleId}
+                class="fixed inset-x-0 top-auto bottom-0 w-full max-w-none max-h-[70dvh] overflow-y-auto overscroll-contain
+                rounded-t-2xl border border-b-0 border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl
+                backdrop:bg-black/40
+                translate-y-full open:translate-y-0 starting:open:translate-y-full
+                transition-[translate,display,overlay] transition-discrete duration-200 motion-reduce:transition-none"
+            >
+                <div class="px-[clamp(1.25rem,5vw,2rem)] pt-2 pb-4">
+                    <div class="flex items-center justify-between">
+                        <h2 id={titleId} class="uppercase text-sm font-medium tracking-wide text-gray-temp-500 dark:text-gray-temp-300">
+                            Table of Contents
+                        </h2>
+                        <button
+                            type="button"
+                            data-toc-close
+                            aria-label="Close"
+                            class="-mr-3 grid size-11 place-items-center rounded-full cursor-pointer
+                            focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
+                        >
+                            <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M6 6l12 12M18 6L6 18" />
+                            </svg>
+                        </button>
+                    </div>
+                    <nav aria-labelledby={titleId}>
+                        <div data-toc-list class="relative">
+                            <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                            <ul class="text-[0.95rem]">
+                                {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+            </dialog>
+        </>
+    )
+}
+{
+    // The gutter, width and text padding match the article's section and card in BlogArticle.astro.
+    hasToC && variant === 'strip' && (
+        <nav
+            data-toc-strip
+            aria-label="Jump to section"
+            class="hidden sm:block lg:hidden print:hidden fixed inset-x-0 top-0 z-40 px-4 pointer-events-none
+            invisible -translate-y-full data-shown:visible data-shown:translate-y-0
+            transition-[translate,visibility] duration-200 motion-reduce:transition-none"
+        >
+            <div
+                class="w-full max-w-[65ch] mx-auto overflow-hidden pointer-events-auto
+                rounded-b-xl aero:rounded-b-box border border-t-0 border-fg-border-2 bg-bg-2 shadow-md aero:backdrop-blur-xl"
+            >
+                <button
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="table-of-contents-strip-panel"
+                    class="flex h-(--toc-strip-height) w-full items-center justify-between gap-3 px-8 text-left cursor-pointer
+                    focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
+                >
+                    <!-- In a subsection, its parent section comes first; it gives up its space before the current one does. -->
+                    <span class="flex min-w-0 items-center gap-2 text-sm font-medium">
+                        <span class="sr-only">Table of contents. Current section: </span>
+                        <span data-toc-strip-parent class="min-w-0 shrink-[3] truncate text-gray-temp-500 dark:text-gray-temp-400 empty:hidden" />
+                        <span aria-hidden="true" class="shrink-0 text-gray-temp-500 dark:text-gray-temp-400 [:empty+&]:hidden">›</span>
+                        <span data-toc-strip-current class="min-w-0 truncate text-accent">{toc[0].text}</span>
+                    </span>
+                    <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
+                        transition-transform motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                </button>
+                <div
+                    id="table-of-contents-strip-panel"
+                    class="hidden data-open:block max-h-[70dvh] overflow-y-auto overscroll-contain px-8 pb-3"
+                >
+                    <div data-toc-list class="relative">
+                        <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                        <ul class="text-[0.95rem]">
+                            {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
     )
 }
