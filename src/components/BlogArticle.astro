@@ -17,13 +17,11 @@ const { Content, headings } = await render(post);
 <!--
   Layout: a single centered card on small screens. At `lg` a three-column grid puts the card in the middle and the
   sticky table of contents on the right (the left column is an empty spacer that keeps the card centered).
-  The edges use the same gutter as the header. Just above `lg` the spacer gives way first, so the table of contents keeps
-  a usable width and the card sits slightly left of center.
 -->
 <section
     class="grid grid-cols-[100%] justify-items-center items-start gap-x-3
-    sm:px-outer-edge
-    lg:grid-cols-[minmax(0,1fr)_auto_minmax(9.75rem,1fr)] lg:justify-items-start"
+    sm:px-4
+    lg:grid-cols-[minmax(5ch,1fr)_auto_minmax(5ch,1fr)] lg:justify-items-start"
 >
     <div aria-hidden="true"></div>
 
