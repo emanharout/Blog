@@ -7,11 +7,8 @@
 // (input.css), so that a heading jumped to counts as the topmost.
 const TOP_LINE = 48;
 
-// Space between each end of the faint bar and the edges of its entries. Matches the active entry's bar
-// (TableOfContentsHeading.astro).
-const BAR_INSET = 4;
-
 const links = [...document.querySelectorAll<HTMLAnchorElement>('.table-of-content-link')];
+const segments = document.querySelectorAll<HTMLElement>('[data-toc-segment]');
 const tocLists = document.querySelectorAll<HTMLElement>('[data-toc-list]');
 const headingId = (link: HTMLAnchorElement) => decodeURIComponent(link.hash.slice(1));
 
@@ -62,7 +59,6 @@ const stripButton = strip?.querySelector<HTMLButtonElement>('button');
 const stripPanel = document.getElementById(stripButton?.getAttribute('aria-controls') ?? '');
 const stripScroller = stripPanel?.querySelector<HTMLElement>('[data-toc-scroller]');
 const stripCurrent = strip?.querySelector<HTMLElement>('[data-toc-strip-current]');
-const stripSegments = strip?.querySelectorAll<HTMLElement>('[data-toc-segment]');
 const stripParent = strip?.querySelector<HTMLElement>('[data-toc-strip-parent]');
 const article = document.querySelector<HTMLElement>('.article-content');
 
@@ -213,8 +209,9 @@ function updateOnScreenMarks(activeId: string | undefined) {
     );
     const isAnyOnScreen = lastIndex >= firstIndex;
 
-    stripSegments?.forEach((segment, index) => {
-        const isActive = segment.dataset.tocSegment === activeId;
+    segments.forEach((segment) => {
+        const index = headings.findIndex((heading) => heading.id === segment.dataset.tocSegment);
+        const isActive = headings[index]?.id === activeId;
         segment.toggleAttribute('data-active', isActive);
         segment.toggleAttribute('data-on-screen', !isActive && index >= firstIndex && index <= lastIndex);
     });
@@ -234,9 +231,11 @@ function updateOnScreenMarks(activeId: string | undefined) {
         const lastRect = rectOf(lastIndex);
         if (!firstRect || !lastRect) return;
 
+        // The same inset as the active entry's bar (TableOfContentsHeading.astro)
+        const inset = parseFloat(getComputedStyle(list).getPropertyValue('--toc-bar-inset')) || 0;
         const listTop = list.getBoundingClientRect().top;
-        bar.style.top = `${firstRect.top - listTop + BAR_INSET}px`;
-        bar.style.height = `${Math.max(0, lastRect.bottom - firstRect.top - 2 * BAR_INSET)}px`;
+        bar.style.top = `${firstRect.top - listTop + inset}px`;
+        bar.style.height = `${Math.max(0, lastRect.bottom - firstRect.top - 2 * inset)}px`;
     });
 }
 

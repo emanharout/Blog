@@ -275,6 +275,11 @@
         scroll-margin-top: 1.5rem;
     }
 
+    /* Space between the table of contents' bars and the top and bottom of their entries; a list can set its own */
+    :root {
+        --toc-bar-inset: 4px;
+    }
+
     /* From `sm` to `lg`, the table of contents strip (TableOfContents.astro) floats at the top of post pages */
     :root {
         --toc-strip-top: 0.5rem;

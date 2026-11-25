@@ -2,6 +2,7 @@
 import type { MarkdownHeading } from 'astro';
 import type { HeadingHierarchy } from './TableOfContentsHeading.astro';
 import TableOfContentsHeading from './TableOfContentsHeading.astro';
+import TableOfContentsSegments from './TableOfContentsSegments.astro';
 
 type Props = {
     headings: MarkdownHeading[];
@@ -45,8 +46,9 @@ const onScreenBarClasses = [
     'absolute -left-2.5 border-l-2 border-accent/40',
     'opacity-0 data-visible:opacity-100 transition-[top,height,opacity] duration-150 motion-reduce:transition-none',
 ];
-// Scrolled entries fade out under the title. The fade is as tall as the padding, so at the top nothing is faded.
-const topFadeClasses = 'pt-3 [mask-image:linear-gradient(to_bottom,transparent,black_0.75rem)]';
+// Scrolled entries fade out under the title, over 0.75rem. Each list's top padding keeps its first entry's text and bar
+// below the fade while it's scrolled to the top.
+const topFadeClasses = '[mask-image:linear-gradient(to_bottom,transparent,black_0.75rem)]';
 const titleId = `table-of-contents-title-${variant}`;
 ---
 
@@ -62,15 +64,15 @@ const titleId = `table-of-contents-title-${variant}`;
         >
             <h2
                 id={titleId}
-                class="shrink-0 mt-2 px-4 text-center uppercase font-medium text-sm text-gray-temp-500 dark:text-gray-temp-300
-                xl:text-[0.925rem] xl:tracking-[.025rem] xl:font-semibold"
+                class="shrink-0 mt-2 px-2 text-center font-serif font-medium text-base text-gray-temp-500 dark:text-gray-temp-300
+                xl:text-lg"
             >
                 Table of Contents
             </h2>
             <!-- No `overscroll-contain`: a short list should let the page scroll under the pointer. -->
             <div
                 data-toc-scroller
-                class:list={['min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pb-2 scroll-smooth motion-reduce:scroll-auto', topFadeClasses]}
+                class:list={['min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pt-3 pb-2 scroll-smooth motion-reduce:scroll-auto', topFadeClasses]}
             >
                 <div data-toc-list class="relative">
                     <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
@@ -83,17 +85,38 @@ const titleId = `table-of-contents-title-${variant}`;
     )
 }
 {
+    // Styled like the strip, which takes over from it as the page scrolls.
+    // Animates where the browser can interpolate to the list's own height (`interpolate-size`), else opens at once.
     hasToC && variant === 'inline' && (
-        <details class="not-prose group lg:hidden my-6 rounded-lg border border-fg-border-2 bg-bg-1/40">
+        <details
+            class="not-prose group lg:hidden my-6 overflow-hidden rounded-xl aero:rounded-box
+            border border-fg-border-2 bg-bg-2 shadow-md
+            [interpolate-size:allow-keywords] details-content:h-0 open:details-content:h-auto details-content:overflow-hidden
+            details-content:transition-[height,content-visibility] details-content:transition-discrete
+            details-content:duration-300 details-content:ease-out motion-reduce:details-content:transition-none"
+        >
             <summary
-                class="flex items-center justify-between cursor-pointer list-none px-4 py-3
-                uppercase text-sm font-medium tracking-wide text-gray-temp-500 dark:text-gray-temp-300
-                [&::-webkit-details-marker]:hidden"
+                class="relative flex h-(--toc-strip-height) items-center justify-between gap-3 px-5 pb-3 cursor-pointer list-none
+                [&::-webkit-details-marker]:hidden rounded-xl aero:rounded-box
+                focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
             >
-                <span id={titleId}>Table of Contents</span>
-                <span aria-hidden="true" class="transition-transform group-open:rotate-180">▾</span>
+                <span id={titleId} class="text-sm font-medium text-fg-1">Table of Contents</span>
+                <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
+                    transition-transform duration-300 motion-reduce:transition-none group-open:rotate-180"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path d="M6 9l6 6 6-6" />
+                </svg>
+                <TableOfContentsSegments sections={sections} />
             </summary>
-            <nav aria-labelledby={titleId} class="px-4 pb-3">
+            <nav aria-labelledby={titleId} class="px-5 pt-3 pb-3">
                 <div data-toc-list class="relative">
                     <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
                     <ul class="text-[0.95rem]">
@@ -135,7 +158,7 @@ const titleId = `table-of-contents-title-${variant}`;
             >
                 <!-- Stays put while the list scrolls -->
                 <div class="flex shrink-0 items-center justify-between px-[clamp(1.25rem,5vw,2rem)] pt-2">
-                    <h2 id={titleId} class="uppercase text-sm font-medium tracking-wide text-gray-temp-500 dark:text-gray-temp-300">
+                    <h2 id={titleId} class="font-serif text-[1.0625rem] font-medium text-gray-temp-500 dark:text-gray-temp-300">
                         Table of Contents
                     </h2>
                     <button
@@ -153,9 +176,9 @@ const titleId = `table-of-contents-title-${variant}`;
                 <nav
                     data-toc-scroller
                     aria-labelledby={titleId}
-                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pb-4', topFadeClasses]}
+                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pt-1 pb-4', topFadeClasses]}
                 >
-                    <div data-toc-list class="relative">
+                    <div data-toc-list class="relative [--toc-bar-inset:8px]">
                         <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
                         <ul class="text-[0.95rem]">
                             {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
@@ -209,17 +232,7 @@ const titleId = `table-of-contents-title-${variant}`;
                         >
                             <path d="M6 9l6 6 6-6" />
                         </svg>
-                        <!-- One segment per section: solid for the active one, faint for the others on screen -->
-                        <span aria-hidden="true" class="absolute inset-x-5 bottom-2 flex gap-1">
-                            {sections.map((section) => (
-                                <span
-                                    data-toc-segment={section.slug}
-                                    class="h-[3px] flex-1 rounded-full bg-gray-temp-500/25
-                                    data-on-screen:bg-accent/40 data-active:bg-accent
-                                    transition-colors duration-150 motion-reduce:transition-none"
-                                />
-                            ))}
-                        </span>
+                        <TableOfContentsSegments sections={sections} />
                     </button>
                     <!-- tableOfContents.ts sets the height to the list's own, so the list keeps its size while it's revealed. -->
                     <div
@@ -227,7 +240,7 @@ const titleId = `table-of-contents-title-${variant}`;
                         class="h-0 overflow-hidden invisible data-open:visible
                         transition-[height,visibility] duration-300 ease-out motion-reduce:transition-none"
                     >
-                        <div data-toc-scroller class:list={['max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pb-3', topFadeClasses]}>
+                        <div data-toc-scroller class:list={['max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pt-3 pb-3', topFadeClasses]}>
                             <div data-toc-list class="relative">
                                 <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
                                 <ul class="text-[0.95rem]">
