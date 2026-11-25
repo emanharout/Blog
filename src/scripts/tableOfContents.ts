@@ -24,31 +24,6 @@ const headings = [...new Set(links.map(headingId))]
 // not be able to reach the top of the window.
 let clickedId: string | undefined;
 
-// HOVER: with a mouse, hovering the sheet's button or the strip opens its list, and leaving closes it again. The delays
-// ignore a pointer that's only passing through or that slips out for a moment.
-const HOVER_OPEN_DELAY_MS = 120;
-const HOVER_CLOSE_DELAY_MS = 300;
-
-function createDelay() {
-    let timer: number | undefined;
-    return {
-        start(ms: number, callback: () => void) {
-            timer ??= window.setTimeout(() => {
-                timer = undefined;
-                callback();
-            }, ms);
-        },
-        cancel() {
-            clearTimeout(timer);
-            timer = undefined;
-        },
-    };
-}
-
-// Only real movement: scrolling or closing a list can put an element under a pointer at rest, which shouldn't open it.
-const isMouseMovement = (event: PointerEvent) =>
-    event.pointerType === 'mouse' && (event.movementX !== 0 || event.movementY !== 0);
-
 // THE SHEET (below `sm`): a floating button that opens the list in a modal panel at the bottom of the window.
 const sheetButton = document.querySelector<HTMLButtonElement>('[data-toc-button]');
 const sheet = document.querySelector<HTMLDialogElement>('[data-toc-sheet]');
@@ -73,64 +48,6 @@ function openSheet() {
     revealActiveEntry(sheet);
 }
 
-// The sheet slides up over its button, and so under a pointer about to click it. For this long after hovering opened
-// it, a click only keeps it open rather than choosing the entry that turned up there.
-const HOVER_CLICK_GUARD_MS = 500;
-const sheetHoverDelay = createDelay();
-let isSheetOpenedByHover = false;
-let sheetOpenedAt = 0;
-// After closing, it stays closed until the pointer has been somewhere other than the button.
-let isSheetHoverSpent = false;
-
-function setUpSheetHover(button: HTMLButtonElement, sheet: HTMLDialogElement) {
-    button.addEventListener('pointermove', (event) => {
-        if (!isMouseMovement(event) || isSheetHoverSpent) return;
-        sheetHoverDelay.start(HOVER_OPEN_DELAY_MS, () => {
-            if (sheet.open || !button.hasAttribute('data-shown')) return;
-            openSheet();
-            isSheetOpenedByHover = true;
-            sheetOpenedAt = performance.now();
-        });
-    });
-    button.addEventListener('pointerleave', () => {
-        if (!sheet.open) sheetHoverDelay.cancel();
-    });
-
-    // The backdrop's events go to the sheet as well, so compare positions. (`offsetHeight` ignores the sliding.)
-    sheet.addEventListener('pointermove', (event) => {
-        if (event.pointerType !== 'mouse' || !isSheetOpenedByHover) return;
-        if (event.clientY >= window.innerHeight - sheet.offsetHeight) sheetHoverDelay.cancel();
-        else sheetHoverDelay.start(HOVER_CLOSE_DELAY_MS, () => isSheetOpenedByHover && sheet.close());
-    });
-    // Out of the window
-    sheet.addEventListener('pointerleave', (event) => {
-        if (event.pointerType !== 'mouse' || !isSheetOpenedByHover || !sheet.open) return;
-        sheetHoverDelay.start(HOVER_CLOSE_DELAY_MS, () => isSheetOpenedByHover && sheet.close());
-    });
-    sheet.addEventListener(
-        'click',
-        (event) => {
-            if (isSheetOpenedByHover && performance.now() - sheetOpenedAt < HOVER_CLICK_GUARD_MS) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            isSheetOpenedByHover = false;
-            sheetHoverDelay.cancel();
-        },
-        { capture: true },
-    );
-    sheet.addEventListener('close', () => {
-        sheetHoverDelay.cancel();
-        isSheetOpenedByHover = false;
-        isSheetHoverSpent = true;
-    });
-    document.addEventListener('pointermove', (event) => {
-        if (event.pointerType !== 'mouse' || !isSheetHoverSpent || sheet.open) return;
-        const target = event.target as Node | null;
-        if (!button.contains(target) && !sheet.contains(target)) isSheetHoverSpent = false;
-    });
-}
-
 // The button stands in for the inline ToC once that has scrolled away. It isn't displayed at `sm` and up.
 function updateSheetButton() {
     if (!sheetButton || !sheet || !inlineToc) return;
@@ -148,6 +65,31 @@ const stripCurrent = strip?.querySelector<HTMLElement>('[data-toc-strip-current]
 const stripSegments = strip?.querySelectorAll<HTMLElement>('[data-toc-segment]');
 const stripParent = strip?.querySelector<HTMLElement>('[data-toc-strip-parent]');
 const article = document.querySelector<HTMLElement>('.article-content');
+
+// With a mouse, hovering the strip opens its list, and leaving closes it again. The delays ignore a pointer that's only
+// passing through or that slips out for a moment. (Not the sheet: it's modal, so opening it on hover would take over.)
+const HOVER_OPEN_DELAY_MS = 120;
+const HOVER_CLOSE_DELAY_MS = 300;
+
+function createDelay() {
+    let timer: number | undefined;
+    return {
+        start(ms: number, callback: () => void) {
+            timer ??= window.setTimeout(() => {
+                timer = undefined;
+                callback();
+            }, ms);
+        },
+        cancel() {
+            clearTimeout(timer);
+            timer = undefined;
+        },
+    };
+}
+
+// Only real movement: scrolling can slide the strip in under a pointer at rest, which shouldn't open it.
+const isMouseMovement = (event: PointerEvent) =>
+    event.pointerType === 'mouse' && (event.movementX !== 0 || event.movementY !== 0);
 
 const stripHoverDelay = createDelay();
 // Opened by hovering rather than by a click or key, so leaving closes it again.
@@ -376,11 +318,7 @@ if (headings.length > 0) {
         stripButton?.focus();
     });
 
-    if (sheetButton && sheet) setUpSheetHover(sheetButton, sheet);
-    sheetButton?.addEventListener('click', () => {
-        sheetHoverDelay.cancel();
-        openSheet();
-    });
+    sheetButton?.addEventListener('click', openSheet);
     sheet?.addEventListener('click', (event) => {
         // The dialog itself is only hit by taps on its backdrop; its content fills the panel.
         const isBackdrop = event.target === sheet;
