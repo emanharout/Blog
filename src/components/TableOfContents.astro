@@ -45,6 +45,8 @@ const onScreenBarClasses = [
     'absolute -left-2.5 border-l-2 border-accent/40',
     'opacity-0 data-visible:opacity-100 transition-[top,height,opacity] duration-150 motion-reduce:transition-none',
 ];
+// Scrolled entries fade out under the title. The fade is as tall as the padding, so at the top nothing is faded.
+const topFadeClasses = 'pt-3 [mask-image:linear-gradient(to_bottom,transparent,black_0.75rem)]';
 const titleId = `table-of-contents-title-${variant}`;
 ---
 
@@ -60,7 +62,7 @@ const titleId = `table-of-contents-title-${variant}`;
         >
             <h2
                 id={titleId}
-                class="shrink-0 mt-2 mb-3 px-4 text-center uppercase font-medium text-sm text-gray-temp-500 dark:text-gray-temp-300
+                class="shrink-0 mt-2 px-4 text-center uppercase font-medium text-sm text-gray-temp-500 dark:text-gray-temp-300
                 xl:text-[0.925rem] xl:tracking-[.025rem] xl:font-semibold"
             >
                 Table of Contents
@@ -68,7 +70,7 @@ const titleId = `table-of-contents-title-${variant}`;
             <!-- No `overscroll-contain`: a short list should let the page scroll under the pointer. -->
             <div
                 data-toc-scroller
-                class="min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pb-2 scroll-smooth motion-reduce:scroll-auto"
+                class:list={['min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pb-2 scroll-smooth motion-reduce:scroll-auto', topFadeClasses]}
             >
                 <div data-toc-list class="relative">
                     <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
@@ -151,7 +153,7 @@ const titleId = `table-of-contents-title-${variant}`;
                 <nav
                     data-toc-scroller
                     aria-labelledby={titleId}
-                    class="min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pb-4"
+                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pb-4', topFadeClasses]}
                 >
                     <div data-toc-list class="relative">
                         <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
@@ -225,7 +227,7 @@ const titleId = `table-of-contents-title-${variant}`;
                         class="h-0 overflow-hidden invisible data-open:visible
                         transition-[height,visibility] duration-300 ease-out motion-reduce:transition-none"
                     >
-                        <div data-toc-scroller class="max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pb-3">
+                        <div data-toc-scroller class:list={['max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pb-3', topFadeClasses]}>
                             <div data-toc-list class="relative">
                                 <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
                                 <ul class="text-[0.95rem]">
