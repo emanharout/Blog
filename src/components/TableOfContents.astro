@@ -51,24 +51,31 @@ const titleId = `table-of-contents-title-${variant}`;
 {
     hasToC && variant === 'sidebar' && (
         <nav
+            data-toc-sidebar
             aria-labelledby={titleId}
-            class="hidden lg:block sticky top-4
-            w-full max-w-[30ch] mt-[1px] mr-3 py-2 px-4
+            class="hidden lg:flex flex-col sticky top-4 max-h-[min(32rem,70dvh)]
+            w-full max-w-[30ch] mt-[1px] mr-3 pt-2
             bg-bg-2 rounded-r-lg rounded-tl-lg shadow-md
             aero:glass aero:mt-[calc(1rem+2px)] aero:rounded-card"
         >
             <h2
                 id={titleId}
-                class="mt-2 mb-3 text-center uppercase font-medium text-sm text-gray-temp-500 dark:text-gray-temp-300
+                class="shrink-0 mt-2 mb-3 px-4 text-center uppercase font-medium text-sm text-gray-temp-500 dark:text-gray-temp-300
                 xl:text-[0.925rem] xl:tracking-[.025rem] xl:font-semibold"
             >
                 Table of Contents
             </h2>
-            <div data-toc-list class="relative">
-                <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
-                <ul class="text-[0.925rem] font-normal xl:font-medium xl:tracking-[.002rem]">
-                    {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
-                </ul>
+            <!-- No `overscroll-contain`: a short list should let the page scroll under the pointer. -->
+            <div
+                data-toc-scroller
+                class="min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pb-2 scroll-smooth motion-reduce:scroll-auto"
+            >
+                <div data-toc-list class="relative">
+                    <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                    <ul class="text-[0.925rem] font-normal xl:font-medium xl:tracking-[.002rem]">
+                        {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
+                    </ul>
+                </div>
             </div>
         </nav>
     )
@@ -116,38 +123,43 @@ const titleId = `table-of-contents-title-${variant}`;
             <dialog
                 data-toc-sheet
                 aria-labelledby={titleId}
-                class="fixed inset-x-0 top-auto bottom-0 w-full max-w-none max-h-[70dvh] overflow-y-auto overscroll-contain
+                class="fixed inset-x-0 top-auto bottom-0 flex-col open:flex w-full max-w-none max-h-[70dvh] overflow-hidden
                 rounded-t-2xl border border-b-0 border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl
-                backdrop:bg-black/40
                 translate-y-full open:translate-y-0 starting:open:translate-y-full
-                transition-[translate,display,overlay] transition-discrete duration-200 motion-reduce:transition-none"
+                transition-[translate,display,overlay] transition-discrete duration-300 ease-out motion-reduce:transition-none
+                backdrop:bg-black/40 backdrop:opacity-0 open:backdrop:opacity-100 starting:open:backdrop:opacity-0
+                backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete backdrop:duration-300
+                motion-reduce:backdrop:transition-none"
             >
-                <div class="px-[clamp(1.25rem,5vw,2rem)] pt-2 pb-4">
-                    <div class="flex items-center justify-between">
-                        <h2 id={titleId} class="uppercase text-sm font-medium tracking-wide text-gray-temp-500 dark:text-gray-temp-300">
-                            Table of Contents
-                        </h2>
-                        <button
-                            type="button"
-                            data-toc-close
-                            aria-label="Close"
-                            class="-mr-3 grid size-11 place-items-center rounded-full cursor-pointer
-                            focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
-                        >
-                            <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                                <path d="M6 6l12 12M18 6L6 18" />
-                            </svg>
-                        </button>
-                    </div>
-                    <nav aria-labelledby={titleId}>
-                        <div data-toc-list class="relative">
-                            <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
-                            <ul class="text-[0.95rem]">
-                                {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
-                            </ul>
-                        </div>
-                    </nav>
+                <!-- Stays put while the list scrolls -->
+                <div class="flex shrink-0 items-center justify-between px-[clamp(1.25rem,5vw,2rem)] pt-2">
+                    <h2 id={titleId} class="uppercase text-sm font-medium tracking-wide text-gray-temp-500 dark:text-gray-temp-300">
+                        Table of Contents
+                    </h2>
+                    <button
+                        type="button"
+                        data-toc-close
+                        aria-label="Close"
+                        class="-mr-3 grid size-11 place-items-center rounded-full cursor-pointer
+                        focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-500"
+                    >
+                        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M6 6l12 12M18 6L6 18" />
+                        </svg>
+                    </button>
                 </div>
+                <nav
+                    data-toc-scroller
+                    aria-labelledby={titleId}
+                    class="min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pb-4"
+                >
+                    <div data-toc-list class="relative">
+                        <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                        <ul class="text-[0.95rem]">
+                            {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
+                        </ul>
+                    </div>
+                </nav>
             </dialog>
         </>
     )
@@ -186,7 +198,7 @@ const titleId = `table-of-contents-title-${variant}`;
                             aria-hidden="true"
                             viewBox="0 0 24 24"
                             class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
-                            transition-transform motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
+                            transition-transform duration-300 motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2"
@@ -207,15 +219,19 @@ const titleId = `table-of-contents-title-${variant}`;
                             ))}
                         </span>
                     </button>
+                    <!-- tableOfContents.ts sets the height to the list's own, so the list keeps its size while it's revealed. -->
                     <div
                         id="table-of-contents-strip-panel"
-                        class="hidden data-open:block max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pb-3"
+                        class="h-0 overflow-hidden invisible data-open:visible
+                        transition-[height,visibility] duration-300 ease-out motion-reduce:transition-none"
                     >
-                        <div data-toc-list class="relative">
-                            <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
-                            <ul class="text-[0.95rem]">
-                                {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
-                            </ul>
+                        <div data-toc-scroller class="max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pb-3">
+                            <div data-toc-list class="relative">
+                                <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                                <ul class="text-[0.95rem]">
+                                    {toc.map((heading) => <TableOfContentsHeading heading={heading} roomy />)}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>

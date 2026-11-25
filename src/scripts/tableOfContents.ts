@@ -24,26 +24,111 @@ const headings = [...new Set(links.map(headingId))]
 // not be able to reach the top of the window.
 let clickedId: string | undefined;
 
+// HOVER: with a mouse, hovering the sheet's button or the strip opens its list, and leaving closes it again. The delays
+// ignore a pointer that's only passing through or that slips out for a moment.
+const HOVER_OPEN_DELAY_MS = 120;
+const HOVER_CLOSE_DELAY_MS = 300;
+
+function createDelay() {
+    let timer: number | undefined;
+    return {
+        start(ms: number, callback: () => void) {
+            timer ??= window.setTimeout(() => {
+                timer = undefined;
+                callback();
+            }, ms);
+        },
+        cancel() {
+            clearTimeout(timer);
+            timer = undefined;
+        },
+    };
+}
+
+// Only real movement: scrolling or closing a list can put an element under a pointer at rest, which shouldn't open it.
+const isMouseMovement = (event: PointerEvent) =>
+    event.pointerType === 'mouse' && (event.movementX !== 0 || event.movementY !== 0);
+
 // THE SHEET (below `sm`): a floating button that opens the list in a modal panel at the bottom of the window.
 const sheetButton = document.querySelector<HTMLButtonElement>('[data-toc-button]');
 const sheet = document.querySelector<HTMLDialogElement>('[data-toc-sheet]');
 const inlineToc = document.querySelector<HTMLElement>('details:has([data-toc-list])');
 
-// Scrolls a panel's own list so its active entry is in view.
-function revealActiveEntry(panel: HTMLElement) {
-    const activeLink = panel.querySelector('.table-of-content-link[data-active]');
-    if (!activeLink) return;
-    const overflow = activeLink.getBoundingClientRect().bottom - panel.getBoundingClientRect().bottom;
-    panel.scrollTop = Math.max(0, panel.scrollTop + overflow);
+// Scrolls a list, if it's long enough to, so its active entry is in the middle.
+function revealActiveEntry(container: HTMLElement | null) {
+    const scroller = container?.querySelector<HTMLElement>('[data-toc-scroller]');
+    const activeLink = scroller?.querySelector('.table-of-content-link[data-active]');
+    if (!scroller || !activeLink) return;
+    const scrollerRect = scroller.getBoundingClientRect();
+    const linkRect = activeLink.getBoundingClientRect();
+    scroller.scrollTop += linkRect.top + linkRect.height / 2 - (scrollerRect.top + scrollerRect.height / 2);
 }
 
 function openSheet() {
     if (!sheet || sheet.open) return;
     sheet.showModal();
 
-    // The faint bar can only be measured while the list is visible.
+    // The faint bar can only be measured while the sheet is displayed.
     updateActiveLinks();
     revealActiveEntry(sheet);
+}
+
+// The sheet slides up over its button, and so under a pointer about to click it. For this long after hovering opened
+// it, a click only keeps it open rather than choosing the entry that turned up there.
+const HOVER_CLICK_GUARD_MS = 500;
+const sheetHoverDelay = createDelay();
+let isSheetOpenedByHover = false;
+let sheetOpenedAt = 0;
+// After closing, it stays closed until the pointer has been somewhere other than the button.
+let isSheetHoverSpent = false;
+
+function setUpSheetHover(button: HTMLButtonElement, sheet: HTMLDialogElement) {
+    button.addEventListener('pointermove', (event) => {
+        if (!isMouseMovement(event) || isSheetHoverSpent) return;
+        sheetHoverDelay.start(HOVER_OPEN_DELAY_MS, () => {
+            if (sheet.open || !button.hasAttribute('data-shown')) return;
+            openSheet();
+            isSheetOpenedByHover = true;
+            sheetOpenedAt = performance.now();
+        });
+    });
+    button.addEventListener('pointerleave', () => {
+        if (!sheet.open) sheetHoverDelay.cancel();
+    });
+
+    // The backdrop's events go to the sheet as well, so compare positions. (`offsetHeight` ignores the sliding.)
+    sheet.addEventListener('pointermove', (event) => {
+        if (event.pointerType !== 'mouse' || !isSheetOpenedByHover) return;
+        if (event.clientY >= window.innerHeight - sheet.offsetHeight) sheetHoverDelay.cancel();
+        else sheetHoverDelay.start(HOVER_CLOSE_DELAY_MS, () => isSheetOpenedByHover && sheet.close());
+    });
+    // Out of the window
+    sheet.addEventListener('pointerleave', (event) => {
+        if (event.pointerType !== 'mouse' || !isSheetOpenedByHover || !sheet.open) return;
+        sheetHoverDelay.start(HOVER_CLOSE_DELAY_MS, () => isSheetOpenedByHover && sheet.close());
+    });
+    sheet.addEventListener(
+        'click',
+        (event) => {
+            if (isSheetOpenedByHover && performance.now() - sheetOpenedAt < HOVER_CLICK_GUARD_MS) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            isSheetOpenedByHover = false;
+            sheetHoverDelay.cancel();
+        },
+        { capture: true },
+    );
+    sheet.addEventListener('close', () => {
+        sheetHoverDelay.cancel();
+        isSheetOpenedByHover = false;
+        isSheetHoverSpent = true;
+    });
+    document.addEventListener('pointermove', (event) => {
+        if (event.pointerType !== 'mouse' || !isSheetHoverSpent || sheet.open) return;
+        const target = event.target as Node | null;
+        if (!button.contains(target) && !sheet.contains(target)) isSheetHoverSpent = false;
+    });
 }
 
 // The button stands in for the inline ToC once that has scrolled away. It isn't displayed at `sm` and up.
@@ -58,10 +143,17 @@ function updateSheetButton() {
 const strip = document.querySelector<HTMLElement>('[data-toc-strip]');
 const stripButton = strip?.querySelector<HTMLButtonElement>('button');
 const stripPanel = document.getElementById(stripButton?.getAttribute('aria-controls') ?? '');
+const stripScroller = stripPanel?.querySelector<HTMLElement>('[data-toc-scroller]');
 const stripCurrent = strip?.querySelector<HTMLElement>('[data-toc-strip-current]');
 const stripSegments = strip?.querySelectorAll<HTMLElement>('[data-toc-segment]');
 const stripParent = strip?.querySelector<HTMLElement>('[data-toc-strip-parent]');
 const article = document.querySelector<HTMLElement>('.article-content');
+
+const stripHoverDelay = createDelay();
+// Opened by hovering rather than by a click or key, so leaving closes it again.
+let isOpenedByHover = false;
+// After closing under the pointer, it stays closed until the pointer leaves and comes back.
+let isHoverSpent = false;
 
 const isStripOpen = () => stripButton?.getAttribute('aria-expanded') === 'true';
 
@@ -69,10 +161,47 @@ function setStripOpen(open: boolean) {
     if (!stripButton || !stripPanel || open === isStripOpen()) return;
     stripButton.setAttribute('aria-expanded', String(open));
     stripPanel.toggleAttribute('data-open', open);
-    if (!open) return;
+    isOpenedByHover = false;
+    updateStripPanelHeight();
+    if (!open) {
+        isHoverSpent = stripButton.parentElement?.matches(':hover') ?? false;
+        return;
+    }
 
     updateActiveLinks();
     revealActiveEntry(stripPanel);
+}
+
+// The list's height can't be animated from 0 to `auto`, so it's measured (again when the window resizes).
+function updateStripPanelHeight() {
+    if (!stripPanel || !stripScroller) return;
+    stripPanel.style.height = isStripOpen() ? `${stripScroller.offsetHeight}px` : '';
+}
+
+function setUpStripHover(box: HTMLElement) {
+    box.addEventListener('pointerenter', (event) => {
+        if (event.pointerType === 'mouse') isHoverSpent = false;
+    });
+    box.addEventListener('pointermove', (event) => {
+        if (!isMouseMovement(event)) return;
+        if (isStripOpen()) {
+            stripHoverDelay.cancel();
+        } else if (!isHoverSpent) {
+            stripHoverDelay.start(HOVER_OPEN_DELAY_MS, () => {
+                if (!strip?.hasAttribute('data-shown')) return;
+                setStripOpen(true);
+                isOpenedByHover = true;
+            });
+        }
+    });
+    box.addEventListener('pointerleave', (event) => {
+        if (event.pointerType !== 'mouse') return;
+        stripHoverDelay.cancel();
+        if (!isOpenedByHover) return;
+        stripHoverDelay.start(HOVER_CLOSE_DELAY_MS, () => {
+            if (isOpenedByHover) setStripOpen(false);
+        });
+    });
 }
 
 // The strip stands in for the inline ToC, from when that has scrolled away until the end of the article.
@@ -84,6 +213,7 @@ function updateStrip() {
         article.getBoundingClientRect().bottom > stripBottom();
     strip.toggleAttribute('data-shown', isShown);
     if (!isShown) setStripOpen(false);
+    updateStripPanelHeight();
 }
 
 // Names the active section in the strip, after its parent section if it's nested.
@@ -168,6 +298,10 @@ function updateOnScreenMarks(activeId: string | undefined) {
     });
 }
 
+// The sidebar follows along, if its list is too long for the window.
+const sidebar = document.querySelector<HTMLElement>('[data-toc-sidebar]');
+let revealedId: string | undefined;
+
 function updateActiveLinks() {
     updateSheetButton();
     updateStrip();
@@ -175,6 +309,10 @@ function updateActiveLinks() {
     links.forEach((link) => link.toggleAttribute('data-active', headingId(link) === activeId));
     updateStripLabel(activeId);
     updateOnScreenMarks(activeId);
+    if (activeId !== revealedId) {
+        revealedId = activeId;
+        revealActiveEntry(sidebar);
+    }
 }
 
 let isUpdateQueued = false;
@@ -217,7 +355,13 @@ if (headings.length > 0) {
         );
     });
 
-    stripButton?.addEventListener('click', () => setStripOpen(!isStripOpen()));
+    stripButton?.addEventListener('click', () => {
+        stripHoverDelay.cancel();
+        // A click on a list that hovering just opened keeps it open; the next click closes it.
+        if (isStripOpen() && isOpenedByHover) isOpenedByHover = false;
+        else setStripOpen(!isStripOpen());
+    });
+    if (stripButton?.parentElement) setUpStripHover(stripButton.parentElement);
     // Tapping or tabbing elsewhere closes the strip's list, and so does Escape. (`pointerdown`, because iOS doesn't send
     // `click` for taps on plain text.)
     document.addEventListener('pointerdown', (event) => {
@@ -232,7 +376,11 @@ if (headings.length > 0) {
         stripButton?.focus();
     });
 
-    sheetButton?.addEventListener('click', openSheet);
+    if (sheetButton && sheet) setUpSheetHover(sheetButton, sheet);
+    sheetButton?.addEventListener('click', () => {
+        sheetHoverDelay.cancel();
+        openSheet();
+    });
     sheet?.addEventListener('click', (event) => {
         // The dialog itself is only hit by taps on its backdrop; its content fills the panel.
         const isBackdrop = event.target === sheet;
