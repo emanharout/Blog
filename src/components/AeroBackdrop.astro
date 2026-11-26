@@ -176,6 +176,15 @@ const shootingStars: [number, number, number, number, number][] = [
             );
     }
 
+    /* A light style paints its own sky (LightStyleBackdrop), so drop the default one rather than leave it underneath,
+       where it can show through when the page bounces past its edges. */
+    :global(:root[data-light-style]) .day {
+        background: none;
+    }
+    :global(:root[data-light-style]) .day > :not(.ls-layer) {
+        display: none;
+    }
+
     .sun {
         position: absolute;
         top: -12rem;
