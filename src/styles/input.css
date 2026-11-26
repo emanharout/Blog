@@ -182,6 +182,28 @@
 }
 
 /*
+ * FROST SURFACE
+ * A plainer alternative to `glass`: a flat tinted panel (the bg-2 color, which is translucent) over a frosted blur, with
+ * a thin outline and a soft drop shadow. No gloss, top highlight, rim light, color boost or deep float shadow. The
+ * design tuner's collapsed button (AeroTuner.astro) uses it. To swap it in for `glass` on some panels, apply both, with
+ * `frost` under a variant (`dark:frost`): it then overrides everything `glass` draws.
+ */
+@utility frost {
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-fg-border-2);
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.1),
+        0 4px 6px -4px rgb(0 0 0 / 0.1);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+
+    /* Hides the gloss of `glass` */
+    &::before {
+        content: none;
+    }
+}
+
+/*
  * PRESS-TILT
  * Cards tilt toward the pointer as if pressed where it rests: the corner under the pointer dips away, and the card
  * sinks slightly. --tilt-x / --tilt-y / --tilt-press are set by src/scripts/cardTilt.ts (mouse and trackpad only,
