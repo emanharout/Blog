@@ -3,7 +3,7 @@ import { Icon } from 'astro-icon/components';
 
 const currentYear = new Date().getFullYear();
 
-// Glyph-only icons (the accent color by day, soft ink by night), so the row reads as one quiet set on the glass rather than five brand badges.
+// Glyph-only icons in the tertiary color, so the row reads as one quiet set on the glass rather than five brand badges.
 const links = [
     { href: 'https://x.com/emanharout', label: 'Visit my X profile', icon: 'x-social-icon' },
     { href: 'https://medium.com/@emanharout', label: 'Visit my Medium page', icon: 'medium-social-icon' },
@@ -25,9 +25,9 @@ const links = [
                             aria-label={label}
                             target={external ? '_blank' : undefined}
                             rel={external ? 'noopener noreferrer' : undefined}
-                            class="grid size-11 place-items-center rounded-pill text-accent
-                            transition-colors duration-200 hover:bg-accent/12
-                            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500
+                            class="grid size-11 place-items-center rounded-pill text-tertiary-600 dark:text-tertiary-300
+                            transition-colors duration-200 hover:bg-tertiary-500/12
+                            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary-500
                             motion-reduce:transition-none"
                         >
                             <Icon name={icon} size="20" aria-hidden="true" />

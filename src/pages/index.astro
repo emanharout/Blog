@@ -8,20 +8,21 @@ import { getAllPostsSorted } from '../scripts/utilities';
 const LATEST_POST_COUNT = 6;
 const latestPosts = (await getAllPostsSorted()).slice(0, LATEST_POST_COUNT);
 
-// Orb colors follow the theme roles, so they shift from day (green / sky blue) to night (dusk / starlit blue).
+// Orb colors follow the theme roles: Wonder takes the primary color, Programming the secondary, so they shift with the
+// theme.
 const blogs = [
     {
         href: `/blog/${WONDER_BLOG_TYPE}`,
         title: 'Wonder Blog',
         blurb: 'The paradoxes and possibilities of life, the harmony between art and science, and the everyday magic hidden in the ordinary.',
-        orbClass: '[--orb-from:var(--color-secondary-300)] [--orb-to:var(--color-secondary-600)]',
+        orbClass: '[--orb-from:var(--color-primary-300)] [--orb-to:var(--color-primary-600)]',
         icon: 'sparkle',
     },
     {
         href: `/blog/${PROGRAMMING_BLOG_TYPE}`,
         title: 'Programming Blog',
         blurb: 'iOS and Swift take center stage, with JavaScript and the modern web alongside. Above all, best practices that hold up in any language.',
-        orbClass: '[--orb-from:var(--color-primary-300)] [--orb-to:var(--color-primary-600)]',
+        orbClass: '[--orb-from:var(--color-secondary-300)] [--orb-to:var(--color-secondary-600)]',
         icon: 'code',
     },
 ] as const;
@@ -36,7 +37,7 @@ const blogs = [
         >
             <h1 class="font-serif text-4xl leading-tight text-balance text-fg-1 sm:text-5xl md:text-right">
                 Hello, my name is
-                <span class="text-accent">Eman</span>!
+                <span class="text-secondary-600 dark:text-secondary-300">Eman</span>!
             </h1>
             <div class="max-w-prose space-y-4 text-pretty sm:pl-4 md:pl-0">
                 <HomeHeader />
@@ -53,7 +54,7 @@ const blogs = [
                             href={href}
                             class="glass group flex h-full gap-4 rounded-box p-5 sm:p-6
                             transition duration-300 hover:-translate-y-0.5
-                            focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary-500
+                            focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-tertiary-500
                             motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                         >
                             <span class:list={['orb size-12 shrink-0', orbClass]} aria-hidden="true">
@@ -73,7 +74,7 @@ const blogs = [
                                 <span class="mt-1 text-sm leading-relaxed text-fg-2">{blurb}</span>
                                 <span
                                     class="mt-3 inline-flex items-center gap-1 text-sm font-medium
-                                    text-primary-700 dark:text-primary-300"
+                                    text-tertiary-700 dark:text-tertiary-300"
                                 >
                                     Explore
                                     <span
@@ -94,7 +95,7 @@ const blogs = [
             <h2 class="font-serif text-2xl text-fg-1 sm:text-3xl">Latest posts</h2>
             <a
                 href="/blog"
-                class="rounded-pill px-3 py-1 text-sm font-medium text-primary-700 hover:bg-bg-2 dark:text-primary-300"
+                class="rounded-pill px-3 py-1 text-sm font-medium text-tertiary-700 hover:bg-bg-2 dark:text-tertiary-300"
             >
                 All posts <span aria-hidden="true">→</span>
             </a>
