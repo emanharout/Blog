@@ -1,6 +1,5 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import icon from "astro-icon";
-import mdx from '@astrojs/mdx';
 import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import rehypeExternalLinks from 'rehype-external-links';
@@ -53,7 +52,6 @@ export default defineConfig({
     icon({
       iconDir: "src/assets/icons",
     }),
-    mdx(),
     sitemap(),
     // Dev-only pages (not part of the built site): /dev/compare shows the experimental light styles side by side.
     {

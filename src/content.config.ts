@@ -17,7 +17,7 @@ const postSchema = z.object({
 // We add `image` to our `postSchema` here because running `npm run build` gives an error when we access
 // `image` outside of `defineCollection` call.
 const blogPostsCollection = defineCollection({
-    loader: glob({ pattern: ['**/[^_]*.md', '**/[^_]*.mdx'], base: './src/content/posts' }),
+    loader: glob({ pattern: '**/[^_]*.md', base: './src/content/posts' }),
     schema: ({ image }) =>
         postSchema.extend({
             image: image().optional(),

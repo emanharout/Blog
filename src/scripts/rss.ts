@@ -2,8 +2,6 @@
 import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
-import { getContainerRenderer as getMDXRenderer } from '@astrojs/mdx/container-renderer';
-import { loadRenderers } from 'astro:container';
 import { render, type CollectionEntry } from 'astro:content';
 import { SITE_DESCRIPTION, SITE_NAME } from './constants';
 import { getAllPostsSorted } from './utilities';
@@ -16,7 +14,7 @@ type FeedOptions = {
     filter?: (post: Post) => boolean;
 };
 
-// Render each post with Astro itself so MDX (imports, components, `{frontmatter.title}`) becomes real HTML.
+// Render each post with Astro itself, so it gets the same HTML as its page (footnote notes, optimized images).
 async function renderPostHTML(container: AstroContainer, post: Post, site: URL): Promise<string> {
     const { Content } = await render(post);
     const html = await container.renderToString(Content);
@@ -28,8 +26,7 @@ export async function buildFeed(context: APIContext, { title, description = SITE
     const site = context.site ?? new URL(context.url.origin);
     const posts = (await getAllPostsSorted()).filter(filter ?? (() => true));
 
-    const renderers = await loadRenderers([getMDXRenderer()]);
-    const container = await AstroContainer.create({ renderers });
+    const container = await AstroContainer.create();
 
     const items = await Promise.all(
         posts.map(async (post) => ({
