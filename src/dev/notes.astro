@@ -1,0 +1,220 @@
+---
+// Dev-only page (registered in astro.config.mjs only for `astro dev`): a sample post with Markdown footnotes, laid out
+// like BlogArticle.astro, to try footnote notes (rehypeFootnoteNotes.mjs, footnoteNotes.ts).
+// The switch at the bottom compares how margin notes share the right column with the table of contents:
+//   B: a note fades out while it's under the table of contents. Long notes stay in the text.
+//   B2: the same, but long notes go in the margin too, and push the next note down.
+//   C (preview only): the table of contents shrinks to a slim bar while margin notes are on screen; hover to open it.
+import TableOfContents from '../components/TableOfContents.astro';
+import MainLayout from '../layouts/MainLayout.astro';
+import Sample, { getHeadings } from './notesSample.mdx';
+
+const headings = getHeadings();
+---
+
+<MainLayout title="Notes preview" description="Footnotes as margin notes" shootingStars={false}>
+    <TableOfContents headings={headings} variant="sheet" />
+    <TableOfContents headings={headings} variant="strip" />
+    <section
+        class="grid grid-cols-[100%] justify-items-center items-start gap-x-3
+        sm:px-4
+        lg:grid-cols-[minmax(5ch,1fr)_auto_minmax(5ch,1fr)] lg:justify-items-start"
+    >
+        <div aria-hidden="true"></div>
+
+        <div
+            class="relative w-full max-w-[65ch] mb-6 bg-bg-2 shadow-md sm:rounded-xl
+            aero:glass aero:glass-reading aero:mt-4 aero:sm:rounded-box
+            [--article-pad:clamp(1.25rem,5vw,2rem)]"
+        >
+            <div class="px-(--article-pad) py-8">
+                <article
+                    data-long-notes="inline"
+                    class="article-content
+                    prose prose-fg2 max-w-none
+                    prose-a:text-fg-primary-link-2
+                    hover:prose-a:text-fg-primary-link-2-hover focus:prose-a:text-fg-primary-link-2-hover
+                    prose-headings:font-serif prose-headings:tracking-wide prose-headings:font-medium"
+                >
+                    <h1>Understanding Swift Metatypes</h1>
+                    <TableOfContents headings={headings} variant="inline" />
+                    <Sample />
+                </article>
+            </div>
+        </div>
+
+        <TableOfContents headings={headings} variant="sidebar" />
+    </section>
+
+    <div class="notes-demo-switch" role="group" aria-label="Table of contents and margin notes">
+        <span>Notes vs. contents:</span>
+        <button type="button" data-option="b">B · fade notes</button>
+        <button type="button" data-option="b2">B2 · long notes in margin</button>
+        <button type="button" data-option="c">C · shrink contents</button>
+    </div>
+</MainLayout>
+
+<script src="../scripts/tippyTooltipSetup.js"></script>
+<script src="../scripts/tableOfContents.ts"></script>
+<script src="../scripts/footnoteNotes.ts"></script>
+
+<style is:global>
+    .notes-demo-switch {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.5rem 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        color: hsl(var(--fg-color-2));
+        background: hsl(var(--background-color-2) / 0.9);
+        border: 1px solid hsl(var(--fg-color-border-2) / 0.4);
+        border-radius: 999px;
+        box-shadow: 0 4px 16px hsl(0 0% 0% / 0.12);
+        backdrop-filter: blur(8px);
+    }
+    .notes-demo-switch button {
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+    }
+    .notes-demo-switch button[aria-pressed='true'] {
+        font-weight: 600;
+        color: hsl(var(--fg-primary-2));
+        background: hsl(var(--primary-bg));
+    }
+
+    /* OPTION C (mock): the sidebar shrinks to a slim bar naming the current section */
+    [data-notes-option='c'] [data-toc-sidebar] {
+        transition: max-height 300ms ease;
+    }
+    [data-notes-option='c'] [data-toc-sidebar][data-rail]:not(:hover, :focus-within) {
+        max-height: 2.75rem;
+        overflow: hidden;
+    }
+    [data-notes-option='c'] [data-toc-sidebar][data-rail]:not(:hover, :focus-within) > :not(.toc-rail-label) {
+        visibility: hidden;
+    }
+    [data-notes-option='c'] [data-toc-sidebar][data-rail]:hover,
+    [data-notes-option='c'] [data-toc-sidebar][data-rail]:focus-within {
+        z-index: 10;
+    }
+    .toc-rail-label {
+        display: none;
+    }
+    [data-notes-option='c'] [data-toc-sidebar][data-rail]:not(:hover, :focus-within) .toc-rail-label {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.35rem;
+        padding-inline: 0.9rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: hsl(var(--fg-color-1));
+        background: inherit;
+        border-radius: inherit;
+    }
+    .toc-rail-label span {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .toc-rail-progress {
+        display: flex;
+        gap: 3px;
+    }
+    .toc-rail-progress i {
+        flex: 1;
+        height: 3px;
+        border-radius: 2px;
+        background: hsl(var(--fg-color-2) / 0.2);
+    }
+    .toc-rail-progress i[data-done] {
+        background: hsl(var(--fg-primary-link-2));
+    }
+</style>
+
+<script>
+    const root = document.documentElement;
+    const article = document.querySelector<HTMLElement>('.article-content');
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.notes-demo-switch button');
+    const sidebar = document.querySelector<HTMLElement>('[data-toc-sidebar]');
+    const notes = [...document.querySelectorAll<HTMLElement>('.fn-note')];
+    const OPTIONS = ['b', 'b2', 'c'];
+
+    function setOption(option: string) {
+        root.dataset.notesOption = option;
+        if (article) article.dataset.longNotes = option === 'b2' ? 'margin' : 'inline';
+        buttons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.option === option)));
+        history.replaceState(null, '', `?option=${option}`);
+        document.dispatchEvent(new Event('footnote-notes:layout'));
+        update();
+    }
+    buttons.forEach((button) => button.addEventListener('click', () => setOption(button.dataset.option!)));
+
+    // The slim bar's content: the current section and one progress segment per section.
+    const label = document.createElement('div');
+    label.className = 'toc-rail-label';
+    label.setAttribute('aria-hidden', 'true');
+    sidebar?.append(label);
+    const sidebarLinks = [...(sidebar?.querySelectorAll<HTMLAnchorElement>('.table-of-content-link') ?? [])];
+
+    const isInMargin = (note: HTMLElement) => getComputedStyle(note).position === 'absolute';
+
+    // Shrinks as soon as a margin note is on screen. Opens again only once none has been for a moment, so it doesn't
+    // flicker in the gaps between notes.
+    const REOPEN_DELAY = 800;
+    let reopenTimer = 0;
+
+    function update() {
+        if (!sidebar) return;
+        const isRailOption = root.dataset.notesOption === 'c';
+        const isNoteOnScreen = notes.some((note) => {
+            if (!isInMargin(note)) return false;
+            const rect = note.getBoundingClientRect();
+            return rect.bottom > 0 && rect.top < window.innerHeight;
+        });
+
+        if (!isRailOption) {
+            clearTimeout(reopenTimer);
+            reopenTimer = 0;
+            sidebar.removeAttribute('data-rail');
+        } else if (isNoteOnScreen) {
+            clearTimeout(reopenTimer);
+            reopenTimer = 0;
+            sidebar.setAttribute('data-rail', '');
+        } else if (sidebar.hasAttribute('data-rail') && !reopenTimer) {
+            reopenTimer = window.setTimeout(() => {
+                reopenTimer = 0;
+                sidebar.removeAttribute('data-rail');
+            }, REOPEN_DELAY);
+        }
+
+        // In option C, notes only fade under the slim bar.
+        if (isRailOption) {
+            const top = sidebar.getBoundingClientRect().top;
+            const barBottom = top + (sidebar.hasAttribute('data-rail') ? 44 : sidebar.offsetHeight) + 12;
+            for (const note of notes) {
+                if (!isInMargin(note)) continue;
+                const rect = note.getBoundingClientRect();
+                note.toggleAttribute('data-faded', rect.top < barBottom && rect.bottom > top - 12);
+            }
+        }
+
+        const activeIndex = sidebarLinks.findIndex((link) => link.hasAttribute('data-active'));
+        const active = sidebarLinks[activeIndex];
+        label.innerHTML = `<span>${active?.textContent?.trim() ?? 'Contents'}</span><div class="toc-rail-progress">${sidebarLinks
+            .map((_, index) => `<i ${index <= activeIndex ? 'data-done' : ''}></i>`)
+            .join('')}</div>`;
+    }
+
+    // Runs after footnoteNotes.ts's own fading on each frame.
+    window.addEventListener('scroll', () => requestAnimationFrame(() => requestAnimationFrame(update)), { passive: true });
+    const requested = new URLSearchParams(location.search).get('option') ?? 'b';
+    setOption(OPTIONS.includes(requested) ? requested : 'b');
+</script>

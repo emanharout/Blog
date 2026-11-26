@@ -766,4 +766,199 @@
         padding-inline: 3px;
         padding-bottom: 2px;
     }
+
+    /*
+     * FOOTNOTE NOTES
+     * Copies of each footnote, placed after its number by src/plugins/rehypeFootnoteNotes.mjs and run by
+     * src/scripts/footnoteNotes.ts. Below --margin-notes-from, clicking the number opens the note under its line.
+     * From there, short notes sit in the right margin, level with their sentence; long ones still open in place.
+     */
+    .fn-note {
+        /* Closed, it takes no space, so the sentence reads on unbroken. Opened, it grows in under the line. */
+        display: none;
+        grid-template-rows: 0fr;
+        transition:
+            grid-template-rows 250ms ease,
+            margin-block 250ms ease;
+    }
+    .fn-note[data-open] {
+        display: grid;
+        grid-template-rows: 1fr;
+        margin-block: 0.6rem;
+
+        @starting-style {
+            grid-template-rows: 0fr;
+            margin-block: 0;
+        }
+    }
+    .fn-note-inner {
+        display: block;
+        min-height: 0;
+        overflow: hidden;
+        padding-inline: 0.85rem;
+        font-size: 0.875rem;
+        line-height: 1.55;
+        background-color: color-mix(in srgb, hsl(var(--primary-bg)) 35%, transparent);
+        border-left: 3px solid hsl(var(--primary-bg-border));
+        border-radius: 0 6px 6px 0;
+    }
+    .fn-note[data-open] .fn-note-inner {
+        padding-block: 0.6rem;
+    }
+    .fn-note-p {
+        display: block;
+    }
+    /* The first paragraph runs on from the number */
+    .fn-note-num + .fn-note-p {
+        display: inline;
+    }
+    .fn-note-p + .fn-note-p {
+        margin-top: 0.5em;
+    }
+    .fn-note-num {
+        margin-right: 0.4rem;
+        font-weight: 600;
+        color: hsl(var(--fg-primary-link-2));
+    }
+    .prose sup a[data-footnote-ref][aria-expanded='true'],
+    .prose sup a[data-footnote-ref][data-highlight] {
+        font-weight: 500;
+        background-color: hsl(var(--primary-bg-hover));
+        border: 1px solid hsl(var(--primary-bg-border-hover));
+    }
+
+    /* Must match MARGIN_NOTES_QUERY in footnoteNotes.ts. Long notes join the margin when the article has
+       data-long-notes="margin" (BlogArticle.astro); a note opened under its line leaves it. */
+    @media (width >= 72rem) {
+        :is(.fn-note[data-fn-size='short'], [data-long-notes='margin'] .fn-note[data-fn-size='long']):not([data-open]) {
+            /* Inline-level before it's taken out of the flow, so with no `top` it stays on its number's line */
+            display: inline-block;
+            position: absolute;
+            /* Lines up with the table of contents, which sits in the column right of the article card */
+            left: calc(100% + 0.75rem);
+            width: min(30ch, calc((100vw - 100%) / 2 - 2.5rem));
+            margin: 0;
+            transition:
+                opacity 200ms ease,
+                visibility 0s;
+
+            /* Hidden while it's under the table of contents. Hovering its number still shows it in a tooltip. */
+            &[data-faded] {
+                opacity: 0;
+                visibility: hidden;
+                transition:
+                    opacity 200ms ease,
+                    visibility 0s 200ms;
+            }
+
+            & .fn-note-inner {
+                padding: 0;
+                font-size: 0.8125rem;
+                color: color-mix(in srgb, hsl(var(--fg-color-2)) 78%, transparent);
+                background: none;
+                border: 0;
+                border-radius: 0;
+                overflow: visible;
+                transition: color 150ms ease;
+            }
+            &[data-highlight] .fn-note-inner {
+                color: hsl(var(--fg-color-1));
+            }
+            /* Clicking its number points it out with a brief glow: one layer behind the text, faded as a whole so its
+               fill and edge disappear together */
+            & .fn-note-inner {
+                position: relative;
+            }
+            & .fn-note-inner::before {
+                content: '';
+                position: absolute;
+                inset: -0.4rem;
+                z-index: -1;
+                pointer-events: none;
+                opacity: 0;
+                background-color: hsl(var(--primary-bg));
+                border: 1px solid hsl(var(--primary-bg-border));
+                border-radius: 6px;
+            }
+            &[data-pointed-out] .fn-note-inner {
+                animation: fn-note-point-out-text 1.6s ease-out;
+            }
+            &[data-pointed-out] .fn-note-inner::before {
+                animation: fn-note-point-out 1.6s ease-out;
+            }
+        }
+    }
+    @keyframes fn-note-point-out {
+        0%,
+        45% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+    @keyframes fn-note-point-out-text {
+        0%,
+        45% {
+            color: hsl(var(--fg-primary-2));
+        }
+    }
+
+    /* The footnote list at the end of a post, closed behind a "Footnotes" button (rehypeFootnoteNotes.mjs) */
+    .footnotes-toggle {
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid hsl(var(--fg-color-border-2) / 0.35);
+
+        & > summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.9rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: hsl(var(--fg-primary-2));
+            list-style: none;
+            cursor: pointer;
+            user-select: none;
+            background-color: color-mix(in srgb, hsl(var(--primary-bg)) 45%, transparent);
+            border: 1px solid hsl(var(--primary-bg-border));
+            border-radius: 999px;
+            transition: background-color 150ms ease;
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+            &:hover {
+                background-color: hsl(var(--primary-bg-hover));
+            }
+            /* Chevron: points down when closed, up when open */
+            &::after {
+                content: '';
+                width: 0.4rem;
+                height: 0.4rem;
+                margin-top: -0.2rem;
+                border-right: 1.5px solid currentColor;
+                border-bottom: 1.5px solid currentColor;
+                transform: rotate(45deg);
+                transition: transform 200ms ease, margin 200ms ease;
+            }
+        }
+        &[open] > summary::after {
+            margin-top: 0.2rem;
+            transform: rotate(-135deg);
+        }
+        & .footnotes-count {
+            min-width: 1.25rem;
+            padding-inline: 0.3rem;
+            font-size: 0.75rem;
+            text-align: center;
+            border-radius: 999px;
+            background-color: hsl(var(--primary-bg-border) / 0.6);
+        }
+        & .footnotes {
+            margin-top: 0.75rem;
+            font-size: 0.9375rem;
+        }
+    }
 }
