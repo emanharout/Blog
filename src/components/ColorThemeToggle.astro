@@ -42,6 +42,10 @@ const options = [
         ))
     }
 </fieldset>
+<!-- Check the saved choice now, before the picker is first painted (see public/scripts/colorThemeScript.js) -->
+<script is:inline>
+    window.syncThemePicker?.();
+</script>
 
 <!-- Announces theme changes to screen readers -->
 <div aria-live="polite" class="sr-only" id="theme-selection-feedback"></div>
@@ -89,9 +93,10 @@ const options = [
     /*
      * A theme switch cross-fades the page from a snapshot (see colorThemeScript.js), which would hide the bead's slide
      * behind a fading copy of the old picker. Naming the picker gives it its own layer in that transition; showing
-     * only the live picker in that layer lets the bead slide while the rest of the page fades.
+     * only the live picker in that layer lets the bead slide while the rest of the page fades. Only during a theme
+     * switch: when a page change fades out the mobile menu, the picker has to fold away with the rest of the menu.
      */
-    :global([data-design='aero']) .theme-picker {
+    :global(html.theme-switching[data-design='aero']) .theme-picker {
         view-transition-name: theme-picker;
     }
 
