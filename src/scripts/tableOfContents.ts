@@ -36,13 +36,89 @@ function revealActiveEntry(container: HTMLElement | null) {
     scroller.scrollTop += linkRect.top + linkRect.height / 2 - (scrollerRect.top + scrollerRect.height / 2);
 }
 
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+// The sheet's and the inline ToC's transitions (TableOfContents.astro)
+const TOGGLE_DURATION_MS = 300;
+
+// Undoes a close that's still sliding the sheet away.
+let cancelSheetClose: (() => void) | undefined;
+
 function openSheet() {
-    if (!sheet || sheet.open) return;
+    if (!sheet) return;
+    if (cancelSheetClose) {
+        cancelSheetClose();
+        return;
+    }
+    if (sheet.open) return;
     sheet.showModal();
+    // Browsers that ignore `autofocus` on the dialog would focus its close button and ring it.
+    sheet.focus();
 
     // The faint bar can only be measured while the sheet is displayed.
     updateActiveLinks();
     revealActiveEntry(sheet);
+}
+
+// The sheet slides away while still open (`data-closing`) and only then leaves the top layer; browsers that can't keep
+// a closing dialog in the top layer (Safari: no `overlay` transition) would otherwise drop it at once.
+function closeSheet() {
+    if (!sheet?.open || cancelSheetClose) return;
+    if (reducedMotion.matches) {
+        sheet.close();
+        return;
+    }
+
+    sheet.setAttribute('data-closing', '');
+    const finish = () => {
+        cleanUp();
+        sheet.close();
+    };
+    const onTransitionEnd = (event: TransitionEvent) => {
+        if (event.target === sheet && event.propertyName === 'translate') finish();
+    };
+    // In case the transition never runs or ends (a hidden tab, say).
+    const timer = window.setTimeout(finish, TOGGLE_DURATION_MS + 100);
+    const cleanUp = () => {
+        cancelSheetClose = undefined;
+        clearTimeout(timer);
+        sheet.removeEventListener('transitionend', onTransitionEnd);
+        sheet.removeAttribute('data-closing');
+    };
+    sheet.addEventListener('transitionend', onTransitionEnd);
+    cancelSheetClose = cleanUp;
+}
+
+// THE INLINE TOC: its height is animated in script, since browsers can't all interpolate to `auto`. It stays open while
+// it collapses; `data-expanded` turns the chevron straight away.
+const inlineSummary = inlineToc?.querySelector('summary');
+const inlineBody = inlineToc?.querySelector<HTMLElement>('[data-toc-inline-body]');
+let inlineAnimation: Animation | undefined;
+
+function setInlineOpen(open: boolean) {
+    if (!(inlineToc instanceof HTMLDetailsElement) || !inlineBody) return;
+    inlineToc.toggleAttribute('data-expanded', open);
+    // From wherever an unfinished animation has got to
+    const fromHeight = inlineToc.open ? inlineBody.getBoundingClientRect().height : 0;
+    inlineAnimation?.cancel();
+    inlineAnimation = undefined;
+    inlineToc.open = true;
+    if (reducedMotion.matches) {
+        inlineToc.open = open;
+        return;
+    }
+
+    const toHeight = open ? inlineBody.scrollHeight : 0;
+    inlineBody.style.overflow = 'hidden';
+    const animation = inlineBody.animate(
+        { height: [`${fromHeight}px`, `${toHeight}px`] },
+        { duration: TOGGLE_DURATION_MS, easing: 'ease-out' },
+    );
+    inlineAnimation = animation;
+    animation.addEventListener('finish', () => {
+        inlineAnimation = undefined;
+        inlineBody.style.overflow = '';
+        inlineToc.open = open;
+    });
 }
 
 // The button stands in for the inline ToC once that has scrolled away. It isn't displayed at `sm` and up.
@@ -280,7 +356,7 @@ if (headings.length > 0) {
             // These open the link elsewhere and leave this page where it is.
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             clickedId = headingId(link);
-            sheet?.close();
+            closeSheet();
             setStripOpen(false);
             queueUpdate();
         });
@@ -322,7 +398,21 @@ if (headings.length > 0) {
         // The dialog itself is only hit by taps on its backdrop; its content fills the panel.
         const isBackdrop = event.target === sheet;
         const isCloseButton = event.target instanceof Element && event.target.closest('[data-toc-close]');
-        if (isBackdrop || isCloseButton) sheet.close();
+        if (isBackdrop || isCloseButton) closeSheet();
+    });
+    // Escape slides it away too.
+    sheet?.addEventListener('cancel', (event) => {
+        event.preventDefault();
+        closeSheet();
+    });
+
+    inlineSummary?.addEventListener('click', (event) => {
+        event.preventDefault();
+        setInlineOpen(!inlineToc?.hasAttribute('data-expanded'));
+    });
+    // The browser can open it too (finding text in it, say).
+    inlineToc?.addEventListener('toggle', () => {
+        if (!inlineAnimation) inlineToc.toggleAttribute('data-expanded', (inlineToc as HTMLDetailsElement).open);
     });
 
     updateActiveLinks();

@@ -90,14 +90,12 @@ const titleId = `table-of-contents-title-${variant}`;
 }
 {
     // Styled like the strip, which takes over from it as the page scrolls.
-    // Animates where the browser can interpolate to the list's own height (`interpolate-size`), else opens at once.
+    // tableOfContents.ts animates the list's height as it opens and closes.
     hasToC && variant === 'inline' && (
         <details
+            data-toc-inline
             class="not-prose group lg:hidden my-6 overflow-hidden rounded-xl aero:rounded-box
-            border border-fg-border-2 bg-bg-2 shadow-md
-            [interpolate-size:allow-keywords] details-content:h-0 open:details-content:h-auto details-content:overflow-hidden
-            details-content:transition-[height,content-visibility] details-content:transition-discrete
-            details-content:duration-300 details-content:ease-out motion-reduce:details-content:transition-none"
+            border border-fg-border-2 bg-bg-2 shadow-md"
         >
             <summary
                 class="relative flex h-(--toc-strip-height) items-center justify-between gap-3 px-5 pb-3 cursor-pointer list-none
@@ -109,7 +107,7 @@ const titleId = `table-of-contents-title-${variant}`;
                     aria-hidden="true"
                     viewBox="0 0 24 24"
                     class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
-                    transition-transform duration-300 motion-reduce:transition-none group-open:rotate-180"
+                    transition-transform duration-300 motion-reduce:transition-none group-data-expanded:rotate-180"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
@@ -120,12 +118,15 @@ const titleId = `table-of-contents-title-${variant}`;
                 </svg>
                 <TableOfContentsSegments sections={sections} />
             </summary>
-            <nav aria-labelledby={titleId} class="px-5 pt-3 pb-3">
-                <div data-toc-list class="relative">
-                    <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
-                    <ul class="text-[0.95rem]">
-                        {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
-                    </ul>
+            <!-- Unpadded, so its height can shrink to nothing -->
+            <nav data-toc-inline-body aria-labelledby={titleId}>
+                <div class="px-5 pt-3 pb-3">
+                    <div data-toc-list class="relative">
+                        <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                        <ul class="text-[0.95rem]">
+                            {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
+                        </ul>
+                    </div>
                 </div>
             </nav>
         </details>
@@ -149,14 +150,20 @@ const titleId = `table-of-contents-title-${variant}`;
                     <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
                 </svg>
             </button>
+            <!--
+              Opens focused on itself (`autofocus`), not on its close button, which would show its focus ring. While
+              tableOfContents.ts slides it away, it has `data-closing` and is still open.
+            -->
             <dialog
                 data-toc-sheet
                 aria-labelledby={titleId}
+                autofocus
+                tabindex="-1"
                 class="fixed inset-x-0 top-auto bottom-0 flex-col open:flex w-full max-w-none max-h-[70dvh] overflow-hidden
-                rounded-t-2xl border border-b-0 border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl
-                translate-y-full open:translate-y-0 starting:open:translate-y-full
+                rounded-t-2xl border border-b-0 border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl outline-none
+                translate-y-full [&[open]:not([data-closing])]:translate-y-0 starting:open:translate-y-full
                 transition-[translate,display,overlay] transition-discrete duration-300 ease-out motion-reduce:transition-none
-                backdrop:bg-black/40 backdrop:opacity-0 open:backdrop:opacity-100 starting:open:backdrop:opacity-0
+                backdrop:bg-black/40 backdrop:opacity-0 [&[open]:not([data-closing])]:backdrop:opacity-100 starting:open:backdrop:opacity-0
                 backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete backdrop:duration-300
                 motion-reduce:backdrop:transition-none"
             >

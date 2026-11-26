@@ -317,7 +317,7 @@
     }
 
     /* The page stays put behind the open table of contents sheet (TableOfContents.astro) */
-    html:has([data-toc-sheet][open]) {
+    html:has([data-toc-sheet][open]:not([data-closing])) {
         overflow: hidden;
     }
 
