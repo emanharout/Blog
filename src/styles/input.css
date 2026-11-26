@@ -210,6 +210,33 @@
 }
 
 /*
+ * SHINY FROST
+ * `frost` with some shine: a frostier blur that brightens what's behind it, a gloss over the top of the panel, a bright
+ * line along its top edge, a faint inner glow and a deeper shadow. Made for dark mode, where it reads as lit glass
+ * without the full `glass` look (the post page's tables of contents use `dark:frost-shine`). Like `frost`, it overrides
+ * `glass` when both are applied.
+ */
+@utility frost-shine {
+    @apply frost;
+    box-shadow:
+        /* Top highlight */
+        inset 0 1px 0 rgb(255 255 255 / 0.14),
+        /* Inner glow */
+        inset 0 0 1.25rem rgb(255 255 255 / 0.035),
+        /* Drop shadow */
+        0 12px 32px -12px rgb(0 0 0 / 0.55),
+        0 2px 6px -2px rgb(0 0 0 / 0.3);
+    -webkit-backdrop-filter: blur(28px) saturate(1.5);
+    backdrop-filter: blur(28px) saturate(1.5);
+
+    /* Gloss: a soft sheen over the top of the panel */
+    &::before {
+        content: '';
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.09) 0%, rgb(255 255 255 / 0.02) 35%, transparent 60%);
+    }
+}
+
+/*
  * PRESS-TILT
  * Cards tilt toward the pointer as if pressed where it rests: the corner under the pointer dips away, and the card
  * sinks slightly. --tilt-x / --tilt-y / --tilt-press are set by src/scripts/cardTilt.ts (mouse and trackpad only,
