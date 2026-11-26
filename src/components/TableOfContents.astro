@@ -154,13 +154,16 @@ const titleId = `table-of-contents-title-${variant}`;
               Opens focused on itself (`autofocus`), not on its close button, which would show its focus ring.
               tableOfContents.ts slides it in and out by toggling `data-shown` while it's open. Each way takes the
               timing function of where it's headed: easing out as it arrives, easing in as it leaves.
+              As wide as the inline ToC: the card's width (up to 65ch) less its `--article-pad` and 1px border on each
+              side, as in BlogArticle.astro. Its padding matches the inline ToC's too.
             -->
             <dialog
                 data-toc-sheet
                 aria-labelledby={titleId}
                 autofocus
                 tabindex="-1"
-                class="fixed inset-x-0 top-auto bottom-0 flex-col open:flex w-full max-w-none max-h-[70dvh] overflow-hidden
+                class="fixed inset-x-0 top-auto bottom-0 mx-auto flex-col open:flex max-w-none max-h-[70dvh] overflow-hidden
+                [--article-pad:clamp(1.25rem,5vw,2rem)] w-[calc(min(100%,65ch)-2*(var(--article-pad)+1px))]
                 rounded-t-2xl border border-b-0 border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl outline-none
                 translate-y-full data-shown:translate-y-0
                 transition-[translate] duration-450 ease-toc-leave data-shown:ease-toc-arrive motion-reduce:transition-none
@@ -168,16 +171,17 @@ const titleId = `table-of-contents-title-${variant}`;
                 backdrop:transition-opacity backdrop:duration-450 backdrop:ease-toc-leave data-shown:backdrop:ease-toc-arrive
                 motion-reduce:backdrop:transition-none"
             >
-                <!-- Stays put while the list scrolls -->
-                <div class="flex shrink-0 items-center justify-between px-[clamp(1.25rem,5vw,2rem)] pt-2">
-                    <h2 id={titleId} class="font-serif text-[1.0625rem] font-medium text-gray-temp-500 dark:text-gray-temp-300">
+                <!-- Stays put while the list scrolls. The title is centered, between the close button and a space as wide. -->
+                <div class="grid shrink-0 grid-cols-[2.75rem_1fr_2.75rem] items-center px-2 pt-2">
+                    <span aria-hidden="true" />
+                    <h2 id={titleId} class="text-center font-serif text-[1.0625rem] font-medium text-gray-temp-500 dark:text-gray-temp-300">
                         Table of Contents
                     </h2>
                     <button
                         type="button"
                         data-toc-close
                         aria-label="Close"
-                        class="-mr-3 grid size-11 place-items-center rounded-full cursor-pointer
+                        class="grid size-11 place-items-center rounded-full cursor-pointer
                         focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-tertiary-500"
                     >
                         <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -188,7 +192,7 @@ const titleId = `table-of-contents-title-${variant}`;
                 <nav
                     data-toc-scroller
                     aria-labelledby={titleId}
-                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pt-1 pb-4', edgeFadeClasses]}
+                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-5 pt-1 pb-4', edgeFadeClasses]}
                 >
                     <div data-toc-list class="relative [--toc-bar-inset:8px]">
                         <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
