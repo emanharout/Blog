@@ -63,6 +63,7 @@ export default defineConfig({
           if (command === 'dev') {
             injectRoute({ pattern: '/dev/compare', entrypoint: './src/dev/compare.astro' });
             injectRoute({ pattern: '/dev/notes', entrypoint: './src/dev/notes.astro' });
+            injectRoute({ pattern: '/dev/picker', entrypoint: './src/dev/picker.astro' });
           }
         },
         // Only runs for `astro dev`: lets the design tuner read and save its values (scripts/aero-tuner-store.mjs).

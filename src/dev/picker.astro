@@ -1,0 +1,310 @@
+---
+// Dev-only page (registered in astro.config.mjs only for `astro dev`): ways to show the selected option in the
+// light / dark theme picker (ColorThemeToggle.astro), side by side on the real glass. Each picker here is a demo with
+// its own radio group, so clicking one doesn't change the theme; use the real picker in the header for that.
+import { Icon } from 'astro-icon/components';
+import MainLayout from '../layouts/MainLayout.astro';
+
+const options = [
+    { value: 'light', label: 'Light', icon: 'color-theme-light-icon', iconClass: 'text-yellow-500 dark:text-yellow-400' },
+    { value: 'dark', label: 'Dark', icon: 'color-theme-dark-icon', iconClass: 'text-sky-400 dark:text-sky-500' },
+    { value: 'system', label: 'Match system', icon: 'color-theme-system-icon', iconClass: 'text-gray-temp-500 dark:text-gray-temp-400' },
+];
+
+const variants = [
+    { id: 'a', name: 'A · Pressed well', blurb: 'The selected cell sinks into the glass: a faint accent tint and an inner shadow.' },
+    { id: 'b', name: 'B · Sliding bead', blurb: 'A raised, glossy glass bead sits under the selected icon and slides to the next one.' },
+    { id: 'b2', classes: 'pv-b pv-b2', name: 'B2 · Sliding bead, inset ends (in use)', blurb: 'B with more room at both ends: the sun moves right and the gear moves left, so the icons sit closer together.' },
+    { id: 'b3', classes: 'pv-b pv-b2 pv-roomy', name: 'B3 · B2 with more room above and below', blurb: 'The bead is shorter, leaving 5px of glass above and below it instead of 3px. The picker stays the same size.' },
+    { id: 'b4', classes: 'pv-b pv-b2 pv-clear', name: 'B4 · B2 with a see-through bead by day', blurb: 'In light mode the bead is a faint, see-through tint with a bright top edge and a fine rim, like the dark mode bead, instead of solid white.' },
+    { id: 'b5', classes: 'pv-b pv-b2 pv-roomy pv-clear', name: 'B5 · Both', blurb: 'B3 and B4 together: more room above and below, and the see-through bead by day.' },
+    { id: 'c', name: 'C · Color only', blurb: 'No background at all. The selected icon is in full color; the others fade to soft gray.' },
+    { id: 'd', name: 'D · Accent dot', blurb: 'A small accent-colored dot under the selected icon, like the nav underline.' },
+    { id: 'e', name: 'E · Orb', blurb: 'The selected icon sits in a small glossy orb in the primary color, like the blog badges on the home page.' },
+    { id: 'f', name: 'F · Accent ring', blurb: 'A thin accent ring around the selected cell, with a whisper of tint inside.' },
+];
+---
+
+<MainLayout title="Theme picker · selected state" description="Ways to show the selected theme" shootingStars={false}>
+    <section class="container-page container-content pt-6 sm:pt-10">
+        <div class="glass rounded-panel px-6 py-6 text-fg-2 sm:px-10">
+            <h1 class="font-serif text-3xl text-fg-1">Theme picker: selected state</h1>
+            <p class="mt-2 max-w-prose text-sm">
+                Click any picker to try it. These don't change the theme; use the real picker in the header to see each one in
+                dark mode.
+            </p>
+        </div>
+
+        <div class="glass mt-6 rounded-box p-5">
+            <h2 class="font-medium text-fg-1">Close-up: B2 to B5 at 2.5×</h2>
+            <ul class="mt-4 grid gap-x-6 gap-y-5 sm:grid-cols-2">
+                {
+                    variants
+                        .filter(({ id }) => ['b2', 'b3', 'b4', 'b5'].includes(id))
+                        .map(({ id, name, classes = '' }: { id: string; name: string; classes?: string }) => (
+                            <li class="flex flex-col items-center gap-2">
+                                <span class="text-sm text-fg-2">{name.split(' · ')[0]}</span>
+                                <fieldset class={`pv pv-zoom pv-${id} ${classes} glass rounded-pill grid grid-cols-3 h-9 w-32 shrink-0 overflow-hidden text-sm`}>
+                                    <legend class="sr-only">Color theme ({name}, close-up)</legend>
+                                    <span class="pv-bead" aria-hidden="true" />
+                                    {options.map(({ value, label, icon, iconClass }) => (
+                                        <label class="pv-cell">
+                                            <input type="radio" name={`pv-zoom-${id}`} value={value} checked={value === 'light'} class="sr-only" />
+                                            <span class="pv-mark" aria-hidden="true" />
+                                            <Icon name={icon} size="22" aria-hidden="true" class={`pv-icon size-[22px] ${iconClass}`} />
+                                            <span class="sr-only">{label}</span>
+                                        </label>
+                                    ))}
+                                </fieldset>
+                            </li>
+                        ))
+                }
+            </ul>
+        </div>
+
+        <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {
+                variants.map(({ id, name, blurb, classes = '' }: { id: string; name: string; blurb: string; classes?: string }) => (
+                    <li class="glass flex flex-col gap-4 rounded-box p-5">
+                        <div>
+                            <h2 class="font-medium text-fg-1">{name}</h2>
+                            <p class="mt-1 text-sm text-fg-2">{blurb}</p>
+                        </div>
+                        <div class="mt-auto flex justify-center py-2">
+                            <fieldset class={`pv pv-${id} ${classes} glass rounded-pill grid grid-cols-3 h-9 w-32 shrink-0 overflow-hidden text-sm`}>
+                                <legend class="sr-only">Color theme ({name})</legend>
+                                {id.startsWith('b') && <span class="pv-bead" aria-hidden="true" />}
+                                {options.map(({ value, label, icon, iconClass }) => (
+                                    <label class="pv-cell">
+                                        <input type="radio" name={`pv-${id}`} value={value} checked={value === 'light'} class="sr-only" />
+                                        <span class="pv-mark" aria-hidden="true" />
+                                        <Icon name={icon} size="22" aria-hidden="true" class={`pv-icon size-[22px] ${iconClass}`} />
+                                        <span class="sr-only">{label}</span>
+                                    </label>
+                                ))}
+                            </fieldset>
+                        </div>
+                    </li>
+                ))
+            }
+        </ul>
+    </section>
+</MainLayout>
+
+<style is:global>
+    .pv {
+        position: relative;
+    }
+    .pv-zoom {
+        zoom: 2.5;
+    }
+    .pv-cell {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        cursor: pointer;
+        transition: background-color 200ms, box-shadow 200ms;
+    }
+    .pv-cell:has(:focus-visible) {
+        outline: 2px solid var(--color-tertiary-500);
+        outline-offset: -2px;
+        border-radius: 9999px;
+    }
+    .pv-icon {
+        position: relative;
+        transition: color 200ms, opacity 200ms, filter 200ms, transform 200ms;
+    }
+    .pv-mark {
+        position: absolute;
+        pointer-events: none;
+    }
+
+    /* A: pressed well (the current design) */
+    .pv-a .pv-cell:hover {
+        background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+    }
+    .pv-a .pv-cell:has(:checked) {
+        background: color-mix(in oklab, var(--color-accent) 18%, transparent);
+        box-shadow: inset 0 1px 3px hsl(var(--glass-shadow-color) / 0.18);
+    }
+    .dark .pv-a .pv-cell:hover {
+        background: rgb(255 255 255 / 0.08);
+    }
+    .dark .pv-a .pv-cell:has(:checked) {
+        background: rgb(255 255 255 / 0.14);
+        box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.35);
+    }
+
+    /* B: sliding bead */
+    .pv-bead {
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        left: 3px;
+        width: calc((100% - 6px) / 3);
+        border-radius: 9999px;
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.7));
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 1),
+            0 0 0 1px hsl(var(--glass-shadow-color) / 0.14),
+            0 1px 2px hsl(var(--glass-shadow-color) / 0.18),
+            0 3px 8px -2px hsl(var(--glass-shadow-color) / 0.35);
+        transition: transform 320ms cubic-bezier(0.3, 1.4, 0.5, 1);
+    }
+    .pv-b:has(input[value='dark']:checked) .pv-bead {
+        transform: translateX(100%);
+    }
+    .pv-b:has(input[value='system']:checked) .pv-bead {
+        transform: translateX(200%);
+    }
+    /* B2: padding at both ends pulls the sun and gear inward; the bead follows the narrower cells */
+    .pv-b2 {
+        --pv-end-pad: 6px;
+        padding-inline: var(--pv-end-pad);
+    }
+    .pv-b2 .pv-bead {
+        left: var(--pv-end-pad);
+        width: calc((100% - 2 * var(--pv-end-pad)) / 3);
+    }
+    /* B3: more glass above and below the bead */
+    .pv-roomy .pv-bead {
+        top: 5px;
+        bottom: 5px;
+    }
+
+    /* B4: by day, a see-through tinted bead with a bright top edge and a fine rim, echoing the night bead */
+    :root:not(.dark) .pv-clear .pv-bead {
+        background: linear-gradient(
+            180deg,
+            hsl(var(--glass-shadow-color) / 0.11),
+            hsl(var(--glass-shadow-color) / 0.04)
+        );
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.9),
+            0 0 0 1px hsl(var(--glass-shadow-color) / 0.13),
+            0 2px 6px -2px hsl(var(--glass-shadow-color) / 0.3);
+    }
+
+    .pv-b .pv-cell:not(:has(:checked)):hover .pv-icon {
+        transform: scale(1.1);
+    }
+    .dark .pv-bead {
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.08));
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.25),
+            0 0 0 1px rgb(255 255 255 / 0.1),
+            0 2px 6px -1px rgb(0 0 0 / 0.5);
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .pv-bead {
+            transition: none;
+        }
+    }
+
+    /* C: color only */
+    .pv-c .pv-cell:not(:has(:checked)) .pv-icon {
+        filter: grayscale(1);
+        opacity: 0.45;
+    }
+    .pv-c .pv-cell:not(:has(:checked)):hover .pv-icon {
+        opacity: 0.75;
+    }
+    .pv-c .pv-cell:has(:checked) .pv-icon {
+        transform: scale(1.12);
+    }
+
+    /* D: accent dot */
+    .pv-d .pv-mark {
+        bottom: 3px;
+        left: 50%;
+        width: 4px;
+        height: 4px;
+        margin-left: -2px;
+        border-radius: 9999px;
+        background: var(--color-accent);
+        opacity: 0;
+        transform: scale(0);
+        transition: opacity 200ms, transform 200ms;
+    }
+    .pv-d .pv-cell:has(:checked) .pv-mark {
+        opacity: 1;
+        transform: scale(1);
+    }
+    .pv-d .pv-cell:has(:checked) .pv-icon {
+        transform: translateY(-2px);
+    }
+    .pv-d .pv-cell:not(:has(:checked)) .pv-icon {
+        opacity: 0.7;
+    }
+    .pv-d .pv-cell:hover .pv-icon {
+        opacity: 1;
+    }
+
+    /* E: orb */
+    .pv-e .pv-mark {
+        inset: 3px;
+        margin: auto;
+        width: 30px;
+        height: 30px;
+        border-radius: 9999px;
+        background: radial-gradient(
+            circle at 50% 120%,
+            var(--color-primary-300) 0%,
+            var(--color-primary-600) 75%
+        );
+        box-shadow:
+            inset 0 -4px 8px -3px rgb(255 255 255 / 0.35),
+            inset 0 1px 1px rgb(255 255 255 / 0.6),
+            0 3px 8px -3px var(--color-primary-600);
+        opacity: 0;
+        transform: scale(0.6);
+        transition: opacity 200ms, transform 250ms cubic-bezier(0.3, 1.4, 0.5, 1);
+    }
+    .pv-e .pv-mark::before {
+        content: '';
+        position: absolute;
+        inset: 4% 16% 52%;
+        border-radius: 9999px;
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.05));
+    }
+    .pv-e .pv-cell:has(:checked) .pv-mark {
+        opacity: 1;
+        transform: scale(1);
+    }
+    .pv-e .pv-cell:has(:checked) .pv-icon {
+        color: white;
+        transform: scale(0.82);
+    }
+    .dark .pv-e .pv-mark {
+        background: color-mix(in oklab, var(--color-primary-300) 22%, transparent);
+        box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-primary-300) 45%, transparent);
+    }
+    .dark .pv-e .pv-mark::before {
+        content: none;
+    }
+    .dark .pv-e .pv-cell:has(:checked) .pv-icon {
+        color: var(--color-primary-300);
+    }
+
+    /* F: accent ring */
+    .pv-f .pv-mark {
+        inset: 0;
+        margin: auto;
+        width: 30px;
+        height: 30px;
+        border-radius: 9999px;
+        border: 1.5px solid var(--color-accent);
+        background: color-mix(in oklab, var(--color-accent) 8%, transparent);
+        opacity: 0;
+        transition: opacity 200ms;
+    }
+    .pv-f .pv-cell:has(:checked) .pv-mark {
+        opacity: 1;
+    }
+    .pv-f .pv-cell:not(:has(:checked)):hover .pv-mark {
+        opacity: 0.35;
+    }
+</style>
