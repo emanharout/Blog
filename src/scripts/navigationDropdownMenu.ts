@@ -37,6 +37,17 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+// Leaving the page from the open mobile menu fades to the next page while the menu folds back into its button (the
+// animation is in HeaderNav.astro). Every other page change, and any with reduced motion, loads as usual. `pageswap`
+// only fires in browsers that fade between pages.
+window.addEventListener('pageswap', (event) => {
+    const transition = (event as Event & { viewTransition?: { skipTransition(): void } | null }).viewTransition;
+    if (!transition) return;
+    const fromOpenMenu = menu?.isOpen() && !window.matchMedia('(min-width: 48rem)').matches;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!fromOpenMenu || reduceMotion) transition.skipTransition();
+});
+
 // Outside clicks close the desktop dropdown and the mobile menu card (including taps on the blurred backdrop behind it)
 document.addEventListener('click', (event) => {
     const target = event.target as Node | null;

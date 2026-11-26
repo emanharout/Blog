@@ -296,6 +296,15 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
             opacity: 1;
         }
 
+        /*
+         * Until the script has placed the bead, the current item wears the bead's look itself, so a new page doesn't
+         * show for a moment with no bead. The script puts the bead in exactly that spot, so the handover is invisible.
+         */
+        #site-nav-panel:not(:has(> .nav-bead[data-shown])) :global(.nav-item[data-active]) {
+            background: var(--bead-background);
+            box-shadow: var(--bead-shadow);
+        }
+
         /* Set by the script after the first placement, so the bead doesn't glide into place when a page loads */
         .nav-bead[data-animated] {
             transition:
@@ -323,6 +332,51 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
             transition:
                 opacity calc(var(--menu-duration) * 0.6) ease-out,
                 display calc(var(--menu-duration) * 0.6) allow-discrete;
+        }
+    }
+
+    /*
+     * Theme switches and page changes made from the open mobile card are drawn from snapshots (see
+     * colorThemeScript.js and navigationDropdownMenu.ts). Safari leaves backdrop-filter blur out of snapshots, so the
+     * card would turn see-through and show the text behind it. Instead the card gets its own layer, and that layer does
+     * the frosting: its box blurs the page beneath it, the way the live card blurs the live page.
+     */
+    @media (width < 48rem) {
+        #site-nav-panel[data-open] {
+            view-transition-name: nav-panel;
+        }
+    }
+
+    :global(::view-transition-group(nav-panel)) {
+        border-radius: var(--panel-radius);
+        -webkit-backdrop-filter: blur(var(--glass-blur))
+            saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+        backdrop-filter: blur(var(--glass-blur)) saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+    }
+
+    /*
+     * Leaving the page from the open card: the new page fades in while the card folds back into the menu button, the
+     * same way it closes (#site-nav-panel above). The layer folds rather than the snapshot alone, so the blur folds
+     * away with it. 450ms is --menu-duration, which is set on the header and so can't reach these layers.
+     */
+    :global(html:not(.theme-switching)::view-transition-group(nav-panel)) {
+        animation: nav-panel-fold-away 450ms cubic-bezier(0.45, 0, 0.25, 1) both;
+    }
+
+    :global(html:not(.theme-switching)::view-transition-old(nav-panel)) {
+        animation: none;
+    }
+
+    @keyframes nav-panel-fold-away {
+        from {
+            clip-path: inset(0 round var(--panel-radius));
+        }
+        35% {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+            clip-path: inset(0 0 100% calc(100% - 3rem) round var(--panel-radius));
         }
     }
 </style>

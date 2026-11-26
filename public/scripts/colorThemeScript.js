@@ -60,6 +60,11 @@
 
     applyTheme(isForced ? forcedOption : readStoredOption());
 
+    // Called by an inline script right after the picker's markup (ColorThemeToggle.astro), so the saved choice is
+    // checked before the picker is first painted. Waiting for DOMContentLoaded let a page show for a moment with no
+    // choice checked, and the picker's bead in the first slot.
+    window.syncThemePicker = () => syncPicker(isForced ? forcedOption : readStoredOption());
+
     // Follow OS changes live while 'system' is selected.
     darkQuery.addEventListener('change', () => {
         if (!isForced && readStoredOption() === 'system') applyThemeSmoothly('system');

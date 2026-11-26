@@ -276,6 +276,18 @@
         }
     }
 
+    /*
+     * Page changes can fade between pages, but only the ones made from the open mobile menu do (the rest are skipped
+     * in src/scripts/navigationDropdownMenu.ts), so the menu can fold away instead of vanishing. Only below `md`,
+     * where that menu exists: a page that fades in is shown before its scripts run, so at larger sizes the nav and
+     * theme picker beads (placed by script) would flicker into place on every page change.
+     */
+    @media (width < 48rem) {
+        @view-transition {
+            navigation: auto;
+        }
+    }
+
     /* Theme switches cross-fade like dusk falling (see public/scripts/colorThemeScript.js) */
     html.theme-switching::view-transition-old(root),
     html.theme-switching::view-transition-new(root) {
