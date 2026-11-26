@@ -1,0 +1,215 @@
+---
+// Dev-only page (registered in astro.config.mjs only for `astro dev`): the bead styles for the theme picker
+// (ColorThemeToggle.astro) on the real backdrop and glass, without the site header. /dev/picker shows it twice, with
+// ?theme=light and ?theme=dark, so each style can be seen in both modes side by side. Each picker here is a demo with
+// its own radio group: clicking one slides its bead but doesn't change the theme.
+import { Icon } from 'astro-icon/components';
+import AeroBackdrop from '../components/AeroBackdrop.astro';
+import RootLayout from '../layouts/RootLayout.astro';
+import { BEAD_STYLES } from './pickerBeadStyles';
+
+const options = [
+    { value: 'light', label: 'Light', icon: 'color-theme-light-icon', iconClass: 'text-yellow-500 dark:text-yellow-400' },
+    { value: 'dark', label: 'Dark', icon: 'color-theme-dark-icon', iconClass: 'text-sky-400 dark:text-sky-500' },
+    { value: 'system', label: 'Match system', icon: 'color-theme-system-icon', iconClass: 'text-gray-temp-500 dark:text-gray-temp-400' },
+];
+const sizes = [
+    { key: 'big', zoomClass: 'pv-zoom2' },
+    { key: 'actual', zoomClass: '' },
+];
+---
+
+<RootLayout title="Theme picker bead styles" description="Bead styles for the theme picker" design="aero">
+    <AeroBackdrop shootingStars={false} />
+    <main class="grow px-4 py-4">
+        <ul class="grid gap-3">
+            {
+                BEAD_STYLES.map(({ id, name }) => (
+                    <li class="glass rounded-box px-5 pt-3 pb-4">
+                        <h2 class="text-sm font-medium text-fg-1">{name}</h2>
+                        <div class="mt-2 flex items-center gap-8">
+                        {sizes.map(({ key, zoomClass }) => (
+                            <fieldset class={`pv pv-${id} ${zoomClass} glass rounded-pill grid grid-cols-3 h-9 w-32 shrink-0 overflow-hidden text-sm`}>
+                                <legend class="sr-only">Color theme ({name})</legend>
+                                <span class="pv-bead" aria-hidden="true" />
+                                {options.map(({ value, label, icon, iconClass }) => (
+                                    <label class="pv-cell">
+                                        <input type="radio" name={`pv-${id}-${key}`} value={value} checked={value === 'light'} class="sr-only" />
+                                        <Icon name={icon} size="22" aria-hidden="true" class={`pv-icon size-[22px] ${iconClass}`} />
+                                        <span class="sr-only">{label}</span>
+                                    </label>
+                                ))}
+                            </fieldset>
+                        ))}
+                        </div>
+                    </li>
+                ))
+            }
+        </ul>
+    </main>
+</RootLayout>
+
+<style is:global>
+    /* The picker and bead, as in ColorThemeToggle.astro (B2: extra room at both ends) */
+    .pv {
+        --bead-end-pad: 6px;
+        position: relative;
+        padding-inline: var(--bead-end-pad);
+    }
+    .pv-zoom2 {
+        zoom: 2;
+    }
+    .pv-cell {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        cursor: pointer;
+        border-radius: 9999px;
+    }
+    .pv-cell:has(:focus-visible) {
+        outline: 2px solid var(--color-tertiary-500);
+        outline-offset: -2px;
+    }
+    .pv-icon {
+        transition: transform 200ms ease-out;
+    }
+    .pv-cell:not(:has(:checked)):hover .pv-icon {
+        transform: scale(1.1);
+    }
+    .pv-bead {
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        left: var(--bead-end-pad);
+        width: calc((100% - 2 * var(--bead-end-pad)) / 3);
+        border-radius: 9999px;
+        pointer-events: none;
+        transition:
+            transform 320ms cubic-bezier(0.3, 1.4, 0.5, 1),
+            background 320ms,
+            box-shadow 320ms;
+    }
+    .pv:has(input[value='dark']:checked) .pv-bead {
+        transform: translateX(100%);
+    }
+    .pv:has(input[value='system']:checked) .pv-bead {
+        transform: translateX(200%);
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .pv-bead,
+        .pv-icon {
+            transition: none;
+        }
+    }
+
+    /* 1 · Solid white (in use): the current bead, by day and by night */
+    .pv-white .pv-bead {
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.7));
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 1),
+            0 0 0 1px hsl(var(--glass-shadow-color) / 0.14),
+            0 1px 2px hsl(var(--glass-shadow-color) / 0.18),
+            0 3px 8px -2px hsl(var(--glass-shadow-color) / 0.35);
+    }
+    .dark .pv-white .pv-bead {
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.08));
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.25),
+            0 0 0 1px rgb(255 255 255 / 0.1),
+            0 2px 6px -1px rgb(0 0 0 / 0.5);
+    }
+
+    /* 4 · Pressed in: the bead sinks into the glass */
+    .pv-pressed .pv-bead {
+        background: hsl(var(--glass-shadow-color) / 0.07);
+        box-shadow:
+            inset 0 1px 3px hsl(var(--glass-shadow-color) / 0.28),
+            inset 0 0 0 1px hsl(var(--glass-shadow-color) / 0.08),
+            0 1px 0 rgb(255 255 255 / 0.85);
+    }
+    .dark .pv-pressed .pv-bead {
+        background: rgb(0 0 0 / 0.28);
+        box-shadow:
+            inset 0 1px 3px rgb(0 0 0 / 0.55),
+            inset 0 0 0 1px rgb(255 255 255 / 0.05),
+            0 1px 0 rgb(255 255 255 / 0.08);
+    }
+
+    /* 5A · Pearl in your colors: a sheen of the primary, secondary and tertiary hues */
+    /* By day the hues are lifted (more saturated, lighter) so the sheen reads clear and pearly rather than muted, with a
+       white rim instead of a gray one */
+    .pv-pearl .pv-bead {
+        background:
+            linear-gradient(180deg, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.1) 55%, rgb(255 255 255 / 0)),
+            linear-gradient(
+                120deg,
+                hsl(var(--primary-h) calc(var(--primary-s) * 1.8) 88%),
+                hsl(var(--secondary-h) calc(var(--secondary-s) * 1.6) 91%) 50%,
+                hsl(var(--tertiary-h) calc(var(--tertiary-s) * 2) 90%)
+            );
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 1),
+            inset 0 0 0 1px rgb(255 255 255 / 0.65),
+            0 1px 2px hsl(var(--glass-shadow-color) / 0.12),
+            0 3px 8px -2px hsl(var(--glass-shadow-color) / 0.24);
+    }
+    .dark .pv-pearl .pv-bead {
+        background:
+            linear-gradient(180deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.02) 60%),
+            linear-gradient(
+                120deg,
+                hsl(var(--primary-h) var(--primary-s) 62% / 0.42),
+                hsl(var(--secondary-h) var(--secondary-s) 62% / 0.42) 50%,
+                hsl(var(--tertiary-h) var(--tertiary-s) 62% / 0.42)
+            );
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.25),
+            0 0 0 1px rgb(255 255 255 / 0.1),
+            0 2px 6px -1px rgb(0 0 0 / 0.5);
+    }
+
+    /* 8 · Follows the icon: tinted by the option it sits under */
+    .pv-follow {
+        --bead-tint: hsl(45 95% 55%);
+    }
+    .pv-follow:has(input[value='dark']:checked) {
+        --bead-tint: hsl(198 90% 58%);
+    }
+    .pv-follow:has(input[value='system']:checked) {
+        --bead-tint: hsl(220 10% 60%);
+    }
+    .pv-follow .pv-bead {
+        background: linear-gradient(
+            180deg,
+            color-mix(in oklab, var(--bead-tint) 14%, rgb(255 255 255 / 0.95)),
+            color-mix(in oklab, var(--bead-tint) 26%, rgb(255 255 255 / 0.7))
+        );
+        /* No colored rim or glow around the bead: the tint stays inside it */
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 1),
+            0 1px 2px hsl(var(--glass-shadow-color) / 0.14),
+            0 3px 8px -2px hsl(var(--glass-shadow-color) / 0.28);
+    }
+    .dark .pv-follow {
+        --bead-tint: hsl(45 90% 62%);
+    }
+    .dark .pv-follow:has(input[value='dark']:checked) {
+        --bead-tint: hsl(205 85% 66%);
+    }
+    .dark .pv-follow:has(input[value='system']:checked) {
+        --bead-tint: hsl(220 12% 72%);
+    }
+    .dark .pv-follow .pv-bead {
+        background: linear-gradient(
+            180deg,
+            color-mix(in oklab, var(--bead-tint) 30%, transparent),
+            color-mix(in oklab, var(--bead-tint) 12%, transparent)
+        );
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.2),
+            0 2px 6px -1px rgb(0 0 0 / 0.5);
+    }
+</style>
