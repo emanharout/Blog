@@ -770,6 +770,28 @@
         content: none;
     }
 
+    /*
+     * Post images in dark mode: dimmed a little so bright pictures don't glare against the dark card, with a faint
+     * inner hairline that sets them into the glass. Hovering with a mouse or trackpad shows them at full brightness.
+     * Covers the hero (BlogArticle.astro's .post-hero) and images inside the post body.
+     */
+    .dark :is(.post-hero, .article-content) img {
+        filter: brightness(0.85) saturate(0.9);
+        outline: 1px solid hsl(0 0% 100% / 0.08);
+        outline-offset: -1px;
+        transition: filter 250ms ease;
+    }
+    @media (hover: hover) {
+        .dark :is(.post-hero, .article-content) img:hover {
+            filter: none;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .dark :is(.post-hero, .article-content) img {
+            transition: none;
+        }
+    }
+
     /* Divider above the footnotes heading */
     #footnote-label {
         position: relative;
