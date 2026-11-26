@@ -223,7 +223,7 @@ function generateSearchListItems(results: FuseResult<SearchablePostData>[]) {
 
         const resultLink = document.createElement('a');
         resultLink.href = `/blog/${id}/`;
-        resultLink.className = 'text-fg-tertiary-link-2 font-medium hover:text-fg-tertiary-link-2-hover focus:text-fg-tertiary-link-2-hover';
+        resultLink.className = 'text-fg-link-2 font-medium hover:text-fg-link-2-hover focus:text-fg-link-2-hover';
         resultLink.textContent = title;
 
         const dateLabel = document.createElement('time');

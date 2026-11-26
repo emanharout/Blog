@@ -32,8 +32,8 @@ const headings = getHeadings();
                     data-long-notes="inline"
                     class="article-content
                     prose prose-fg2 max-w-none
-                    prose-a:text-fg-tertiary-link-2
-                    hover:prose-a:text-fg-tertiary-link-2-hover focus:prose-a:text-fg-tertiary-link-2-hover
+                    prose-a:not-in-[sup]:text-fg-link-2
+                    prose-a:not-in-[sup]:hover:text-fg-link-2-hover prose-a:not-in-[sup]:focus:text-fg-link-2-hover prose-a:in-[sup]:text-fg-footnote-2
                     prose-headings:font-serif prose-headings:tracking-wide prose-headings:font-medium"
                 >
                     <h1>Understanding Swift Metatypes</h1>
@@ -82,8 +82,8 @@ const headings = getHeadings();
     }
     .notes-demo-switch button[aria-pressed='true'] {
         font-weight: 600;
-        color: hsl(var(--fg-tertiary-2));
-        background: hsl(var(--tertiary-bg));
+        color: hsl(var(--fg-footnote-2));
+        background: hsl(var(--footnote-bg));
     }
 
     /* OPTION C (mock): the sidebar shrinks to a slim bar naming the current section */
@@ -135,7 +135,7 @@ const headings = getHeadings();
         background: hsl(var(--fg-color-2) / 0.2);
     }
     .toc-rail-progress i[data-done] {
-        background: hsl(var(--fg-tertiary-link-2));
+        background: hsl(var(--fg-link-2));
     }
 </style>
 

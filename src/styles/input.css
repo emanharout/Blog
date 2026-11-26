@@ -80,8 +80,10 @@
     /* Text */
     --color-fg-1: hsl(var(--fg-color-1));
     --color-fg-2: hsl(var(--fg-color-2));
-    --color-fg-tertiary-link-2: hsl(var(--fg-tertiary-link-2));
-    --color-fg-tertiary-link-2-hover: hsl(var(--fg-tertiary-link-2-hover));
+    --color-fg-link-2: hsl(var(--fg-link-2));
+    --color-fg-link-2-hover: hsl(var(--fg-link-2-hover));
+    /* Text on a footnote number (in posts, set with a class: the typography plugin's link color outranks input.css) */
+    --color-fg-footnote-2: hsl(var(--fg-footnote-2));
     /* Border used across cards and subtle boundaries */
     --color-fg-border-2: hsl(var(--fg-color-border-2));
     /* Always off-white; meant for colorful backgrounds */
@@ -583,13 +585,15 @@
         /* Near-white card surface (cool gray 50) */
         --background-color-2: 210deg 20% 98%;
 
-        /* Tertiary-tinted bg for inline elements: footnote superscripts and notes */
-        --tertiary-bg: var(--tertiary-color-200);
-        --tertiary-bg-hover: var(--tertiary-color-100);
-        --tertiary-bg-border: var(--tertiary-color-300);
-        --tertiary-bg-border-hover: var(--tertiary-color-300);
-        /* Text on --tertiary-bg */
-        --fg-tertiary-2: var(--tertiary-color-950);
+        /* Primary-tinted bg for footnotes: their numbers, and notes opened or pointed out */
+        --footnote-bg: var(--primary-color-200);
+        --footnote-bg-hover: var(--primary-color-100);
+        --footnote-bg-border: var(--primary-color-300);
+        --footnote-bg-border-hover: var(--primary-color-300);
+        /* Text on --footnote-bg */
+        --fg-footnote-2: var(--primary-color-950);
+        /* A note's number, beside its text */
+        --fg-footnote-num: var(--primary-color-600);
         /* Secondary-tinted bg for inline code and tooltip spans, and the text on it */
         --secondary-bg: var(--secondary-color-200);
         --secondary-bg-border: var(--secondary-color-300);
@@ -602,9 +606,9 @@
         /* Light text on colored bg (Hero, tags) */
         --fg-light: var(--slate-color-100);
         --accent-color: var(--tertiary-color-400);
-        /* Links */
-        --fg-tertiary-link-2: var(--tertiary-color-600);
-        --fg-tertiary-link-2-hover: var(--tertiary-color-900);
+        /* Links, in the secondary color (footnote numbers are primary) */
+        --fg-link-2: var(--secondary-color-600);
+        --fg-link-2-hover: var(--secondary-color-900);
     }
 
     /* DARK THEME ROLES — only values that differ from light mode */
@@ -612,11 +616,12 @@
         --background-color-1: var(--slate-color-900);
         --background-color-2: var(--slate-color-700);
 
-        --tertiary-bg: var(--tertiary-color-700);
-        --tertiary-bg-hover: var(--tertiary-color-600);
-        --tertiary-bg-border: var(--tertiary-color-900);
-        --tertiary-bg-border-hover: var(--tertiary-color-800);
-        --fg-tertiary-2: var(--tertiary-color-100);
+        --footnote-bg: var(--primary-color-700);
+        --footnote-bg-hover: var(--primary-color-600);
+        --footnote-bg-border: var(--primary-color-900);
+        --footnote-bg-border-hover: var(--primary-color-800);
+        --fg-footnote-2: var(--primary-color-100);
+        --fg-footnote-num: var(--primary-color-400);
         --secondary-bg: var(--secondary-color-700);
         --secondary-bg-border: var(--secondary-color-900);
         --fg-secondary-2: var(--secondary-color-100);
@@ -624,8 +629,8 @@
         --fg-color-1: var(--slate-color-300);
         --fg-color-2: var(--slate-color-200);
         --fg-color-border-2: var(--temperature-gray-600);
-        --fg-tertiary-link-2: var(--tertiary-color-400);
-        --fg-tertiary-link-2-hover: var(--tertiary-color-300);
+        --fg-link-2: var(--secondary-color-400);
+        --fg-link-2-hover: var(--secondary-color-300);
     }
 
     /*
@@ -768,8 +773,18 @@
         --fg-color-1: var(--aero-night-h) 50% 93%;
         --fg-color-2: var(--aero-night-h) 32% 80%;
         --fg-color-border-2: 0deg 0% 100% / 0.12;
-        --fg-tertiary-link-2: var(--night-color-300);
-        --fg-tertiary-link-2-hover: var(--night-color-100);
+        --fg-link-2: var(--secondary-color-300);
+        --fg-link-2-hover: var(--secondary-color-200);
+        /*
+         * Footnotes: a mid rose with near-white text, since the darker shades of this muted rose turn murky. The note
+         * number is lighter and more saturated than the palette's own shades, so that it stands out from the body text.
+         */
+        --footnote-bg: var(--primary-color-600);
+        --footnote-bg-hover: var(--primary-color-500);
+        --footnote-bg-border: var(--primary-color-500);
+        --footnote-bg-border-hover: var(--primary-color-400);
+        --fg-footnote-2: var(--primary-color-50);
+        --fg-footnote-num: var(--primary-h) 60% 78%;
         /* Primary / secondary / tertiary (tunable); the night sky's own hue is --aero-night-h */
         /*
          * Primary (accent): dusty rose, on the same elements as in light mode. Lightness 74% keeps it clear of the
@@ -885,16 +900,16 @@
         padding-left: 0.2rem;
         padding-right: 0.23rem;
         text-decoration: none;
-        color: hsl(var(--fg-tertiary-2));
-        background-color: hsl(var(--tertiary-bg));
-        border: 1px solid hsl(var(--tertiary-bg-border));
+        color: hsl(var(--fg-footnote-2));
+        background-color: hsl(var(--footnote-bg));
+        border: 1px solid hsl(var(--footnote-bg-border));
         border-radius: 4px;
     }
     .prose sup a:hover,
     .prose sup a:focus {
         font-weight: 500;
-        background-color: hsl(var(--tertiary-bg-hover));
-        border: 1px solid hsl(var(--tertiary-bg-border-hover));
+        background-color: hsl(var(--footnote-bg-hover));
+        border: 1px solid hsl(var(--footnote-bg-border-hover));
     }
     .dark .prose sup a:hover,
     .dark .prose sup a:focus {
@@ -948,8 +963,8 @@
         padding-inline: 0.85rem;
         font-size: 0.875rem;
         line-height: 1.55;
-        background-color: color-mix(in srgb, hsl(var(--tertiary-bg)) 35%, transparent);
-        border-left: 3px solid hsl(var(--tertiary-bg-border));
+        background-color: color-mix(in srgb, hsl(var(--footnote-bg)) 35%, transparent);
+        border-left: 3px solid hsl(var(--footnote-bg-border));
         border-radius: 0 6px 6px 0;
     }
     .fn-note[data-open] .fn-note-inner {
@@ -968,13 +983,13 @@
     .fn-note-num {
         margin-right: 0.4rem;
         font-weight: 600;
-        color: hsl(var(--fg-tertiary-link-2));
+        color: hsl(var(--fg-footnote-num));
     }
     .prose sup a[data-footnote-ref][aria-expanded='true'],
     .prose sup a[data-footnote-ref][data-highlight] {
         font-weight: 500;
-        background-color: hsl(var(--tertiary-bg-hover));
-        border: 1px solid hsl(var(--tertiary-bg-border-hover));
+        background-color: hsl(var(--footnote-bg-hover));
+        border: 1px solid hsl(var(--footnote-bg-border-hover));
     }
 
     /* Must match MARGIN_NOTES_QUERY in footnoteNotes.ts. Long notes join the margin when the article has
@@ -1026,8 +1041,8 @@
                 z-index: -1;
                 pointer-events: none;
                 opacity: 0;
-                background-color: hsl(var(--tertiary-bg));
-                border: 1px solid hsl(var(--tertiary-bg-border));
+                background-color: hsl(var(--footnote-bg));
+                border: 1px solid hsl(var(--footnote-bg-border));
                 border-radius: 6px;
             }
             &[data-pointed-out] .fn-note-inner {
@@ -1050,11 +1065,13 @@
     @keyframes fn-note-point-out-text {
         0%,
         45% {
-            color: hsl(var(--fg-tertiary-2));
+            color: hsl(var(--fg-footnote-2));
         }
     }
 
-    /* The footnote list at the end of a post, closed behind a "Footnotes" button (rehypeFootnoteNotes.mjs) */
+    /* The footnote list at the end of a post, closed behind a "Footnotes" button (rehypeFootnoteNotes.mjs). The button is
+       frosted glass, a neutral fill and hairline edge, with its text and count in the secondary color, like links (the
+       footnote numbers and notes are primary). A tinted fill turned muddy over the dark navy card. */
     .footnotes-toggle {
         margin-top: 2.5rem;
         padding-top: 1.5rem;
@@ -1067,20 +1084,24 @@
             padding: 0.35rem 0.9rem;
             font-size: 0.875rem;
             font-weight: 500;
-            color: hsl(var(--fg-tertiary-2));
+            --pill-bg: hsl(0 0% 100% / 0.65);
+            --pill-bg-hover: hsl(0 0% 100% / 0.9);
+            --pill-border: hsl(var(--secondary-color-500) / 0.3);
+            color: hsl(var(--secondary-color-700));
             list-style: none;
             cursor: pointer;
             user-select: none;
-            background-color: color-mix(in srgb, hsl(var(--tertiary-bg)) 45%, transparent);
-            border: 1px solid hsl(var(--tertiary-bg-border));
+            background-color: var(--pill-bg);
+            border: 1px solid var(--pill-border);
             border-radius: 999px;
+            box-shadow: 0 1px 3px hsl(25 35% 30% / 0.08);
             transition: background-color 150ms ease;
 
             &::-webkit-details-marker {
                 display: none;
             }
             &:hover {
-                background-color: hsl(var(--tertiary-bg-hover));
+                background-color: var(--pill-bg-hover);
             }
             /* Chevron: points down when closed, up when open */
             &::after {
@@ -1094,6 +1115,13 @@
                 transition: transform 200ms ease, margin 200ms ease;
             }
         }
+        .dark & > summary {
+            --pill-bg: hsl(0 0% 100% / 0.07);
+            --pill-bg-hover: hsl(0 0% 100% / 0.12);
+            --pill-border: hsl(0 0% 100% / 0.14);
+            color: hsl(var(--secondary-color-300));
+            box-shadow: none;
+        }
         &[open] > summary::after {
             margin-top: 0.2rem;
             transform: rotate(-135deg);
@@ -1104,7 +1132,10 @@
             font-size: 0.75rem;
             text-align: center;
             border-radius: 999px;
-            background-color: hsl(var(--tertiary-bg-border) / 0.6);
+            background-color: hsl(var(--secondary-bg));
+        }
+        .dark & .footnotes-count {
+            background-color: hsl(var(--secondary-color-400) / 0.2);
         }
         & .footnotes {
             margin-top: 0.75rem;

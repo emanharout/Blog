@@ -68,7 +68,7 @@ pre.astro-code code {
     content: none;
 }
 
-/* Style inline code found in articles: a secondary tint, so it stands apart from links and footnotes in the tertiary color */
+/* Style inline code found in articles: a secondary tint, the color of links; footnote numbers are primary */
 .prose section > p > code {
     background-color: hsl(var(--secondary-bg));
     outline: 1px solid hsl(var(--secondary-bg-border));
