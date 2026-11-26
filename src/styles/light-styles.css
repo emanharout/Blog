@@ -133,9 +133,9 @@
     /* DAYBREAK: a little after First Light. The sun has just risen: pale sky blue over peach and gold, pearly glass, no stars. */
     :root[data-design='aero'][data-light-style='daybreak']:not(.dark) {
         background-color: hsl(32 60% 93%);
-        /* Primary sage and secondary terracotta, well clear of each other */
-        --primary-h: 155;
-        --primary-s: 30%;
+        /* Primary eucalyptus green and secondary terracotta, well clear of each other */
+        --primary-h: 152;
+        --primary-s: 45%;
         --primary-l: 40%;
         --secondary-h: 14.2;
         --secondary-s: 52%;
