@@ -788,13 +788,13 @@
         /* Primary / secondary / tertiary (tunable); the night sky's own hue is --aero-night-h */
         /*
          * Primary (accent): dusty rose, on the same elements as in light mode. Lightness 74% keeps it clear of the
-         * white heading text. Secondary: honey gold.
+         * white heading text. Secondary: a soft, muted honey gold.
          */
         --primary-h: 340;
         --primary-s: 30%;
         --primary-l: 74%;
-        --secondary-h: 44;
-        --secondary-s: 65%;
+        --secondary-h: 42;
+        --secondary-s: 42%;
         --tertiary-h: 222;
         --tertiary-s: 60%;
         --accent-color: var(--primary-h) var(--primary-s) var(--primary-l);
