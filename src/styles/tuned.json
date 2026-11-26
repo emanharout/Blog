@@ -7,8 +7,5 @@
             "glass-shadow-depth": "0.7"
         }
     },
-    "dark": {
-        "secondary-h": "44",
-        "secondary-s": "65%"
-    }
+    "dark": {}
 }

@@ -1,6 +1,6 @@
 ---
 // Dev-only design tuner (rendered by MainLayout only when `import.meta.env.DEV`). Sliders adjust the color knobs
-// (--main-*, --secondary-*, --tertiary-*), --aero-* and --glass-* knobs live, separately for light and dark mode (and
+// (--primary-*, --secondary-*, --tertiary-*), --aero-* and --glass-* knobs live, separately for light and dark mode (and
 // for each experimental light style). Color pickers are one row holding two knobs: a hue and a saturation.
 //
 // Each knob has three layers (see scripts/aero-tuner-store.mjs): factory defaults (what the theme was designed with),
@@ -50,27 +50,27 @@ const groups: { title: string; knobs: Knob[] }[] = [
         title: 'Colors',
         knobs: [
             {
-                name: 'main-h',
-                label: 'Main hue',
-                tip: 'The main color: links, buttons, the logo, tag pages, half the card tags and the Programming Blog badge. It never changes the background.',
+                name: 'primary-h',
+                label: 'Primary hue',
+                tip: 'The first color, in both themes: the nav underline, the active table of contents entry, the footer icons, half the card tags and text selection. The accent (underline, contents, icons) stays at a fixed lightness per theme: deep in light mode, bright in dark mode.',
                 type: 'picker',
-                sat: paletteSat('main-s'),
-                themes: both,
-                swatch: 'hsl(var(--primary-color-600))',
-            },
-            {
-                name: 'secondary-h',
-                label: 'Secondary hue',
-                tip: 'The second color, the accent, in both themes: “Eman” in the home page heading, the quote mark beside the verse, the footer icons, the nav underline and the active table of contents entry. How light it is stays fixed per theme: deep in light mode, bright in dark mode.',
-                type: 'picker',
-                sat: paletteSat('secondary-s'),
+                sat: paletteSat('primary-s'),
                 themes: both,
                 swatch: 'var(--color-accent)',
             },
             {
+                name: 'secondary-h',
+                label: 'Secondary hue',
+                tip: 'The second color: “Eman” in the home page heading, the quote mark beside the verse, the Wonder Blog badge, inline code, tooltips and part of the logo. It never changes the background.',
+                type: 'picker',
+                sat: paletteSat('secondary-s'),
+                themes: both,
+                swatch: 'hsl(var(--secondary-color-600))',
+            },
+            {
                 name: 'tertiary-h',
                 label: 'Tertiary hue',
-                tip: 'The third color: the other half of the card tags, the Wonder Blog badge and part of the logo. It never changes the background.',
+                tip: 'The third color: links, buttons, the logo, footnotes, tag pages, the other half of the card tags and the Programming Blog badge. It never changes the background.',
                 type: 'picker',
                 sat: paletteSat('tertiary-s'),
                 themes: both,
@@ -80,7 +80,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'aero-sky-h',
                 label: 'Sky hue',
-                tip: 'Background only: the sky, and the faint tint of text, panels and borders. Saturation is how vivid the sky is (1 = as designed). Links and buttons use Main hue.',
+                tip: 'Background only: the sky, and the faint tint of text, panels and borders. Saturation is how vivid the sky is (1 = as designed). Links and buttons use Tertiary hue.',
                 type: 'picker',
                 sat: backgroundSat('aero-sky-saturation', 1.6),
                 themes: ['light'],
@@ -105,7 +105,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'aero-leaf-h',
                 label: 'Lawn hue',
-                tip: 'Background only: the lawn at the bottom of the sky. Saturation is how vivid it is (1 = as designed). The Wonder tags and badge use Tertiary hue.',
+                tip: 'Background only: the lawn at the bottom of the sky. Saturation is how vivid it is (1 = as designed). The Wonder tags and badge use Secondary hue.',
                 type: 'picker',
                 sat: backgroundSat('aero-leaf-saturation'),
                 themes: ['light'],
@@ -119,7 +119,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'aero-night-h',
                 label: 'Night sky hue',
-                tip: 'Background only: the night sky behind the page, and the faint tint of panels, glass and text. Saturation is how vivid the sky is (1 = as designed). Links, buttons and tags use Main and Tertiary hue.',
+                tip: 'Background only: the night sky behind the page, and the faint tint of panels, glass and text. Saturation is how vivid the sky is (1 = as designed). Links, buttons and tags use Tertiary and Secondary hue.',
                 type: 'picker',
                 sat: backgroundSat('aero-night-saturation'),
                 themes: ['dark'],
@@ -164,9 +164,9 @@ const hueTrack = `background: linear-gradient(to right, ${Array.from({ length: 2
 const satTrack = (hue: string) => `background: linear-gradient(to right, hsl(var(--${hue}) 0% 55%), hsl(var(--${hue}) 100% 50%))`;
 
 const flipClasses =
-    'aero-tuner-flip hidden group-data-changed:inline-flex items-center justify-center size-5 rounded border border-fg-border-2 text-[0.7rem] leading-none hover:bg-white/40 dark:hover:bg-white/10 aria-pressed:bg-primary-700 aria-pressed:text-white';
+    'aero-tuner-flip hidden group-data-changed:inline-flex items-center justify-center size-5 rounded border border-fg-border-2 text-[0.7rem] leading-none hover:bg-white/40 dark:hover:bg-white/10 aria-pressed:bg-tertiary-700 aria-pressed:text-white';
 const buttonClasses =
-    'rounded-full border border-fg-border-2 px-3 py-1.5 hover:bg-white/30 disabled:opacity-40 dark:hover:bg-white/10 aria-pressed:bg-primary-700 aria-pressed:text-white';
+    'rounded-full border border-fg-border-2 px-3 py-1.5 hover:bg-white/30 disabled:opacity-40 dark:hover:bg-white/10 aria-pressed:bg-tertiary-700 aria-pressed:text-white';
 ---
 
 <div id="aero-tuner" class="fixed bottom-4 left-4 z-50 font-sans text-sm text-fg-1">
@@ -185,7 +185,7 @@ const buttonClasses =
             <circle cx="18" cy="18" r="2"></circle>
         </svg>
         Tune design
-        <span id="aero-tuner-badge" hidden class="rounded-full bg-primary-700 px-1.5 text-xs text-white"></span>
+        <span id="aero-tuner-badge" hidden class="rounded-full bg-tertiary-700 px-1.5 text-xs text-white"></span>
     </button>
 
     <div
@@ -210,7 +210,7 @@ const buttonClasses =
             >
                 {LIGHT_STYLES.map((style) => <option value={style.id}>{style.name}</option>)}
             </select>
-            <a href="/dev/compare" class="mt-1 inline-block text-xs text-primary-700 underline dark:text-primary-300">
+            <a href="/dev/compare" class="mt-1 inline-block text-xs text-tertiary-700 underline dark:text-tertiary-300">
                 Compare all styles side by side
             </a>
         </label>
@@ -234,7 +234,7 @@ const buttonClasses =
                             <span class="flex items-center justify-between gap-2">
                                 <span class="flex items-center gap-2">
                                     <span
-                                        class="hidden size-1.5 shrink-0 rounded-full bg-primary-600 group-data-changed:inline-block"
+                                        class="hidden size-1.5 shrink-0 rounded-full bg-tertiary-600 group-data-changed:inline-block"
                                         title="Unsaved change"
                                     />
                                     {knob.swatch && (
@@ -260,7 +260,7 @@ const buttonClasses =
                                     {knob.type === 'toggle' ? (
                                         <input
                                             type="checkbox"
-                                            class="size-4 accent-primary-600"
+                                            class="size-4 accent-tertiary-600"
                                             data-knob={knob.name}
                                             data-unit=""
                                             aria-describedby={`aero-tip-${knob.name}`}
@@ -309,7 +309,7 @@ const buttonClasses =
                                 knob.type !== 'toggle' && (
                                     <input
                                         type="range"
-                                        class="mt-1 w-full accent-primary-600"
+                                        class="mt-1 w-full accent-tertiary-600"
                                         min={knob.min}
                                         max={knob.max}
                                         step={knob.step}
@@ -339,7 +339,7 @@ const buttonClasses =
                 <button
                     id="aero-tuner-save"
                     type="button"
-                    class="col-span-2 rounded-full bg-primary-700 px-3 py-1.5 font-medium text-white hover:bg-primary-600 disabled:opacity-40"
+                    class="col-span-2 rounded-full bg-tertiary-700 px-3 py-1.5 font-medium text-white hover:bg-tertiary-600 disabled:opacity-40"
                     data-tip="Save your new values for this mode (and light style) into the project. They become your saved values, and production uses them."
                 >
                     Save

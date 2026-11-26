@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute(
             'class',
-            'absolute -top-4 -left-[0.34rem] p-0 m-0 size-12 text-primary-200 dark:text-primary-400'
+            'absolute -top-4 -left-[0.34rem] p-0 m-0 size-12 text-tertiary-200 dark:text-tertiary-400'
         );
         svg.setAttribute('viewBox', '0 0 16 16');
         svg.setAttribute('fill', 'none');
