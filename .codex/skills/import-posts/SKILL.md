@@ -1,13 +1,13 @@
 ---
 name: import-posts
-description: Publish blog-ready Markdown files by duplicating to `.mdx`, inserting standardized frontmatter, transforming title/image/footnote markup, and moving/copying files and images from "3 Ready to Publish" into "4 Published" and the Astro `src/content/posts` directories. Use for end-to-end blog post publishing preparation.
+description: Publish blog-ready Markdown files by copying them into the Astro `src/content/posts` directory, inserting standardized frontmatter, transforming title/image markup, and moving the originals and images from "3 Ready to Publish" into "4 Published". Use for end-to-end blog post publishing preparation.
 ---
 
 # Import Posts
 
 ## Overview
 
-Run a deterministic publishing flow for files in the Ready-to-Publish folder. Keep the original markdown unchanged, create and edit a `.mdx` duplicate, then move/copy the required files and images to published and Astro content destinations.
+Run a deterministic publishing flow for files in the Ready-to-Publish folder. Keep the original markdown unchanged: copy it into `./src/content/posts` (same filename, still `.md`) and edit only that copy, then move the original and copy the images to the published and Astro content destinations.
 
 ## Paths
 
@@ -44,23 +44,22 @@ If a value is missing, keep the frontmatter key and leave its value empty so the
 ## End-to-End Workflow
 
 1. Find the source `.md` file in ready posts.
-2. Duplicate it and change duplicate extension to `.mdx`.
+2. Copy it into `./src/content/posts` with the same filename. Posts are plain Markdown (`.md`); the site doesn't support `.mdx`.
 3. Never edit the original `.md` content.
-4. In the `.mdx` duplicate, insert frontmatter using the required template.
+4. In the copy, insert frontmatter using the required template.
 5. Extract the title from the first `#` heading, set `title`, then delete that heading line. The site layout renders the title from frontmatter, so the body must not contain an `<h1>`.
 6. Remove cover image markup if present: `![[blog_some-cover-image-file-name.jpg]]` above or below the title.
 7. Convert image wiki links (`![[image-name.jpg]]`) to Markdown image paths under `./images/...`.
-8. Normalize image references in `.mdx` so filenames with spaces become either URL-encoded (`%20`) or underscore-formatted names.
-9. Add footnote tooltip format when requested (see reference file).
-10. Move original `.md` and generated `.mdx` from ready posts to published posts.
-11. Move all related images from ready images to published images.
-12. Copy the final `.mdx` into `./src/content/posts`.
-13. Copy any referenced images into `./src/content/posts/images`.
-14. Ensure original and duplicate share the same basename (different extensions only).
+8. Normalize image references in the copy so filenames with spaces become either URL-encoded (`%20`) or underscore-formatted names.
+9. Keep footnotes as plain Markdown footnotes (`[^1]` and `[^1]: ...`); the site shows them as side notes (see reference file).
+10. Move the original `.md` from ready posts to published posts.
+11. Copy any referenced images into `./src/content/posts/images`.
+12. Move all related images from ready images to published images.
+13. Ensure the original and the copy share the same filename.
 
 ## Required Frontmatter Template
 
-Use this template in the duplicate `.mdx`.
+Use this template in the copy in `./src/content/posts`.
 
 ```yaml
 ---
@@ -93,7 +92,7 @@ Apply this fill logic:
   - Full automation mode: fill all known values and perform file/image moves.
   - Manual-fill mode: keep missing values blank and continue.
 - Show a dry-run summary before file moves whenever the user asks.
-- Preserve original file contents exactly; all content edits happen in the `.mdx` duplicate.
+- Preserve original file contents exactly; all content edits happen in the copy in `./src/content/posts`.
 
 ## Additional Rules
 

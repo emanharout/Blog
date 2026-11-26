@@ -1,4 +1,4 @@
-{/* Sample post for the dev-only /dev/notes page: plain Markdown footnotes, rendered by the same pipeline as posts. */}
+<!-- Sample post for the dev-only /dev/notes page: plain Markdown footnotes, rendered by the same pipeline as posts. -->
 
 Every type in Swift has a type of its own, called its metatype.[^objc] You reach it with `.self` on the type, and you write it as `Int.Type`. Metatypes let you pass a type around as a value, so you can write a factory that takes `T.Type` and builds whichever concrete type it’s given.
 

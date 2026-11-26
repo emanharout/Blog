@@ -5,7 +5,7 @@ This repository is an Astro-based personal blog.
 - `src/pages/`: route files (`.astro`, dynamic routes like `blog/[...id].astro`, RSS endpoints).
 - `src/components/`: reusable UI components (headers, cards, pagination, search, tags).
 - `src/layouts/`: shared page/layout wrappers.
-- `src/content/posts/`: blog content in `.mdx` plus post images under `src/content/posts/images/`.
+- `src/content/posts/`: blog content in `.md` plus post images under `src/content/posts/images/`.
 - `src/scripts/`: client-side and utility scripts (navigation, search, theme toggle, TOC).
 - `src/styles/`: Tailwind input and syntax-highlighting styles.
 - `public/`: static assets served as-is.

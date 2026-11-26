@@ -4,10 +4,9 @@ import type { SearchablePostData } from '../scripts/search.ts';
 // Upper bound on indexed body text per post, so the index doesn't grow without limit as posts get longer.
 const MAX_BODY_CHARS = 8000;
 
-// Reduce raw MDX to plain, searchable text: drop imports/exports, JSX/HTML tags, footnote markers and markdown syntax.
-function toPlainText(mdx: string): string {
-    return mdx
-        .replace(/^\s*(import|export)\s.*$/gm, '')
+// Reduce raw Markdown to plain, searchable text: drop HTML tags, braces, footnote markers and Markdown syntax.
+function toPlainText(markdown: string): string {
+    return markdown
         .replace(/<[^>]+>/g, ' ')
         .replace(/\{[^}]*\}/g, ' ')
         .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
