@@ -50,10 +50,13 @@ const sizes = [
 </RootLayout>
 
 <style is:global>
-    /* The picker and bead, as in ColorThemeToggle.astro (B2: extra room at both ends) */
+    /* The picker and bead, as in ColorThemeToggle.astro (the bead sits the same distance from every edge) */
     .pv {
-        --bead-end-pad: 6px;
+        --bead-end-pad: 3px;
+        --bead-nudge: 1px;
         position: relative;
+        height: calc(2.25rem + var(--bead-nudge));
+        padding-top: var(--bead-nudge);
         padding-inline: var(--bead-end-pad);
     }
     .pv-zoom2 {
@@ -81,7 +84,10 @@ const sizes = [
     }
     .pv-bead {
         position: absolute;
-        top: 3px;
+        /* Optically centered: the glass shine along the top hides some of the gap above, and the bead's shadow
+           darkens the gap below, so the bead (and the icons with it) sits --bead-nudge lower, in a pill that is
+           --bead-nudge taller to keep room beneath it */
+        top: calc(3px + var(--bead-nudge));
         bottom: 3px;
         left: var(--bead-end-pad);
         width: calc((100% - 2 * var(--bead-end-pad)) / 3);

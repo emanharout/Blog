@@ -10,8 +10,9 @@ const options = [
 ---
 
 <!--
-    Aero pages: a glass pill with a raised glass bead under the selected option that slides between them. Extra room
-    at both ends pulls the sun and gear in toward the middle. Other pages keep the pressed-in gray cells.
+    Aero pages: a glass pill with a raised glass bead under the selected option that slides between them. The room at
+    both ends matches the room above and below, so the bead sits the same distance from every edge. Other pages keep
+    the pressed-in gray cells.
 -->
 <fieldset
     class="theme-picker grid grid-cols-3 h-9 w-32 shrink-0 overflow-hidden
@@ -58,7 +59,10 @@ const options = [
     }
 
     .theme-picker {
-        --bead-end-pad: 6px;
+        /* Matches the bead's 3px inset below it (and the 3px above it, before the nudge) */
+        --bead-end-pad: 3px;
+        /* How far the bead and icons sit below geometric center; the pill grows by the same amount */
+        --bead-nudge: 1px;
         --bead-tint: hsl(45 95% 55%);
     }
 
@@ -103,10 +107,19 @@ const options = [
         display: none;
     }
 
+    /* The nudge: extra height, added as padding above the icons so they move down with the bead */
+    :global([data-design='aero']) .theme-picker {
+        height: calc(2.25rem + var(--bead-nudge));
+        padding-top: var(--bead-nudge);
+    }
+
     :global([data-design='aero']) .theme-bead {
         display: block;
         position: absolute;
-        top: 3px;
+        /* Optically centered: the glass shine along the top hides some of the gap above, and the bead's shadow
+           darkens the gap below, so the bead (and the icons with it) sits --bead-nudge lower, in a pill that is
+           --bead-nudge taller to keep room beneath it */
+        top: calc(3px + var(--bead-nudge));
         bottom: 3px;
         left: var(--bead-end-pad);
         width: calc((100% - 2 * var(--bead-end-pad)) / 3);
