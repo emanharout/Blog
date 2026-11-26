@@ -211,28 +211,43 @@
 
 /*
  * SHINY FROST
- * `frost` with some shine: a frostier blur that brightens what's behind it, a gloss over the top of the panel, a bright
- * line along its top edge, a faint inner glow and a deeper shadow. Made for dark mode, where it reads as lit glass
- * without the full `glass` look (the post page's tables of contents use `dark:frost-shine`). Like `frost`, it overrides
- * `glass` when both are applied.
+ * `frost` pushed toward polished glass, made for dark mode (the post page's tables of contents use `dark:frost-shine`):
+ * - a thinner tint, so more of the frosted page shows through, under a strong, bright frost that boosts its colors
+ * - a bold gloss over the top of the panel, and a bright line along its top edge
+ * - a lit rim (a brighter outline and a bright inner edge) and an inner glow
+ * - a deep drop shadow and a faint cool halo, so it floats
+ * Like `frost`, it overrides `glass` when both are applied.
  */
 @utility frost-shine {
     @apply frost;
+    background: color-mix(in srgb, var(--color-bg-2) 70%, transparent);
+    border-color: rgb(255 255 255 / 0.16);
+    border-top-color: rgb(255 255 255 / 0.32);
     box-shadow:
         /* Top highlight */
-        inset 0 1px 0 rgb(255 255 255 / 0.14),
+        inset 0 1px 0 rgb(255 255 255 / 0.35),
+        /* Rim: a bright inner edge */
+        inset 0 0 0 1px rgb(255 255 255 / 0.07),
         /* Inner glow */
-        inset 0 0 1.25rem rgb(255 255 255 / 0.035),
+        inset 0 0 2rem rgb(255 255 255 / 0.08),
         /* Drop shadow */
-        0 12px 32px -12px rgb(0 0 0 / 0.55),
-        0 2px 6px -2px rgb(0 0 0 / 0.3);
-    -webkit-backdrop-filter: blur(28px) saturate(1.5);
-    backdrop-filter: blur(28px) saturate(1.5);
+        0 20px 44px -14px rgb(0 0 0 / 0.75),
+        0 3px 8px -2px rgb(0 0 0 / 0.4),
+        /* Halo */
+        0 0 28px -6px rgb(140 170 255 / 0.22);
+    -webkit-backdrop-filter: blur(32px) saturate(1.9) brightness(1.12);
+    backdrop-filter: blur(32px) saturate(1.9) brightness(1.12);
 
-    /* Gloss: a soft sheen over the top of the panel */
+    /* Gloss: a bold sheen over the top of the panel */
     &::before {
         content: '';
-        background: linear-gradient(180deg, rgb(255 255 255 / 0.09) 0%, rgb(255 255 255 / 0.02) 35%, transparent 60%);
+        background: linear-gradient(
+            180deg,
+            rgb(255 255 255 / 0.2) 0%,
+            rgb(255 255 255 / 0.07) 28%,
+            rgb(255 255 255 / 0.02) 50%,
+            transparent 65%
+        );
     }
 }
 
