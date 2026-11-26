@@ -9,7 +9,7 @@
 @layer base {
     /* Shared by every experimental style: palettes from two hues, and roles derived from them */
     :root[data-design='aero'][data-light-style]:not(.dark) {
-        /* Primary: the accent (nav underline, active table of contents entry) at a lightness fixed per style, plus half the card tags and text selection. */
+        /* Primary: the accent (nav underline, active table of contents entry) at a lightness fixed per style, plus half the card tags. */
         --primary-h: 150;
         --primary-s: 20%;
         --primary-l: 38%;
@@ -133,12 +133,12 @@
     /* DAYBREAK: a little after First Light. The sun has just risen: pale sky blue over peach and gold, pearly glass, no stars. */
     :root[data-design='aero'][data-light-style='daybreak']:not(.dark) {
         background-color: hsl(32 60% 93%);
-        /* Primary eucalyptus green and secondary terracotta, well clear of each other */
-        --primary-h: 152;
-        --primary-s: 45%;
+        /* Primary terracotta and secondary sage, well clear of each other */
+        --primary-h: 14.2;
+        --primary-s: 52%;
         --primary-l: 40%;
-        --secondary-h: 14.2;
-        --secondary-s: 52%;
+        --secondary-h: 155;
+        --secondary-s: 30%;
         --tertiary-h: 212;
         --tertiary-s: 35%;
 
@@ -161,7 +161,7 @@
         --glass-contact-alpha: 0.04;
         --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
 
-        /* Logo colored like the sunrise behind it: tertiary blue blending into primary sage */
+        /* Logo colored like the sunrise behind it: tertiary blue blending into primary terracotta */
         --logo-top: hsl(var(--tertiary-h) 62% 52%);
         --logo-bottom: hsl(var(--primary-h) 55% 55%);
         --logo-shadow: hsl(var(--tertiary-h) 45% 30% / 0.25);
