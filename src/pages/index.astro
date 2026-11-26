@@ -8,20 +8,21 @@ import { getAllPostsSorted } from '../scripts/utilities';
 const LATEST_POST_COUNT = 6;
 const latestPosts = (await getAllPostsSorted()).slice(0, LATEST_POST_COUNT);
 
-// Orb colors follow the theme roles, so they shift from day (green / sky blue) to night (dusk / starlit blue).
+// Orb colors follow the theme roles: Wonder takes the primary color, Programming the secondary, so they shift with the
+// theme.
 const blogs = [
     {
         href: `/blog/${WONDER_BLOG_TYPE}`,
         title: 'Wonder Blog',
         blurb: 'The paradoxes and possibilities of life, the harmony between art and science, and the everyday magic hidden in the ordinary.',
-        orbClass: '[--orb-from:var(--color-secondary-300)] [--orb-to:var(--color-secondary-600)]',
+        orbClass: '[--orb-from:var(--color-primary-300)] [--orb-to:var(--color-primary-600)]',
         icon: 'sparkle',
     },
     {
         href: `/blog/${PROGRAMMING_BLOG_TYPE}`,
         title: 'Programming Blog',
         blurb: 'iOS and Swift take center stage, with JavaScript and the modern web alongside. Above all, best practices that hold up in any language.',
-        orbClass: '[--orb-from:var(--color-tertiary-300)] [--orb-to:var(--color-tertiary-600)]',
+        orbClass: '[--orb-from:var(--color-secondary-300)] [--orb-to:var(--color-secondary-600)]',
         icon: 'code',
     },
 ] as const;

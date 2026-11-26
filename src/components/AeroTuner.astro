@@ -52,7 +52,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'primary-h',
                 label: 'Primary hue',
-                tip: 'The first color, in both themes: the nav underline, the active table of contents entry, the footer icons, half the card tags, text selection and part of the logo. The accent (underline, contents, icons) stays at a fixed lightness per theme: deep in light mode, bright in dark mode.',
+                tip: 'The first color, in both themes: the nav underline, the active table of contents entry, the footer icons, half the card tags, text selection, the Wonder Blog badge and part of the logo. The accent (underline, contents, icons) stays at a fixed lightness per theme: deep in light mode, bright in dark mode.',
                 type: 'picker',
                 sat: paletteSat('primary-s'),
                 themes: both,
@@ -61,7 +61,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'secondary-h',
                 label: 'Secondary hue',
-                tip: 'The second color: “Eman” in the home page heading, the quote mark beside the verse, the Wonder Blog badge, inline code and tooltips. It never changes the background.',
+                tip: 'The second color: “Eman” in the home page heading, the quote mark beside the verse, the Programming Blog badge, inline code and tooltips. It never changes the background.',
                 type: 'picker',
                 sat: paletteSat('secondary-s'),
                 themes: both,
@@ -70,7 +70,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'tertiary-h',
                 label: 'Tertiary hue',
-                tip: 'The third color: links, buttons, the logo, footnotes, tag pages, the other half of the card tags and the Programming Blog badge. It never changes the background.',
+                tip: 'The third color: links, buttons, the logo, footnotes, tag pages and the other half of the card tags. It never changes the background.',
                 type: 'picker',
                 sat: paletteSat('tertiary-s'),
                 themes: both,
