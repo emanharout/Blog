@@ -30,25 +30,29 @@ const { Content, headings } = await render(post);
     <!--
       `--article-pad` is the card's inner horizontal padding. Full-bleed children (images here, code blocks in
       shiki.css) use it as a negative margin to reach the card edges. Change it here and everything stays aligned.
+      The card doesn't clip its content, so footnotes can sit in the margin beside it (`.fn-note` in input.css); the
+      image is rounded to the card's corners by its own wrapper.
     -->
     <div
-        class="w-full max-w-[65ch] mb-6 bg-bg-2 shadow-md sm:rounded-xl overflow-hidden
+        class="relative w-full max-w-[65ch] mb-6 bg-bg-2 shadow-md sm:rounded-xl
         aero:glass aero:glass-reading aero:mt-4 aero:sm:rounded-box
         [--article-pad:clamp(1.25rem,5vw,2rem)]"
     >
         {
             hasImage && (
-                <Picture
-                    src={post.data.image!}
-                    alt={post.data.imageAlt ?? ''}
-                    formats={['avif', 'webp']}
-                    fallbackFormat="jpg"
-                    loading="eager"
-                    fetchpriority="high"
-                    widths={[480, 720, 1040]}
-                    sizes="(min-width: 65ch) 65ch, 100vw"
-                    class="w-full object-cover"
-                />
+                <div class="overflow-hidden rounded-t-[inherit]">
+                    <Picture
+                        src={post.data.image!}
+                        alt={post.data.imageAlt ?? ''}
+                        formats={['avif', 'webp']}
+                        fallbackFormat="jpg"
+                        loading="eager"
+                        fetchpriority="high"
+                        widths={[480, 720, 1040]}
+                        sizes="(min-width: 65ch) 65ch, 100vw"
+                        class="w-full object-cover"
+                    />
+                </div>
             )
         }
         <div class="px-(--article-pad) py-8">
@@ -56,7 +60,12 @@ const { Content, headings } = await render(post);
               Blockquotes: the default left border is removed and left padding leaves room for the quotation-mark SVG
               added by blockQuoteSvgScript.ts. If this padding changes, adjust the SVG's position in that script.
             -->
+            <!--
+              data-long-notes: where long footnotes go on wide screens (footnoteNotes.ts). "inline": they stay closed in
+              the text and open under their line; "margin": in the margin like short ones, pushing later notes down.
+            -->
             <article
+                data-long-notes="margin"
                 class="article-content
                 prose prose-fg2 max-w-none
                 prose-a:text-fg-primary-link-2
@@ -83,3 +92,4 @@ const { Content, headings } = await render(post);
 <script src="../scripts/tippyTooltipSetup.js"></script>
 <script src="../scripts/blockQuoteSvgScript.ts"></script>
 <script src="../scripts/tableOfContents.ts"></script>
+<script src="../scripts/footnoteNotes.ts"></script>

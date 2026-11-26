@@ -5,6 +5,7 @@ import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import rehypeExternalLinks from 'rehype-external-links';
 import remarkSectionize from 'remark-sectionize';
+import rehypeFootnoteNotes from './src/plugins/rehypeFootnoteNotes.mjs';
 import {
   // [!code --] and [!code ++]
   // <pre class="has-diff">
@@ -61,6 +62,7 @@ export default defineConfig({
         'astro:config:setup': ({ command, injectRoute }) => {
           if (command === 'dev') {
             injectRoute({ pattern: '/dev/compare', entrypoint: './src/dev/compare.astro' });
+            injectRoute({ pattern: '/dev/notes', entrypoint: './src/dev/notes.astro' });
           }
         },
         // Only runs for `astro dev`: lets the design tuner read and save its values (scripts/aero-tuner-store.mjs).
@@ -132,6 +134,8 @@ export default defineConfig({
     processor: unified({
       remarkPlugins: [remarkSectionize],
       rehypePlugins: [
+        // Copies each footnote next to its number, for margin notes and notes that open in place.
+        rehypeFootnoteNotes,
         [
           rehypeExternalLinks,
           {
