@@ -325,6 +325,25 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
                 display calc(var(--menu-duration) * 0.6) allow-discrete;
         }
     }
+
+    /*
+     * A theme switch cross-fades the page from snapshots (see colorThemeScript.js). Safari leaves backdrop-filter blur
+     * out of snapshots, so the open mobile card would turn see-through and show the text behind it for the whole fade.
+     * Instead the card gets its own layer in the fade, and that layer does the frosting: its box blurs the fading page
+     * beneath it, the way the live card blurs the live page.
+     */
+    @media (width < 48rem) {
+        :global(html.theme-switching) #site-nav-panel[data-open] {
+            view-transition-name: nav-panel;
+        }
+    }
+
+    :global(html.theme-switching::view-transition-group(nav-panel)) {
+        border-radius: var(--panel-radius);
+        -webkit-backdrop-filter: blur(var(--glass-blur))
+            saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+        backdrop-filter: blur(var(--glass-blur)) saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+    }
 </style>
 
 <script>
