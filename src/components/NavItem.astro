@@ -1,6 +1,6 @@
 ---
-// A top-level navigation item. On desktop it gets an animated center-out underline on hover, which stays visible
-// when `active`. On mobile (inside the collapsible menu) the active item gets a background tint instead.
+// A top-level navigation item. On desktop a glass bead (in HeaderNav) sits under the active item and slides to whichever
+// item is hovered or keyboard-focused. On mobile (inside the menu card) the active item's row wears the bead's look.
 type Props = {
     active?: boolean;
     class?: string;
@@ -11,18 +11,17 @@ const { active = false, class: className } = Astro.props;
 
 <li
     class:list={[
-        'relative rounded',
-        'hover:bg-bg-2',
-        // Underline: two halves in the accent color that grow outward from the center (desktop only)
-        'md:before:absolute md:before:bottom-0 md:before:left-1/2 md:before:h-[3px] md:before:w-0 md:before:bg-accent',
-        'md:after:absolute md:after:bottom-0 md:after:right-1/2 md:after:h-[3px] md:after:w-0 md:after:bg-accent',
-        'md:before:transition-[width] md:after:transition-[width] md:before:duration-300 md:after:duration-300',
-        'md:hover:before:w-1/2 md:hover:after:w-1/2',
-        'motion-reduce:before:transition-none motion-reduce:after:transition-none',
-        active && 'bg-bg-2 md:bg-transparent md:before:w-1/2 md:after:w-1/2',
+        'nav-item relative rounded-pill',
+        // Text and icons (which use currentColor) take the primary color on the item under the bead. On desktop that
+        // follows HeaderNav's script, which moves data-bead along with the bead (it starts on the active item, so there
+        // is no flash before the script runs); on mobile it's the active item.
+        'md:transition-colors md:duration-300 motion-reduce:transition-none',
+        'md:data-bead:text-primary-700 md:dark:data-bead:text-primary-300',
+        'max-md:data-active:text-primary-700 max-md:dark:data-active:text-primary-300',
         className,
     ]}
     data-active={active || undefined}
+    data-bead={active || undefined}
 >
     <slot />
 </li>

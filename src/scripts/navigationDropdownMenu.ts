@@ -37,11 +37,13 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+// Outside clicks close the desktop dropdown and the mobile menu card (including taps on the blurred backdrop behind it)
 document.addEventListener('click', (event) => {
-    if (!submenu?.isOpen()) return;
     const target = event.target as Node | null;
+    const outside = (disclosure: NonNullable<typeof menu>) =>
+        !disclosure.button.contains(target) && !disclosure.panel.contains(target);
     const desktop = window.matchMedia('(min-width: 48rem)').matches;
-    if (desktop && !submenu.button.contains(target) && !submenu.panel.contains(target)) {
-        submenu.setOpen(false);
-    }
+
+    if (submenu?.isOpen() && desktop && outside(submenu)) submenu.setOpen(false);
+    if (menu?.isOpen() && !desktop && outside(menu)) menu.setOpen(false);
 });
