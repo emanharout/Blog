@@ -173,8 +173,11 @@ const titleId = `table-of-contents-title-${variant}`;
                 backdrop:transition-opacity backdrop:duration-450 backdrop:ease-toc-leave data-shown:backdrop:ease-toc-arrive
                 motion-reduce:backdrop:transition-none"
             >
-                <!-- Stays put while the list scrolls. The title is centered, between the close button and a space as wide. -->
-                <div class="grid shrink-0 grid-cols-[2.75rem_1fr_2.75rem] items-center px-2 pt-2">
+                <!--
+                  Stays put while the list scrolls. The title is centered, between the close button and a space as wide.
+                  The progress segments run along its bottom, as under the inline ToC's and the strip's titles.
+                -->
+                <div class="relative grid shrink-0 grid-cols-[2.75rem_1fr_2.75rem] items-center px-2 pt-2 pb-4">
                     <span aria-hidden="true" />
                     <h2 id={titleId} class="text-center font-serif text-[1.0625rem] font-medium text-gray-temp-500 dark:text-gray-temp-300">
                         Table of Contents
@@ -190,6 +193,7 @@ const titleId = `table-of-contents-title-${variant}`;
                             <path d="M6 6l12 12M18 6L6 18" />
                         </svg>
                     </button>
+                    <TableOfContentsSegments sections={sections} />
                 </div>
                 <nav
                     data-toc-scroller
