@@ -39,18 +39,18 @@
     --color-primary-900: hsl(var(--primary-color-900));
     --color-primary-950: hsl(var(--primary-color-950));
 
-    /* Secondary theme color scale */
-    --color-secondary-50: hsl(var(--secondary-color-50));
-    --color-secondary-100: hsl(var(--secondary-color-100));
-    --color-secondary-200: hsl(var(--secondary-color-200));
-    --color-secondary-300: hsl(var(--secondary-color-300));
-    --color-secondary-400: hsl(var(--secondary-color-400));
-    --color-secondary-500: hsl(var(--secondary-color-500));
-    --color-secondary-600: hsl(var(--secondary-color-600));
-    --color-secondary-700: hsl(var(--secondary-color-700));
-    --color-secondary-800: hsl(var(--secondary-color-800));
-    --color-secondary-900: hsl(var(--secondary-color-900));
-    --color-secondary-950: hsl(var(--secondary-color-950));
+    /* Tertiary theme color scale */
+    --color-tertiary-50: hsl(var(--tertiary-color-50));
+    --color-tertiary-100: hsl(var(--tertiary-color-100));
+    --color-tertiary-200: hsl(var(--tertiary-color-200));
+    --color-tertiary-300: hsl(var(--tertiary-color-300));
+    --color-tertiary-400: hsl(var(--tertiary-color-400));
+    --color-tertiary-500: hsl(var(--tertiary-color-500));
+    --color-tertiary-600: hsl(var(--tertiary-color-600));
+    --color-tertiary-700: hsl(var(--tertiary-color-700));
+    --color-tertiary-800: hsl(var(--tertiary-color-800));
+    --color-tertiary-900: hsl(var(--tertiary-color-900));
+    --color-tertiary-950: hsl(var(--tertiary-color-950));
 
     /* Page background and raised surfaces (cards) */
     --color-bg-1: hsl(var(--background-color-1));
@@ -394,17 +394,17 @@
         --azure-color-900: var(--main-h) calc(var(--main-s) * 0.9483) 20%;
         --azure-color-950: var(--main-h) calc(var(--main-s) * 1.0345) 13%;
 
-        --leaf-color-50: var(--secondary-h) calc(var(--secondary-s) * 1.0938) 96%;
-        --leaf-color-100: var(--secondary-h) var(--secondary-s) 91%;
-        --leaf-color-200: var(--secondary-h) calc(var(--secondary-s) * 0.9375) 82%;
-        --leaf-color-300: var(--secondary-h) calc(var(--secondary-s) * 0.875) 68%;
-        --leaf-color-400: var(--secondary-h) calc(var(--secondary-s) * 0.8125) 54%;
-        --leaf-color-500: var(--secondary-h) calc(var(--secondary-s) * 0.9375) 45%;
-        --leaf-color-600: var(--secondary-h) var(--secondary-s) 37%;
-        --leaf-color-700: var(--secondary-h) calc(var(--secondary-s) * 1.0625) 30%;
-        --leaf-color-800: var(--secondary-h) calc(var(--secondary-s) * 1.0938) 25%;
-        --leaf-color-900: var(--secondary-h) calc(var(--secondary-s) * 1.1875) 18%;
-        --leaf-color-950: var(--secondary-h) calc(var(--secondary-s) * 1.25) 10%;
+        --leaf-color-50: var(--tertiary-h) calc(var(--tertiary-s) * 1.0938) 96%;
+        --leaf-color-100: var(--tertiary-h) var(--tertiary-s) 91%;
+        --leaf-color-200: var(--tertiary-h) calc(var(--tertiary-s) * 0.9375) 82%;
+        --leaf-color-300: var(--tertiary-h) calc(var(--tertiary-s) * 0.875) 68%;
+        --leaf-color-400: var(--tertiary-h) calc(var(--tertiary-s) * 0.8125) 54%;
+        --leaf-color-500: var(--tertiary-h) calc(var(--tertiary-s) * 0.9375) 45%;
+        --leaf-color-600: var(--tertiary-h) var(--tertiary-s) 37%;
+        --leaf-color-700: var(--tertiary-h) calc(var(--tertiary-s) * 1.0625) 30%;
+        --leaf-color-800: var(--tertiary-h) calc(var(--tertiary-s) * 1.0938) 25%;
+        --leaf-color-900: var(--tertiary-h) calc(var(--tertiary-s) * 1.1875) 18%;
+        --leaf-color-950: var(--tertiary-h) calc(var(--tertiary-s) * 1.25) 10%;
 
         --sun-color-300: var(--aero-sun-h) 75% 65%;
         --sun-color-400: var(--aero-sun-h) 70% 52%;
@@ -423,17 +423,17 @@
         --night-color-900: var(--main-h) calc(var(--main-s) * 0.9667) 18%;
         --night-color-950: var(--main-h) calc(var(--main-s) * 1.1667) 9%;
 
-        --dusk-color-50: var(--secondary-h) calc(var(--secondary-s) * 1.4286) 96%;
-        --dusk-color-100: var(--secondary-h) calc(var(--secondary-s) * 1.3571) 91%;
-        --dusk-color-200: var(--secondary-h) calc(var(--secondary-s) * 1.2857) 83%;
-        --dusk-color-300: var(--secondary-h) calc(var(--secondary-s) * 1.2143) 72%;
-        --dusk-color-400: var(--secondary-h) calc(var(--secondary-s) * 1.0714) 62%;
-        --dusk-color-500: var(--secondary-h) calc(var(--secondary-s) * 0.9286) 52%;
-        --dusk-color-600: var(--secondary-h) var(--secondary-s) 43%;
-        --dusk-color-700: var(--secondary-h) calc(var(--secondary-s) * 1.1429) 34%;
-        --dusk-color-800: var(--secondary-h) calc(var(--secondary-s) * 1.2857) 26%;
-        --dusk-color-900: var(--secondary-h) calc(var(--secondary-s) * 1.5) 18%;
-        --dusk-color-950: var(--secondary-h) calc(var(--secondary-s) * 1.7857) 10%;
+        --dusk-color-50: var(--tertiary-h) calc(var(--tertiary-s) * 1.4286) 96%;
+        --dusk-color-100: var(--tertiary-h) calc(var(--tertiary-s) * 1.3571) 91%;
+        --dusk-color-200: var(--tertiary-h) calc(var(--tertiary-s) * 1.2857) 83%;
+        --dusk-color-300: var(--tertiary-h) calc(var(--tertiary-s) * 1.2143) 72%;
+        --dusk-color-400: var(--tertiary-h) calc(var(--tertiary-s) * 1.0714) 62%;
+        --dusk-color-500: var(--tertiary-h) calc(var(--tertiary-s) * 0.9286) 52%;
+        --dusk-color-600: var(--tertiary-h) var(--tertiary-s) 43%;
+        --dusk-color-700: var(--tertiary-h) calc(var(--tertiary-s) * 1.1429) 34%;
+        --dusk-color-800: var(--tertiary-h) calc(var(--tertiary-s) * 1.2857) 26%;
+        --dusk-color-900: var(--tertiary-h) calc(var(--tertiary-s) * 1.5) 18%;
+        --dusk-color-950: var(--tertiary-h) calc(var(--tertiary-s) * 1.7857) 10%;
     }
 
     /* LIGHT THEME ROLES (default) */
@@ -450,17 +450,17 @@
         --primary-color-900: var(--violet-color-900);
         --primary-color-950: var(--violet-color-950);
 
-        --secondary-color-50: var(--teal-color-50);
-        --secondary-color-100: var(--teal-color-100);
-        --secondary-color-200: var(--teal-color-200);
-        --secondary-color-300: var(--teal-color-300);
-        --secondary-color-400: var(--teal-color-400);
-        --secondary-color-500: var(--teal-color-500);
-        --secondary-color-600: var(--teal-color-600);
-        --secondary-color-700: var(--teal-color-700);
-        --secondary-color-800: var(--teal-color-800);
-        --secondary-color-900: var(--teal-color-900);
-        --secondary-color-950: var(--teal-color-950);
+        --tertiary-color-50: var(--teal-color-50);
+        --tertiary-color-100: var(--teal-color-100);
+        --tertiary-color-200: var(--teal-color-200);
+        --tertiary-color-300: var(--teal-color-300);
+        --tertiary-color-400: var(--teal-color-400);
+        --tertiary-color-500: var(--teal-color-500);
+        --tertiary-color-600: var(--teal-color-600);
+        --tertiary-color-700: var(--teal-color-700);
+        --tertiary-color-800: var(--teal-color-800);
+        --tertiary-color-900: var(--teal-color-900);
+        --tertiary-color-950: var(--teal-color-950);
 
         --temperature-gray-50: var(--slate-color-50);
         --temperature-gray-100: var(--slate-color-100);
@@ -477,13 +477,17 @@
         /* Near-white card surface (cool gray 50) */
         --background-color-2: 210deg 20% 98%;
 
-        /* Primary-tinted bg for inline elements: inline code, footnote superscripts, tooltip spans */
+        /* Primary-tinted bg for inline elements: footnote superscripts and notes */
         --primary-bg: var(--primary-color-200);
         --primary-bg-hover: var(--primary-color-100);
         --primary-bg-border: var(--primary-color-300);
         --primary-bg-border-hover: var(--primary-color-300);
         /* Text on --primary-bg */
         --fg-primary-2: var(--primary-color-950);
+        /* Tertiary-tinted bg for inline code and tooltip spans, and the text on it */
+        --tertiary-bg: var(--tertiary-color-200);
+        --tertiary-bg-border: var(--tertiary-color-300);
+        --fg-tertiary-2: var(--tertiary-color-950);
 
         /* Body text; slightly tinted to match the primary color's temperature */
         --fg-color-1: var(--slate-color-800);
@@ -507,6 +511,9 @@
         --primary-bg-border: var(--primary-color-900);
         --primary-bg-border-hover: var(--primary-color-800);
         --fg-primary-2: var(--primary-color-100);
+        --tertiary-bg: var(--tertiary-color-700);
+        --tertiary-bg-border: var(--tertiary-color-900);
+        --fg-tertiary-2: var(--tertiary-color-100);
 
         --fg-color-1: var(--slate-color-300);
         --fg-color-2: var(--slate-color-200);
@@ -534,17 +541,17 @@
         --primary-color-900: var(--azure-color-900);
         --primary-color-950: var(--azure-color-950);
 
-        --secondary-color-50: var(--leaf-color-50);
-        --secondary-color-100: var(--leaf-color-100);
-        --secondary-color-200: var(--leaf-color-200);
-        --secondary-color-300: var(--leaf-color-300);
-        --secondary-color-400: var(--leaf-color-400);
-        --secondary-color-500: var(--leaf-color-500);
-        --secondary-color-600: var(--leaf-color-600);
-        --secondary-color-700: var(--leaf-color-700);
-        --secondary-color-800: var(--leaf-color-800);
-        --secondary-color-900: var(--leaf-color-900);
-        --secondary-color-950: var(--leaf-color-950);
+        --tertiary-color-50: var(--leaf-color-50);
+        --tertiary-color-100: var(--leaf-color-100);
+        --tertiary-color-200: var(--leaf-color-200);
+        --tertiary-color-300: var(--leaf-color-300);
+        --tertiary-color-400: var(--leaf-color-400);
+        --tertiary-color-500: var(--leaf-color-500);
+        --tertiary-color-600: var(--leaf-color-600);
+        --tertiary-color-700: var(--leaf-color-700);
+        --tertiary-color-800: var(--leaf-color-800);
+        --tertiary-color-900: var(--leaf-color-900);
+        --tertiary-color-950: var(--leaf-color-950);
 
         --background-color-1: var(--aero-sky-h) 60% 97% / 0;
         --background-color-2: 42deg 40% 99% / 0.86;
@@ -557,19 +564,19 @@
         --accent-color: var(--leaf-color-600);
 
         /*
-         * MAIN / SECONDARY / TERTIARY (tunable). Main: links, buttons, the logo, half the tags. Secondary: the other
-         * tags and the Wonder badge. Tertiary: the accent ("Eman", quote mark, footer icons, nav underline, active
-         * table of contents entry, in both themes), at a lightness fixed per theme. Light styles and dark mode set their own. Background hues (sky, lawn, sun) are
-         * separate knobs.
+         * MAIN / SECONDARY / TERTIARY (tunable). Main: links, buttons, the logo, half the tags. Secondary: the accent
+         * ("Eman", quote mark, footer icons, nav underline, active table of contents entry, in both themes), at a
+         * lightness fixed per theme. Tertiary: the other tags, the Wonder badge and text selection. Light styles and
+         * dark mode set their own. Background hues (sky, lawn, sun) are separate knobs.
          */
         --main-h: 208;
         --main-s: 58%;
-        --secondary-h: 128;
-        --secondary-s: 32%;
-        --tertiary-h: 127.9;
-        --tertiary-s: 32.3%;
-        --tertiary-l: 37.1%;
-        --color-accent: hsl(var(--tertiary-h) var(--tertiary-s) var(--tertiary-l));
+        --secondary-h: 127.9;
+        --secondary-s: 32.3%;
+        --secondary-l: 37.1%;
+        --tertiary-h: 128;
+        --tertiary-s: 32%;
+        --color-accent: hsl(var(--secondary-h) var(--secondary-s) var(--secondary-l));
 
         /* Glass knobs (tunable): calmer, less shine, hairline edges */
         --glass-opacity: 0.8;
@@ -623,17 +630,17 @@
         --primary-color-900: var(--night-color-900);
         --primary-color-950: var(--night-color-950);
 
-        --secondary-color-50: var(--dusk-color-50);
-        --secondary-color-100: var(--dusk-color-100);
-        --secondary-color-200: var(--dusk-color-200);
-        --secondary-color-300: var(--dusk-color-300);
-        --secondary-color-400: var(--dusk-color-400);
-        --secondary-color-500: var(--dusk-color-500);
-        --secondary-color-600: var(--dusk-color-600);
-        --secondary-color-700: var(--dusk-color-700);
-        --secondary-color-800: var(--dusk-color-800);
-        --secondary-color-900: var(--dusk-color-900);
-        --secondary-color-950: var(--dusk-color-950);
+        --tertiary-color-50: var(--dusk-color-50);
+        --tertiary-color-100: var(--dusk-color-100);
+        --tertiary-color-200: var(--dusk-color-200);
+        --tertiary-color-300: var(--dusk-color-300);
+        --tertiary-color-400: var(--dusk-color-400);
+        --tertiary-color-500: var(--dusk-color-500);
+        --tertiary-color-600: var(--dusk-color-600);
+        --tertiary-color-700: var(--dusk-color-700);
+        --tertiary-color-800: var(--dusk-color-800);
+        --tertiary-color-900: var(--dusk-color-900);
+        --tertiary-color-950: var(--dusk-color-950);
 
         --background-color-1: var(--aero-night-h) 70% 6% / 0;
         --background-color-2: calc(var(--aero-night-h) + 4) 50% 14% / 0.8;
@@ -646,17 +653,17 @@
         /* Main / secondary / tertiary (tunable); the night sky's own hue is --aero-night-h */
         --main-h: 222;
         --main-s: 60%;
-        --secondary-h: 340;
-        --secondary-s: 30%;
         /*
-         * Tertiary (accent), on the same elements as in light mode. Lightness 74% keeps it clear of the white heading
+         * Secondary (accent), on the same elements as in light mode. Lightness 74% keeps it clear of the white heading
          * text. The hue and saturation in use are the saved honey gold (44 / 65%) in tuned.css; these are the factory
          * defaults underneath.
          */
-        --tertiary-h: 27;
-        --tertiary-s: 48%;
-        --tertiary-l: 74%;
-        --accent-color: var(--tertiary-h) var(--tertiary-s) var(--tertiary-l);
+        --secondary-h: 27;
+        --secondary-s: 48%;
+        --secondary-l: 74%;
+        --tertiary-h: 340;
+        --tertiary-s: 30%;
+        --accent-color: var(--secondary-h) var(--secondary-s) var(--secondary-l);
         --color-accent: hsl(var(--accent-color));
 
         /* Glass knobs (tunable) */
@@ -691,14 +698,14 @@
 }
 
 @layer components {
-    /* Highlighted (selected) text uses the secondary hue: a pale tint under dark text by day, a deep shade under
+    /* Highlighted (selected) text uses the tertiary hue: a pale tint under dark text by day, a deep shade under
        white text by night */
     ::selection {
-        background-color: hsl(var(--secondary-color-200));
+        background-color: hsl(var(--tertiary-color-200));
         color: hsl(var(--fg-color-1));
     }
     .dark ::selection {
-        background-color: hsl(var(--secondary-color-700));
+        background-color: hsl(var(--tertiary-color-700));
         color: hsl(0 0% 100%);
     }
 
@@ -758,8 +765,10 @@
 
     /* Inline tooltips that aren't footnotes, e.g. <span tip="Popup text">highlighted words</span> */
     span[tip]:not(:has(sup)) {
-        background-color: hsl(var(--primary-bg));
-        outline: 1px solid hsl(var(--primary-bg-border));
+        /* Tertiary, like inline code, so it doesn't read as a footnote number */
+        color: hsl(var(--fg-tertiary-2));
+        background-color: hsl(var(--tertiary-bg));
+        outline: 1px solid hsl(var(--tertiary-bg-border));
         font-weight: 500;
         border-radius: 3px;
         margin-inline: 2px;

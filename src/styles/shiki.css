@@ -68,10 +68,10 @@ pre.astro-code code {
     content: none;
 }
 
-/* Style inline code found in articles */
+/* Style inline code found in articles: a tertiary tint, so it stands apart from links and footnotes in the main color */
 .prose section > p > code {
-    background-color: hsl(var(--primary-bg));
-    outline: 1px solid hsl(var(--primary-bg-border));
+    background-color: hsl(var(--tertiary-bg));
+    outline: 1px solid hsl(var(--tertiary-bg-border));
     font-weight: 500;
     border-radius: 3px;
     padding-inline: 3px 3px;
@@ -79,14 +79,14 @@ pre.astro-code code {
 }
 
 .dark .prose section > p > code {
-    background-color: hsl(var(--primary-bg));
-    outline: 1px solid hsl(var(--primary-bg-border));
+    background-color: hsl(var(--tertiary-bg));
+    outline: 1px solid hsl(var(--tertiary-bg-border));
 }
 
 /* Style inline code found in article li's */
 .prose section > li code {
-    background-color: hsl(var(--primary-bg));
-    outline: 1px solid hsl(var(--primary-bg-border));
+    background-color: hsl(var(--tertiary-bg));
+    outline: 1px solid hsl(var(--tertiary-bg-border));
     font-weight: 500;
     border-radius: 3px;
     padding-inline: 3px 3px;
@@ -94,14 +94,14 @@ pre.astro-code code {
 }
 
 .dark .prose section > li code {
-    background-color: hsl(var(--primary-bg));
-    outline: 1px solid hsl(var(--primary-bg-border));
+    background-color: hsl(var(--tertiary-bg));
+    outline: 1px solid hsl(var(--tertiary-bg-border));
 }
 
 /* Style inline code found in article ul's */
 .prose section > ul code {
-    background-color: hsl(var(--primary-bg));
-    outline: 1px solid hsl(var(--primary-bg-border));
+    background-color: hsl(var(--tertiary-bg));
+    outline: 1px solid hsl(var(--tertiary-bg-border));
     font-weight: 500;
     border-radius: 3px;
     padding-inline: 3px 3px;
@@ -109,8 +109,8 @@ pre.astro-code code {
 }
 
 .dark .prose section > ul code {
-    background-color: hsl(var(--primary-bg));
-    outline: 1px solid hsl(var(--primary-bg-border));
+    background-color: hsl(var(--tertiary-bg));
+    outline: 1px solid hsl(var(--tertiary-bg-border));
 }
 
 /* INLINE CODE COLOR */
@@ -120,7 +120,7 @@ pre.astro-code code {
 /* i.e. `.prose section > p > code` and `.dark .prose section > p > code` */
 .prose code,
 .dark .prose code {
-    color: hsl(var(--fg-primary-2));
+    color: hsl(var(--fg-tertiary-2));
 }
 
 /* EH: Hack id:In Case of Future Behavior Change - Shiki */

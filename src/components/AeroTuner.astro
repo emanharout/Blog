@@ -61,20 +61,20 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'secondary-h',
                 label: 'Secondary hue',
-                tip: 'The second color: the other half of the card tags, the Wonder Blog badge and part of the logo. It never changes the background.',
+                tip: 'The second color, the accent, in both themes: “Eman” in the home page heading, the quote mark beside the verse, the footer icons, the nav underline and the active table of contents entry. How light it is stays fixed per theme: deep in light mode, bright in dark mode.',
                 type: 'picker',
                 sat: paletteSat('secondary-s'),
                 themes: both,
-                swatch: 'hsl(var(--secondary-color-600))',
+                swatch: 'var(--color-accent)',
             },
             {
                 name: 'tertiary-h',
                 label: 'Tertiary hue',
-                tip: 'The accent, in both themes: “Eman” in the home page heading, the quote mark beside the verse, the footer icons, the nav underline and the active table of contents entry. How light it is stays fixed per theme: deep in light mode, bright in dark mode.',
+                tip: 'The third color: the other half of the card tags, the Wonder Blog badge and part of the logo. It never changes the background.',
                 type: 'picker',
                 sat: paletteSat('tertiary-s'),
                 themes: both,
-                swatch: 'var(--color-accent)',
+                swatch: 'hsl(var(--tertiary-color-600))',
             },
             { name: 'style-deco', label: 'Background decoration', tip: "Strength of this style's backdrop details (stars, rings, washes, shapes, frames). 0 hides them.", min: 0, max: 2, step: 0.05, themes: ['light'], styles: styledOnly },
             {
@@ -105,7 +105,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'aero-leaf-h',
                 label: 'Lawn hue',
-                tip: 'Background only: the lawn at the bottom of the sky. Saturation is how vivid it is (1 = as designed). The Wonder tags and badge use Secondary hue.',
+                tip: 'Background only: the lawn at the bottom of the sky. Saturation is how vivid it is (1 = as designed). The Wonder tags and badge use Tertiary hue.',
                 type: 'picker',
                 sat: backgroundSat('aero-leaf-saturation'),
                 themes: ['light'],
@@ -119,7 +119,7 @@ const groups: { title: string; knobs: Knob[] }[] = [
             {
                 name: 'aero-night-h',
                 label: 'Night sky hue',
-                tip: 'Background only: the night sky behind the page, and the faint tint of panels, glass and text. Saturation is how vivid the sky is (1 = as designed). Links, buttons and tags use Main and Secondary hue.',
+                tip: 'Background only: the night sky behind the page, and the faint tint of panels, glass and text. Saturation is how vivid the sky is (1 = as designed). Links, buttons and tags use Main and Tertiary hue.',
                 type: 'picker',
                 sat: backgroundSat('aero-night-saturation'),
                 themes: ['dark'],

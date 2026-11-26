@@ -8,7 +8,7 @@
         }
     },
     "dark": {
-        "tertiary-h": "44",
-        "tertiary-s": "65%"
+        "secondary-h": "44",
+        "secondary-s": "65%"
     }
 }

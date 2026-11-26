@@ -17,7 +17,7 @@ const { heading, roomy = false } = Astro.props;
 <!-- h3 headings are indented under their h2 -->
 <li class:list={['leading-snug', { 'pl-4': heading.depth === 3 }]}>
     <!--
-      tableOfContents.ts sets `data-active` on the topmost section on screen. It gets the tertiary (accent) color and a
+      tableOfContents.ts sets `data-active` on the topmost section on screen. It gets the secondary (accent) color and a
       bar on its left, so it doesn't rely on color alone. The bar sits in the panel's padding, at the same place for h2s
       and h3s, and never shifts the text.
     -->
