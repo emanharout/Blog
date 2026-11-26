@@ -141,7 +141,8 @@ function updateSheetButton() {
 
 // THE STRIP (from `sm` to `lg`): a bar at the top of the window that names the current section and drops down the list.
 const strip = document.querySelector<HTMLElement>('[data-toc-strip]');
-const stripButton = strip?.querySelector<HTMLButtonElement>('button');
+// Not the button beside it that brings back the sidebar
+const stripButton = strip?.querySelector<HTMLButtonElement>('button[aria-controls]');
 const stripPanel = document.getElementById(stripButton?.getAttribute('aria-controls') ?? '');
 const stripScroller = stripPanel?.querySelector<HTMLElement>('[data-toc-scroller]');
 const stripCurrent = strip?.querySelector<HTMLElement>('[data-toc-strip-current]');
@@ -329,6 +330,93 @@ function updateOnScreenMarks(activeId: string | undefined) {
 const sidebar = document.querySelector<HTMLElement>('[data-toc-sidebar]');
 let revealedId: string | undefined;
 
+// COLLAPSING THE SIDEBAR: its title collapses it, into a round button in its place from `lg` to `xl`, and into the
+// inline ToC (and the strip) from `xl` up. `data-toc-collapsed` on <html> drives the CSS (TableOfContents.astro); the
+// choice is kept for later visits and applied before first paint (BlogArticle.astro).
+const COLLAPSED_KEY = 'toc-collapsed';
+const collapseButton = sidebar?.querySelector<HTMLButtonElement>('[data-toc-collapse]');
+// The sidebar's own round button, and the buttons in the inline ToC and the strip that bring the sidebar back
+const expandButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-toc-expand]')];
+let sidebarAnimation: Animation | undefined;
+
+const isSidebarCollapsed = () => document.documentElement.hasAttribute('data-toc-collapsed');
+const isDisplayed = (element: Element | null | undefined) => (element?.getClientRects().length ?? 0) > 0;
+const isOnScreen = (element: Element) => {
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
+};
+
+function setSidebarCollapsed(collapsed: boolean) {
+    if (!sidebar || collapsed === isSidebarCollapsed()) return;
+    const hadFocus =
+        sidebar.contains(document.activeElement) || expandButtons.includes(document.activeElement as HTMLButtonElement);
+    // From wherever an unfinished animation has got to
+    const fromRect = isDisplayed(sidebar) ? sidebar.getBoundingClientRect() : undefined;
+    const fromRadius = fromRect ? getComputedStyle(sidebar).borderRadius : '';
+    sidebarAnimation?.cancel();
+    sidebarAnimation = undefined;
+
+    document.documentElement.toggleAttribute('data-toc-collapsed', collapsed);
+    try {
+        if (collapsed) localStorage.setItem(COLLAPSED_KEY, 'true');
+        else localStorage.removeItem(COLLAPSED_KEY);
+    } catch {
+        // Storage unavailable; the choice lasts until the page is left.
+    }
+    collapseButton?.setAttribute('aria-expanded', String(!collapsed));
+    sidebar.querySelector('[data-toc-expand]')?.setAttribute('aria-expanded', String(!collapsed));
+    setInlineOpen(false);
+    setStripOpen(false);
+    // Shows or hides the strip at once, so that its button can take the focus.
+    updateActiveLinks();
+    revealActiveEntry(sidebar);
+    // Margin notes beside the sidebar were hidden under it (footnoteNotes.ts).
+    document.dispatchEvent(new Event('footnote-notes:layout'));
+
+    // The button that was used has gone, so the focus moves to the one that undoes it.
+    if (hadFocus) {
+        const target = collapsed
+            ? expandButtons.find((button) => isDisplayed(button) && isOnScreen(button))
+            : collapseButton;
+        target?.focus({ preventScroll: true });
+    }
+
+    // From `lg` to `xl` the panel shrinks into its round button, and grows back out of it.
+    if (!fromRect || !isDisplayed(sidebar) || reducedMotion.matches) return;
+    const toRect = sidebar.getBoundingClientRect();
+    const toRadius = getComputedStyle(sidebar).borderRadius;
+    sidebar.style.overflow = 'hidden';
+    const animation = sidebar.animate(
+        {
+            width: [`${fromRect.width}px`, `${toRect.width}px`],
+            height: [`${fromRect.height}px`, `${toRect.height}px`],
+            borderRadius: [fromRadius, toRadius],
+        },
+        { duration: TOGGLE_DURATION_MS, easing: collapsed ? EASE_LEAVE : EASE_ARRIVE },
+    );
+    sidebarAnimation = animation;
+    // The contents fade in as the panel opens; its button fades in as it closes.
+    const contents = collapsed
+        ? [sidebar.querySelector('[data-toc-expand]')]
+        : [...sidebar.children].filter((child) => !child.matches('[data-toc-expand]'));
+    contents.forEach((element) =>
+        element?.animate(
+            { opacity: [0, 1] },
+            {
+                duration: TOGGLE_DURATION_MS / 2,
+                delay: collapsed ? TOGGLE_DURATION_MS / 2 : TOGGLE_DURATION_MS / 4,
+                easing: 'ease-out',
+                fill: 'backwards',
+            },
+        ),
+    );
+    animation.addEventListener('finish', () => {
+        sidebarAnimation = undefined;
+        sidebar.style.overflow = '';
+        document.dispatchEvent(new Event('footnote-notes:layout'));
+    });
+}
+
 function updateActiveLinks() {
     updateSheetButton();
     updateStrip();
@@ -443,6 +531,14 @@ if (headings.length > 0) {
     inlineToc?.addEventListener('toggle', () => {
         if (!inlineAnimation) inlineToc.toggleAttribute('data-expanded', (inlineToc as HTMLDetailsElement).open);
     });
+
+    collapseButton?.addEventListener('click', () => setSidebarCollapsed(true));
+    expandButtons.forEach((button) => button.addEventListener('click', () => setSidebarCollapsed(false)));
+    // Collapsed before first paint on a later visit (BlogArticle.astro): the buttons say so too.
+    if (isSidebarCollapsed()) {
+        collapseButton?.setAttribute('aria-expanded', 'false');
+        sidebar?.querySelector('[data-toc-expand]')?.setAttribute('aria-expanded', 'false');
+    }
 
     updateActiveLinks();
 }

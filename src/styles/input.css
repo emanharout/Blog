@@ -6,6 +6,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 /* Pages that opt into the glass / Frutiger Aero design (data-design="aero" on <html>, set via RootLayout's `design`) */
 @custom-variant aero (&:where([data-design='aero'], [data-design='aero'] *));
+/* Post pages whose reader has collapsed the sidebar table of contents (data-toc-collapsed on <html>, set by
+   tableOfContents.ts and, before first paint, by BlogArticle.astro) */
+@custom-variant toc-collapsed (&:where([data-toc-collapsed], [data-toc-collapsed] *));
 @plugin "@tailwindcss/typography";
 
 /*

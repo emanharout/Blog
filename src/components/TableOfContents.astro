@@ -54,29 +54,78 @@ const topFadeClasses = '[mask-image:linear-gradient(to_bottom,transparent,black_
 const edgeFadeClasses =
     '[mask-image:linear-gradient(to_bottom,transparent,black_0.75rem,black_calc(100%-0.75rem),transparent)]';
 const titleId = `table-of-contents-title-${variant}`;
+// Brings back the sidebar from the inline ToC and the strip, which stand in for it from `xl` up while it's collapsed.
+// Sits in their title bar, just left of the chevron (the bar's content is centered in its top 2.75rem).
+const restoreButtonClasses =
+    'absolute top-1 right-11 z-10 hidden xl:toc-collapsed:grid size-9 place-items-center rounded-full cursor-pointer ' +
+    'text-gray-temp-500 hover:text-gray-temp-700 dark:text-gray-temp-300 dark:hover:text-gray-temp-100 ' +
+    'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-tertiary-500';
 ---
 
 {
+    // Clicking its title collapses it (tableOfContents.ts): to a round button in the same place, from `lg` to `xl`, and
+    // to the inline ToC in the post (and the strip, once that's scrolled away) from `xl` up, where it's hidden.
     hasToC && variant === 'sidebar' && (
         <nav
             data-toc-sidebar
             aria-labelledby={titleId}
-            class="hidden lg:flex flex-col sticky top-4 max-h-[min(32rem,70dvh)]
+            class="hidden lg:flex xl:toc-collapsed:hidden flex-col sticky top-4 max-h-[min(32rem,70dvh)]
             w-full max-w-[30ch] mt-[1px] mr-3 pt-2
             bg-bg-2 rounded-r-lg rounded-tl-lg shadow-md
-            aero:glass aero:mt-[calc(1rem+2px)] aero:rounded-card"
+            aero:glass aero:mt-[calc(1rem+2px)] aero:rounded-card
+            toc-collapsed:size-11 toc-collapsed:p-0 toc-collapsed:rounded-[1.375rem]"
         >
             <h2
                 id={titleId}
-                class="shrink-0 mt-2 px-2 text-center font-serif font-medium text-base text-gray-temp-500 dark:text-gray-temp-300
-                xl:text-lg"
+                class="shrink-0 px-2 font-serif font-medium text-base xl:text-lg toc-collapsed:hidden"
             >
-                Table of Contents
+                <button
+                    type="button"
+                    data-toc-collapse
+                    aria-expanded="true"
+                    aria-controls="table-of-contents-sidebar-list"
+                    class="group/collapse block w-full px-1 py-0.5 rounded-md text-center cursor-pointer
+                    text-gray-temp-500 hover:text-gray-temp-700 dark:text-gray-temp-300 dark:hover:text-gray-temp-100
+                    focus-visible:outline-2 focus-visible:outline-tertiary-500"
+                >
+                    <!-- The chevron hangs off the end of the title, so that the title alone is centered. -->
+                    <span class="relative">
+                        Table of Contents
+                        <svg
+                            aria-hidden="true"
+                            viewBox="0 0 24 24"
+                            class="absolute left-full top-1/2 -translate-y-1/2 ml-1 size-4 opacity-60 group-hover/collapse:opacity-100
+                            group-focus-visible/collapse:opacity-100 transition-opacity duration-150 motion-reduce:transition-none"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M6 15l6-6 6 6" />
+                        </svg>
+                    </span>
+                </button>
             </h2>
+            <button
+                type="button"
+                data-toc-expand
+                aria-expanded="false"
+                aria-controls="table-of-contents-sidebar-list"
+                aria-label="Expand the table of contents"
+                title="Table of Contents"
+                class="hidden toc-collapsed:grid size-full place-items-center rounded-[inherit] cursor-pointer text-accent
+                focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary-500"
+            >
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+                </svg>
+            </button>
             <!-- No `overscroll-contain`: a short list should let the page scroll under the pointer. -->
             <div
+                id="table-of-contents-sidebar-list"
                 data-toc-scroller
-                class:list={['min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pt-3 pb-3 scroll-smooth motion-reduce:scroll-auto', edgeFadeClasses]}
+                class:list={['min-h-0 overflow-y-auto [scrollbar-width:thin] px-4 pt-3 pb-3 scroll-smooth motion-reduce:scroll-auto toc-collapsed:hidden', edgeFadeClasses]}
             >
                 <div data-toc-list class="relative">
                     <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
@@ -96,7 +145,20 @@ const titleId = `table-of-contents-title-${variant}`;
     // (its title bar and 1px borders), and the card grows down from its top. tableOfContents.ts animates the list's
     // height as it opens and closes, and closes it when it's tapped or tabbed away from.
     hasToC && variant === 'inline' && (
-        <div class="not-prose relative lg:hidden my-6 h-[calc(var(--toc-strip-height)+2px)]">
+        <div class="not-prose relative lg:hidden xl:toc-collapsed:block my-6 h-[calc(var(--toc-strip-height)+2px)]">
+            <!-- Outside the summary, which mustn't hold a button. Above the card, so that the open list doesn't cover it. -->
+            <button
+                type="button"
+                data-toc-expand
+                aria-label="Show the table of contents beside the post"
+                title="Show beside the post"
+                class:list={[restoreButtonClasses, 'z-31']}
+            >
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="16" rx="2" />
+                    <path d="M15 4v16" />
+                </svg>
+            </button>
             <details
                 data-toc-inline
                 class="group absolute inset-x-0 top-0 z-30 overflow-hidden rounded-xl aero:rounded-box glass glass-clear
@@ -221,19 +283,33 @@ const titleId = `table-of-contents-title-${variant}`;
 {
     // The gutter, width and inset match the article's section, card and text in BlogArticle.astro (2rem is what
     // `--article-pad` comes to from `sm` up; the 1px is the card's border).
+    // The same clearer glass as the inline ToC, which it takes over from.
     hasToC && variant === 'strip' && (
         <nav
             data-toc-strip
             aria-label="Jump to section"
-            class="hidden sm:block lg:hidden print:hidden fixed inset-x-0 top-0 z-40 px-4 pt-(--toc-strip-top) pointer-events-none
+            class="hidden sm:block lg:hidden xl:toc-collapsed:block print:hidden fixed inset-x-0 top-0 z-40 px-4 pt-(--toc-strip-top) pointer-events-none
             invisible -translate-y-full data-shown:visible data-shown:translate-y-0
             transition-[translate,visibility] duration-200 motion-reduce:transition-none"
         >
             <div class="w-full max-w-[65ch] mx-auto px-[calc(2rem+1px)]">
                 <div
-                    class="overflow-hidden pointer-events-auto
-                    rounded-xl aero:rounded-box border border-fg-border-2 bg-bg-2 shadow-md aero:backdrop-blur-xl"
+                    class="relative overflow-hidden pointer-events-auto rounded-xl aero:rounded-box glass glass-clear
+                    not-dark:[--glass-shadow-y:16px] not-dark:[--glass-shadow-blur:40px] not-dark:[--glass-shadow-spread:-10px]
+                    not-dark:[--glass-shadow-alpha:0.42] not-dark:[--glass-contact-alpha:0.16]"
                 >
+                    <button
+                        type="button"
+                        data-toc-expand
+                        aria-label="Show the table of contents beside the post"
+                        title="Show beside the post"
+                        class={restoreButtonClasses}
+                    >
+                        <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="16" rx="2" />
+                            <path d="M15 4v16" />
+                        </svg>
+                    </button>
                     <button
                         type="button"
                         aria-expanded="false"
@@ -252,7 +328,8 @@ const titleId = `table-of-contents-title-${variant}`;
                             aria-hidden="true"
                             viewBox="0 0 24 24"
                             class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
-                            transition-transform duration-450 ease-toc-arrive motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
+                            transition-transform duration-450 ease-toc-arrive motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180
+                            xl:toc-collapsed:ml-10"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2"
