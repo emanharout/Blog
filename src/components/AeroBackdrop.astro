@@ -92,25 +92,30 @@ const shootingStars: [number, number, number, number, number][] = [
 <script>
     // Scroll parallax: layers drift up a little slower than the page. Each layer's speed is set in CSS; this only
     // publishes the scroll position. Skipped entirely for reduced motion.
+    //
+    // It also marks which half of the page is in view (data-scroll-half on <html>), so a light style can color the
+    // area revealed when the page bounces past its top or bottom edge like that end of its sky. A page's background
+    // can't do this on its own: the browser repeats it past the edges, so the top would show the bottom's color.
     const sky = document.querySelector<HTMLElement>('.aero-sky');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     if (sky) {
+        const root = document.documentElement;
         let queued = false;
         const update = () => {
             queued = false;
             sky.style.setProperty('--sky-scroll', reduceMotion.matches ? '0' : String(window.scrollY));
+            const maxScroll = root.scrollHeight - window.innerHeight;
+            root.dataset.scrollHalf = maxScroll > 0 && window.scrollY > maxScroll / 2 ? 'bottom' : 'top';
         };
-        window.addEventListener(
-            'scroll',
-            () => {
-                if (!queued) {
-                    queued = true;
-                    requestAnimationFrame(update);
-                }
-            },
-            { passive: true },
-        );
+        const queueUpdate = () => {
+            if (!queued) {
+                queued = true;
+                requestAnimationFrame(update);
+            }
+        };
+        window.addEventListener('scroll', queueUpdate, { passive: true });
+        window.addEventListener('resize', queueUpdate, { passive: true });
         reduceMotion.addEventListener('change', update);
         update();
     }
