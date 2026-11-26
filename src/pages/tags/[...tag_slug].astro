@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import TagList from '../../components/TagList.astro';
 import BlogGrid from '../../components/BlogGrid.astro';
+import PageIntro from '../../components/PageIntro.astro';
 import MainLayout from '../../layouts/MainLayout.astro';
 import { toTitleCase, getAllPostsSorted, getUniqueTags, slugifyTag } from '../../scripts/utilities.ts';
 
@@ -43,12 +44,26 @@ const allTags = getUniqueTags(await getAllPostsSorted());
     <section class="container-page container-wide">
         {
             tagTitle ? (
-                <h1 class="text-center text-fg-1 py-8 font-semibold font-serif text-2xl">{tagTitle}</h1>
+                <PageIntro title={tagTitle} eyebrow="Topic">
+                    <p>
+                        {posts.length} {posts.length === 1 ? 'post' : 'posts'} ·{' '}
+                        <a
+                            href="/tags"
+                            class="font-medium text-secondary-600 hover:underline dark:text-secondary-300"
+                        >
+                            All topics
+                        </a>
+                    </p>
+                </PageIntro>
             ) : (
-                <div class="flex justify-center">
-                    <h1 class="sr-only">Topics</h1>
-                    <TagList tags={allTags} />
-                </div>
+                <>
+                    <PageIntro title="Topics">
+                        <p>Browse posts by subject.</p>
+                    </PageIntro>
+                    <div class="flex justify-center">
+                        <TagList tags={allTags} showLabel={false} />
+                    </div>
+                </>
             )
         }
         <BlogGrid posts={posts} />

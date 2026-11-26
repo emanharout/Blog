@@ -10,29 +10,20 @@ const options = [
 ---
 
 <!--
-    Aero pages: a glass pill with a raised glass bead under the selected option that slides between them. The room at
-    both ends matches the room above and below, so the bead sits the same distance from every edge. Other pages keep
-    the pressed-in gray cells.
+    A glass pill with a raised glass bead under the selected option that slides between them. The room at both ends
+    matches the room above and below, so the bead sits the same distance from every edge.
 -->
 <fieldset
     class="theme-picker grid grid-cols-3 h-9 w-32 shrink-0 overflow-hidden
-    text-sm shadow-md outline outline-1 outline-gray-temp-500/25 dark:outline-gray-temp-800
-    rounded-lg bg-bg-2
-    aero:glass aero:outline-0 aero:rounded-pill aero:px-(--bead-end-pad)"
+    text-sm glass rounded-pill px-(--bead-end-pad)"
 >
     <legend class="sr-only">Color theme</legend>
     <span class="theme-bead" aria-hidden="true"></span>
     {
         options.map(({ value, label, icon, iconClass }) => (
             <label
-                class="relative flex items-center justify-center h-full cursor-pointer
+                class="relative z-1 flex items-center justify-center h-full rounded-pill cursor-pointer
                 transition duration-200 ease-in-out
-                hover:bg-gray-temp-200 dark:hover:bg-gray-temp-600
-                shadow-[inset_0_-1px_0px_rgba(0,0,0,0.08)] dark:shadow-[inset_0_-1px_0px_rgba(0,0,0,0.125)]
-                has-checked:bg-gray-temp-100 dark:has-checked:bg-gray-temp-800
-                has-checked:shadow-[inset_0_1px_4px_rgba(0,0,0,0.2)] dark:has-checked:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]
-                aero:z-1 aero:rounded-pill aero:shadow-none
-                aero:hover:bg-transparent aero:has-checked:bg-transparent aero:has-checked:shadow-none
                 has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-tertiary-500"
             >
                 <input type="radio" name="theme" value={value} data-label={label} class="sr-only" />

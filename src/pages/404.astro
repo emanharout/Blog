@@ -1,0 +1,45 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+
+// Ways back into the site: the primary pill goes home, the others to the full post list and search.
+const links = [
+    { href: '/', label: 'Go home', primary: true },
+    { href: '/blog', label: 'Browse all posts', primary: false },
+    { href: '/search', label: 'Search the blog', primary: false },
+];
+---
+
+<MainLayout title="Page Not Found" description="The page you were looking for couldn't be found.">
+    <section class="container-page container-prose mt-4 mb-12 sm:mt-10">
+        <div class="glass flex flex-col items-center gap-y-6 rounded-panel px-6 py-10 text-center text-fg-2 sm:px-12 sm:py-14">
+            <p class="font-serif text-7xl leading-none text-primary-600 dark:text-primary-300 sm:text-8xl" aria-hidden="true">
+                404
+            </p>
+            <h1 class="font-serif text-3xl text-balance text-fg-1">This page wandered off.</h1>
+            <p class="max-w-prose text-pretty">
+                The link may be old, or the address may have a typo. Try one of these instead:
+            </p>
+            <ul class="flex flex-wrap justify-center gap-3">
+                {
+                    links.map(({ href, label, primary }) => (
+                        <li>
+                            <a
+                                href={href}
+                                class:list={[
+                                    'inline-flex items-center rounded-pill px-4 py-2 text-sm font-medium',
+                                    'transition-colors duration-200 motion-reduce:transition-none',
+                                    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tertiary-500',
+                                    primary
+                                        ? 'glass text-secondary-600 dark:text-secondary-300'
+                                        : 'text-secondary-600 hover:bg-bg-2 dark:text-secondary-300',
+                                ]}
+                            >
+                                {label}
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+    </section>
+</MainLayout>

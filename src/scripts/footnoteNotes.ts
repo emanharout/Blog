@@ -77,7 +77,9 @@ for (const ref of refs) {
         interactive: true,
         interactiveBorder: 10,
         maxWidth: 380,
-        offset: [0, 18],
+        theme: 'glass',
+        arrow: false,
+        offset: [0, 12],
         // A tap opens the note instead.
         touch: false,
         // Inside the number's <sup> it would be squeezed to the number's width.

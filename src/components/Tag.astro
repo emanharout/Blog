@@ -3,22 +3,25 @@ import { slugifyTag } from '../scripts/utilities';
 
 type Props = {
     tag: string;
+    // Pill color. Lists alternate primary and secondary, starting with primary, like the post cards' tags (CardTagList).
+    tone?: 'primary' | 'secondary';
 };
 
-const { tag } = Astro.props;
+const { tag, tone = 'secondary' } = Astro.props;
+
+const toneClasses = {
+    primary: 'bg-primary-700 hover:bg-primary-600 dark:bg-primary-700 dark:hover:bg-primary-600',
+    secondary: 'bg-secondary-700 hover:bg-secondary-600 dark:bg-secondary-800 dark:hover:bg-secondary-700',
+};
 ---
 
 <a
     href={`/tags/${slugifyTag(tag)}`}
-    class="py-[0.02rem] px-2 whitespace-nowrap
-    text-sm font-normal text-fg-light rounded-lg
-    bg-secondary-600 dark:bg-secondary-800
-    hover:bg-secondary-600/95
-    border border-secondary-900 dark:border-secondary-950
-    aero:rounded-pill aero:px-3 aero:py-0.5 aero:bg-secondary-700 aero:dark:bg-secondary-800
-    aero:hover:bg-secondary-600 aero:dark:hover:bg-secondary-700
-    aero:border-white/30 aero:dark:border-white/10
-    aero:shadow-[inset_0_1px_0_hsl(0_0%_100%/0.25)]"
+    class:list={[
+        'rounded-pill px-3 py-0.5 whitespace-nowrap text-sm font-normal text-fg-light',
+        'border border-white/30 dark:border-white/10 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.25)]',
+        toneClasses[tone],
+    ]}
 >
     {tag}
 </a>

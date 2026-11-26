@@ -6,9 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const tips = document.querySelectorAll('[tip]');
     tips.forEach((tip) => {
         const isFootnoteTip = tip.querySelector('sup') !== null
-        let offsetAmount = 10
+        let offsetAmount = 6
         if (isFootnoteTip) {
-            offsetAmount = 18
+            offsetAmount = 12
         }
         tippy(tip, {
             content: tip.attributes.getNamedItem('tip')?.textContent || '',
@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
             interactive: true,
             interactiveBorder: 10,
             maxWidth: 380,
+            theme: 'glass',
+            arrow: false,
             touch: 'hold',
             offset: [0, offsetAmount],
         });

@@ -13,9 +13,9 @@
 
 /*
  * TOKEN LAYERS
- * 1. Raw palettes (`--violet-color-*`, `--teal-color-*`, `--slate-color-*`) — HSL triplets, defined once in :root.
- * 2. Theme roles (`--tertiary-color-*`, `--background-color-1`, `--fg-color-1`, …) — point at a palette; the
- *    `.dark` block overrides only the roles that change.
+ * 1. Raw palettes (`--slate-color-*`, and the aero palettes built from the AERO KNOBS) — HSL triplets, in :root.
+ * 2. Theme roles (`--tertiary-color-*`, `--background-color-1`, `--fg-color-1`, …) — point at a palette. The aero
+ *    role blocks set most of them per theme; the shared role blocks hold the few they inherit.
  * 3. Tailwind colors (`--color-*` in @theme below) — wrap the roles in hsl() so classes like `bg-bg-1` work.
  * A redesign should only need to touch layers 1 and 2.
  */
@@ -393,30 +393,6 @@
 
     /* RAW PALETTES */
     :root {
-        --violet-color-50: 250deg 100% 97.65%;
-        --violet-color-100: 251.43deg 91.3% 95.49%;
-        --violet-color-200: 250.5deg 95.24% 91.76%;
-        --violet-color-300: 252.5deg 94.74% 85.1%;
-        --violet-color-400: 255.14deg 91.74% 76.27%;
-        --violet-color-500: 258.31deg 89.53% 66.27%;
-        --violet-color-600: 262.12deg 83.26% 57.84%;
-        --violet-color-700: 263.39deg 69.96% 50.39%;
-        --violet-color-800: 263.36deg 69.3% 42.16%;
-        --violet-color-900: 263.5deg 67.42% 34.9%;
-        --violet-color-950: 261.18deg 72.65% 22.94%;
-
-        --teal-color-50: 166.2deg 76.5% 96.7%;
-        --teal-color-100: 167.2deg 85.5% 89.2%;
-        --teal-color-200: 168.4deg 83.8% 78.2%;
-        --teal-color-300: 170.6deg 76.9% 64.3%;
-        --teal-color-400: 172.5deg 66% 50.4%;
-        --teal-color-500: 173.4deg 80.4% 40%;
-        --teal-color-600: 174.7deg 83.9% 31.6%;
-        --teal-color-700: 175.3deg 77.4% 26.1%;
-        --teal-color-800: 176.1deg 69.4% 21.8%;
-        --teal-color-900: 175.9deg 60.8% 19%;
-        --teal-color-950: 178.6deg 84.31% 10%;
-
         --slate-color-50: 210deg 40% 98%;
         --slate-color-100: 210deg 40% 96.1%;
         --slate-color-200: 214.3deg 31.8% 91.4%;
@@ -531,45 +507,11 @@
         --dusk-color-950: var(--secondary-h) calc(var(--secondary-s) * 1.7857) 10%;
     }
 
-    /* LIGHT THEME ROLES (default) */
+    /*
+     * SHARED ROLES (light): the few roles the aero blocks below don't set themselves. The scales they point at
+     * (primary, secondary) are the aero ones.
+     */
     :root {
-        /* The plain design has no primary hue of its own; it borrows the tertiary scale */
-        --primary-color-50: var(--tertiary-color-50);
-        --primary-color-100: var(--tertiary-color-100);
-        --primary-color-200: var(--tertiary-color-200);
-        --primary-color-300: var(--tertiary-color-300);
-        --primary-color-400: var(--tertiary-color-400);
-        --primary-color-500: var(--tertiary-color-500);
-        --primary-color-600: var(--tertiary-color-600);
-        --primary-color-700: var(--tertiary-color-700);
-        --primary-color-800: var(--tertiary-color-800);
-        --primary-color-900: var(--tertiary-color-900);
-        --primary-color-950: var(--tertiary-color-950);
-
-        --tertiary-color-50: var(--violet-color-50);
-        --tertiary-color-100: var(--violet-color-100);
-        --tertiary-color-200: var(--violet-color-200);
-        --tertiary-color-300: var(--violet-color-300);
-        --tertiary-color-400: var(--violet-color-400);
-        --tertiary-color-500: var(--violet-color-500);
-        --tertiary-color-600: var(--violet-color-600);
-        --tertiary-color-700: var(--violet-color-700);
-        --tertiary-color-800: var(--violet-color-800);
-        --tertiary-color-900: var(--violet-color-900);
-        --tertiary-color-950: var(--violet-color-950);
-
-        --secondary-color-50: var(--teal-color-50);
-        --secondary-color-100: var(--teal-color-100);
-        --secondary-color-200: var(--teal-color-200);
-        --secondary-color-300: var(--teal-color-300);
-        --secondary-color-400: var(--teal-color-400);
-        --secondary-color-500: var(--teal-color-500);
-        --secondary-color-600: var(--teal-color-600);
-        --secondary-color-700: var(--teal-color-700);
-        --secondary-color-800: var(--teal-color-800);
-        --secondary-color-900: var(--teal-color-900);
-        --secondary-color-950: var(--teal-color-950);
-
         --temperature-gray-50: var(--slate-color-50);
         --temperature-gray-100: var(--slate-color-100);
         --temperature-gray-200: var(--slate-color-200);
@@ -580,10 +522,6 @@
         --temperature-gray-700: var(--slate-color-700);
         --temperature-gray-800: var(--slate-color-800);
         --temperature-gray-900: var(--slate-color-900);
-
-        --background-color-1: var(--slate-color-200);
-        /* Near-white card surface (cool gray 50) */
-        --background-color-2: 210deg 20% 98%;
 
         /* Primary-tinted bg for footnotes: their numbers, and notes opened or pointed out */
         --footnote-bg: var(--primary-color-200);
@@ -599,38 +537,16 @@
         --secondary-bg-border: var(--secondary-color-300);
         --fg-secondary-2: var(--secondary-color-950);
 
-        /* Body text; slightly tinted to match the tertiary color's temperature */
-        --fg-color-1: var(--slate-color-800);
-        --fg-color-2: var(--slate-color-700);
-        --fg-color-border-2: var(--temperature-gray-300);
-        /* Light text on colored bg (Hero, tags) */
-        --fg-light: var(--slate-color-100);
-        --accent-color: var(--tertiary-color-400);
         /* Links, in the secondary color (footnote numbers are primary) */
         --fg-link-2: var(--secondary-color-600);
         --fg-link-2-hover: var(--secondary-color-900);
     }
 
-    /* DARK THEME ROLES — only values that differ from light mode */
+    /* SHARED ROLES (dark): only values that differ from light mode */
     :root.dark {
-        --background-color-1: var(--slate-color-900);
-        --background-color-2: var(--slate-color-700);
-
-        --footnote-bg: var(--primary-color-700);
-        --footnote-bg-hover: var(--primary-color-600);
-        --footnote-bg-border: var(--primary-color-900);
-        --footnote-bg-border-hover: var(--primary-color-800);
-        --fg-footnote-2: var(--primary-color-100);
-        --fg-footnote-num: var(--primary-color-400);
         --secondary-bg: var(--secondary-color-700);
         --secondary-bg-border: var(--secondary-color-900);
         --fg-secondary-2: var(--secondary-color-100);
-
-        --fg-color-1: var(--slate-color-300);
-        --fg-color-2: var(--slate-color-200);
-        --fg-color-border-2: var(--temperature-gray-600);
-        --fg-link-2: var(--secondary-color-400);
-        --fg-link-2-hover: var(--secondary-color-300);
     }
 
     /*
@@ -1142,4 +1058,26 @@
             font-size: 0.9375rem;
         }
     }
+}
+
+/*
+ * Tooltips (tippy.js, `theme: 'glass'` in footnoteNotes.ts and tippyTooltipSetup.js): a small glass panel in place
+ * of tippy's black box, with no arrow, since a translucent arrow can't match the panel's gradient. Kept outside any
+ * @layer: tippy.css isn't layered, so a layered rule would lose to it.
+ */
+.tippy-box[data-theme~='glass'] {
+    @apply glass rounded-card text-fg-1;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+/* The night glass is clear enough that text behind a tooltip would compete with it, so dark tooltips are more solid */
+.dark .tippy-box[data-theme~='glass'] {
+    --glass-panel-opacity: 0.88;
+}
+.tippy-box[data-theme~='glass'] > .tippy-content {
+    padding: 0.625rem 0.875rem;
+}
+.tippy-box[data-theme~='glass'] a {
+    color: hsl(var(--fg-link-2));
+    text-decoration: underline;
 }
