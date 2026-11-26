@@ -131,7 +131,8 @@
  * GLASS SURFACE
  * Frosted panel with a soft gloss on its top half. All values come from the --glass-* roles, which only the aero
  * design defines (light and dark differ), so use it on aero pages. The background and shadows are built here rather
- * than in a role so a panel can set its own --glass-opacity (see `glass-reading`).
+ * than in a role so a panel can set its own opacity in --glass-panel-opacity (see `glass-reading`), which is inherited
+ * like any custom property. A panel inside one can return to the role's --glass-opacity with `glass-default-opacity`.
  *
  * --glass-intensity scales everything that makes it read as glass (shine, top highlight, edge, rim light, shadow and
  * color boost) at once; 0 leaves a flat tinted panel. --glass-rim adds a bright inner edge and glow,
@@ -146,8 +147,8 @@
     }
     background: linear-gradient(
         180deg,
-        hsl(var(--glass-tint-top) / var(--glass-opacity)),
-        hsl(var(--glass-tint-bottom) / calc(var(--glass-opacity) * var(--glass-fade)))
+        hsl(var(--glass-tint-top) / var(--glass-panel-opacity, var(--glass-opacity))),
+        hsl(var(--glass-tint-bottom) / calc(var(--glass-panel-opacity, var(--glass-opacity)) * var(--glass-fade)))
     );
     border: 1px solid var(--glass-border);
     --glass-lift: calc(var(--glass-shadow-depth) * var(--glass-intensity));
@@ -178,7 +179,12 @@
 
 /* A calmer, more opaque glass for long reading (the post page's article). Pair with `glass`. */
 @utility glass-reading {
-    --glass-opacity: var(--glass-reading-opacity);
+    --glass-panel-opacity: var(--glass-reading-opacity);
+}
+
+/* For a glass panel inside a `glass-reading` one (the post page's inline table of contents): back to the usual opacity */
+@utility glass-default-opacity {
+    --glass-panel-opacity: initial;
 }
 
 /*

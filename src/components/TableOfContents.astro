@@ -89,12 +89,13 @@ const titleId = `table-of-contents-title-${variant}`;
     )
 }
 {
-    // Shaped like the strip, which takes over from it as the page scrolls, and glass like the sheet (frosted in dark mode).
+    // Shaped like the strip, which takes over from it as the page scrolls. Glass like the sheet (frosted in dark mode),
+    // and as see-through, rather than as opaque as the article it sits in.
     // tableOfContents.ts animates the list's height as it opens and closes.
     hasToC && variant === 'inline' && (
         <details
             data-toc-inline
-            class="not-prose group lg:hidden my-6 overflow-hidden rounded-xl aero:rounded-box glass dark:frost"
+            class="not-prose group lg:hidden my-6 overflow-hidden rounded-xl aero:rounded-box glass glass-default-opacity dark:frost"
         >
             <summary
                 class="relative flex h-(--toc-strip-height) items-center justify-between gap-3 px-5 pb-3 cursor-pointer list-none
