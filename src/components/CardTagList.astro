@@ -7,8 +7,8 @@ interface Props {
 
 const { tags } = Astro.props;
 
-const evenBgColor = 'bg-primary-500 dark:bg-primary-700 aero:bg-primary-700 aero:dark:bg-primary-700';
-const oddBgColor = 'bg-secondary-500 dark:bg-secondary-800 aero:bg-secondary-700 aero:dark:bg-secondary-800';
+const evenBgColor = 'bg-primary-700';
+const oddBgColor = 'bg-secondary-700 dark:bg-secondary-800';
 ---
 
 <ul class="flex flex-wrap gap-1" aria-label="Tags">
@@ -18,8 +18,8 @@ const oddBgColor = 'bg-secondary-500 dark:bg-secondary-800 aero:bg-secondary-700
                 <a
                     href={`/tags/${slugifyTag(tag)}`}
                     class:list={[
-                        'relative z-10 block px-1.5 py-1 text-fg-light rounded-lg text-xs hover:opacity-90',
-                        'aero:rounded-pill aero:px-2.5 aero:shadow-[inset_0_1px_0_hsl(0_0%_100%/0.25)]',
+                        'relative z-10 block px-2.5 py-1 text-fg-light rounded-pill text-xs hover:opacity-90',
+                        'shadow-[inset_0_1px_0_hsl(0_0%_100%/0.25)]',
                         { [evenBgColor]: index % 2 === 0 },
                         { [oddBgColor]: index % 2 === 1 },
                     ]}
