@@ -132,7 +132,7 @@
  * Frosted panel with a soft gloss on its top half. All values come from the --glass-* roles, which only the aero
  * design defines (light and dark differ), so use it on aero pages. The background and shadows are built here rather
  * than in a role so a panel can set its own opacity in --glass-panel-opacity (see `glass-reading`), which is inherited
- * like any custom property. A panel inside one can return to the role's --glass-opacity with `glass-default-opacity`.
+ * like any custom property. `glass-clear` sets one relative to the role's --glass-opacity.
  *
  * --glass-intensity scales everything that makes it read as glass (shine, top highlight, edge, rim light, shadow and
  * color boost) at once; 0 leaves a flat tinted panel. --glass-rim adds a bright inner edge and glow,
@@ -211,9 +211,12 @@
     }
 }
 
-/* For a glass panel inside a `glass-reading` one (the post page's inline table of contents): back to the usual opacity */
-@utility glass-default-opacity {
-    --glass-panel-opacity: initial;
+/*
+ * A clearer glass, with its tint at 65% of the usual (--glass-opacity), so more of what's behind it peers through: the
+ * post page's tables of contents. Pair with `glass`. Inside a `glass-reading` panel it also replaces that one's opacity.
+ */
+@utility glass-clear {
+    --glass-panel-opacity: calc(var(--glass-opacity) * 0.65);
 }
 
 /*

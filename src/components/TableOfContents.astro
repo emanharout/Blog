@@ -90,8 +90,8 @@ const titleId = `table-of-contents-title-${variant}`;
 }
 {
     // Shaped like the strip, which takes over from it as the page scrolls. Glass like the sheet and the mobile navigation
-    // menu, and as see-through, rather than as opaque as the article it sits in. In light mode its glass shadow is closer
-    // and wider than usual, so that it stands out from the pale article.
+    // menu, only clearer (`glass-clear`), rather than as opaque as the article it sits in. In light mode its glass shadow
+    // is closer and wider than usual, so that it stands out from the pale article.
     // Opened, its list floats over the post rather than pushing it down: the placeholder keeps the closed card's place
     // (its title bar and 1px borders), and the card grows down from its top. tableOfContents.ts animates the list's
     // height as it opens and closes, and closes it when it's tapped or tabbed away from.
@@ -99,7 +99,7 @@ const titleId = `table-of-contents-title-${variant}`;
         <div class="not-prose relative lg:hidden my-6 h-[calc(var(--toc-strip-height)+2px)]">
             <details
                 data-toc-inline
-                class="group absolute inset-x-0 top-0 z-30 overflow-hidden rounded-xl aero:rounded-box glass glass-default-opacity
+                class="group absolute inset-x-0 top-0 z-30 overflow-hidden rounded-xl aero:rounded-box glass glass-clear
                 not-dark:[--glass-shadow-y:16px] not-dark:[--glass-shadow-blur:40px] not-dark:[--glass-shadow-spread:-10px]
                 not-dark:[--glass-shadow-alpha:0.42] not-dark:[--glass-contact-alpha:0.16]"
             >
@@ -162,9 +162,9 @@ const titleId = `table-of-contents-title-${variant}`;
               tableOfContents.ts slides it in and out by toggling `data-shown` while it's open. Each way takes the
               timing function of where it's headed: easing out as it arrives, easing in as it leaves.
               As wide as the inline ToC: the card's width (up to 65ch) less its `--article-pad` and 1px border on each
-              side, as in BlogArticle.astro. Its padding, corners and glass match the inline ToC's too. Like the
-              mobile navigation menu (SiteHeader.astro, HeaderNav.astro), it floats as a glass card, clear of the bottom of
-              the window, over the page dimmed and blurred the same way.
+              side, as in BlogArticle.astro. Its padding, corners and clearer glass (`glass-clear`) match the
+              inline ToC's too. Like the mobile navigation menu (SiteHeader.astro, HeaderNav.astro), it floats as a glass
+              card, clear of the bottom of the window, over the page dimmed and blurred the same way.
             -->
             <dialog
                 data-toc-sheet
@@ -173,7 +173,7 @@ const titleId = `table-of-contents-title-${variant}`;
                 tabindex="-1"
                 class="fixed inset-x-0 top-auto bottom-4 mx-auto flex-col open:flex max-w-none max-h-[70dvh] overflow-hidden
                 [--article-pad:clamp(1.25rem,5vw,2rem)] w-[calc(min(100%,65ch)-2*(var(--article-pad)+1px))]
-                rounded-xl aero:rounded-box glass text-fg-1 outline-none
+                rounded-xl aero:rounded-box glass glass-clear text-fg-1 outline-none
                 translate-y-[calc(100%+2rem)] data-shown:translate-y-0
                 transition-[translate] duration-450 ease-toc-leave data-shown:ease-toc-arrive motion-reduce:transition-none
                 backdrop:bg-gray-temp-900/10 dark:backdrop:bg-black/30 backdrop:backdrop-blur-[3px] backdrop:opacity-0 data-shown:backdrop:opacity-100
