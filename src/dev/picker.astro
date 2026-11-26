@@ -1,0 +1,96 @@
+---
+// Dev-only page (registered in astro.config.mjs only for `astro dev`): bead styles for the theme picker
+// (ColorThemeToggle.astro) in light and dark mode side by side. Each side is pickerFrame.astro with its theme forced,
+// since the site's dark mode colors are set on the whole page. Click a picker to slide its bead.
+import { BEAD_STYLES } from './pickerBeadStyles';
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Theme picker · bead styles</title>
+        <style>
+            :root {
+                color-scheme: light;
+                font-family: ui-sans-serif, system-ui, sans-serif;
+                --fg: #1d2330;
+                --muted: #5b6475;
+                --line: #d5d9e0;
+            }
+            body {
+                margin: 0;
+                padding: 20px 24px 32px;
+                background: #eceef1;
+                color: var(--fg);
+            }
+            h1 {
+                margin: 0;
+                font-size: 18px;
+            }
+            p {
+                margin: 4px 0 0;
+                color: var(--muted);
+                font-size: 13px;
+            }
+            .frames {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin-top: 16px;
+            }
+            .frames h2 {
+                margin: 0 0 6px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            .frames iframe {
+                display: block;
+                width: 100%;
+                height: 760px;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                background: white;
+            }
+            dl {
+                display: grid;
+                grid-template-columns: max-content 1fr;
+                gap: 6px 16px;
+                margin: 20px 0 0;
+                font-size: 13px;
+            }
+            dt {
+                font-weight: 600;
+            }
+            dd {
+                margin: 0;
+                color: var(--muted);
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Theme picker · bead styles</h1>
+        <p>Each style at 2× and at actual size, in light and dark mode. Click a picker to slide its bead; it won't change the theme.</p>
+        <div class="frames">
+            <div>
+                <h2>Light</h2>
+                <iframe src="/dev/picker-frame?theme=light" title="Bead styles in light mode"></iframe>
+            </div>
+            <div>
+                <h2>Dark</h2>
+                <iframe src="/dev/picker-frame?theme=dark" title="Bead styles in dark mode"></iframe>
+            </div>
+        </div>
+        <dl>
+            {
+                BEAD_STYLES.map(({ name, blurb }) => (
+                    <>
+                        <dt>{name}</dt>
+                        <dd>{blurb}</dd>
+                    </>
+                ))
+            }
+        </dl>
+    </body>
+</html>
