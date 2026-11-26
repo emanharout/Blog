@@ -689,9 +689,9 @@
 
         /*
          * PRIMARY / SECONDARY / TERTIARY (tunable). Primary: the accent (nav underline, active table of contents
-         * entry) at a lightness fixed per theme, plus half the card tags, the Wonder badge, the footer icons, text
-         * selection, and "Eman" and the quote mark in the hero. Secondary: the Programming badge, inline code, tooltips,
-         * links, post titles on hover and the other tags. Tertiary: buttons and other accents. Light styles and dark mode
+         * entry) at a lightness fixed per theme, plus half the card tags, the Wonder badge, the footer icons, and "Eman"
+         * and the quote mark in the hero. Secondary: the Programming badge, inline code, tooltips, links, post titles on
+         * hover, text selection and the other tags. Tertiary: buttons and other accents. Light styles and dark mode
          * set their own. Background hues (sky, lawn, sun) are separate knobs.
          */
         --primary-h: 127.9;
@@ -832,14 +832,14 @@
 }
 
 @layer components {
-    /* Highlighted (selected) text uses the primary hue: a pale tint under dark text by day, a deep shade under
+    /* Highlighted (selected) text uses the secondary hue: a pale tint under dark text by day, a deep shade under
        white text by night */
     ::selection {
-        background-color: hsl(var(--primary-color-200));
+        background-color: hsl(var(--secondary-color-200));
         color: hsl(var(--fg-color-1));
     }
     .dark ::selection {
-        background-color: hsl(var(--primary-color-700));
+        background-color: hsl(var(--secondary-color-700));
         color: hsl(0 0% 100%);
     }
 
