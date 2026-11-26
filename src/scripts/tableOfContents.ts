@@ -25,6 +25,8 @@ let clickedId: string | undefined;
 const sheetButton = document.querySelector<HTMLButtonElement>('[data-toc-button]');
 const sheet = document.querySelector<HTMLDialogElement>('[data-toc-sheet]');
 const inlineToc = document.querySelector<HTMLElement>('details:has([data-toc-list])');
+// Where the inline ToC sits in the post: its list floats over the post when opened, so this keeps the closed one's place.
+const inlinePlace = inlineToc?.parentElement;
 
 // Scrolls a list, if it's long enough to, so its active entry is in the middle.
 function revealActiveEntry(container: HTMLElement | null) {
@@ -36,21 +38,105 @@ function revealActiveEntry(container: HTMLElement | null) {
     scroller.scrollTop += linkRect.top + linkRect.height / 2 - (scrollerRect.top + scrollerRect.height / 2);
 }
 
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+// The sheet's and the inline ToC's transitions, as long as the menu's (`--menu-duration`, SiteHeader.astro). The easings
+// are `--ease-toc-arrive` and `--ease-toc-leave` (input.css).
+const TOGGLE_DURATION_MS = 450;
+const EASE_ARRIVE = 'cubic-bezier(0.2, 0.7, 0.2, 1)';
+const EASE_LEAVE = 'cubic-bezier(0.45, 0, 0.25, 1)';
+
+// Closes the sheet once it has slid away; undone if it's opened again first.
+let pendingSheetClose: { cancel(): void } | undefined;
+
+// The sheet slides in and out with `data-shown` (TableOfContents.astro), while it's open: browsers don't all animate a
+// dialog entering and leaving the top layer (Safari can't keep a closing one there).
 function openSheet() {
-    if (!sheet || sheet.open) return;
-    sheet.showModal();
+    if (!sheet) return;
+    pendingSheetClose?.cancel();
+    if (!sheet.open) {
+        sheet.showModal();
+        // Browsers that ignore `autofocus` on the dialog would focus its close button and ring it.
+        sheet.focus();
+        // Lays it out below the window first, so that it slides up from there.
+        sheet.getBoundingClientRect();
+    }
+    sheet.setAttribute('data-shown', '');
 
     // The faint bar can only be measured while the sheet is displayed.
     updateActiveLinks();
     revealActiveEntry(sheet);
 }
 
+function closeSheet() {
+    if (!sheet?.hasAttribute('data-shown')) return;
+    sheet.removeAttribute('data-shown');
+    if (reducedMotion.matches) {
+        sheet.close();
+        return;
+    }
+
+    const onTransitionEnd = (event: TransitionEvent) => {
+        if (event.target === sheet && event.propertyName === 'translate') finish();
+    };
+    // In case the transition never runs or ends (a hidden tab, say).
+    const timer = window.setTimeout(() => finish(), TOGGLE_DURATION_MS + 100);
+    const cancel = () => {
+        pendingSheetClose = undefined;
+        clearTimeout(timer);
+        sheet.removeEventListener('transitionend', onTransitionEnd);
+    };
+    const finish = () => {
+        cancel();
+        sheet.close();
+    };
+    sheet.addEventListener('transitionend', onTransitionEnd);
+    pendingSheetClose = { cancel };
+}
+
+// THE INLINE TOC: its height is animated in script, since browsers can't all interpolate to `auto`. It stays open while
+// it collapses; `data-expanded` turns the chevron straight away.
+const inlineSummary = inlineToc?.querySelector('summary');
+const inlineBody = inlineToc?.querySelector<HTMLElement>('[data-toc-inline-body]');
+let inlineAnimation: Animation | undefined;
+
+function setInlineOpen(open: boolean) {
+    if (!(inlineToc instanceof HTMLDetailsElement) || !inlineBody) return;
+    if (open === inlineToc.hasAttribute('data-expanded')) return;
+    inlineToc.toggleAttribute('data-expanded', open);
+    // From wherever an unfinished animation has got to
+    const fromHeight = inlineToc.open ? inlineBody.getBoundingClientRect().height : 0;
+    inlineAnimation?.cancel();
+    inlineAnimation = undefined;
+    inlineToc.open = true;
+    if (reducedMotion.matches) {
+        inlineToc.open = open;
+        return;
+    }
+
+    const toHeight = open ? inlineBody.scrollHeight : 0;
+    inlineBody.style.overflow = 'hidden';
+    const animation = inlineBody.animate(
+        { height: [`${fromHeight}px`, `${toHeight}px`] },
+        { duration: TOGGLE_DURATION_MS, easing: open ? EASE_ARRIVE : EASE_LEAVE },
+    );
+    inlineAnimation = animation;
+    animation.addEventListener('finish', () => {
+        inlineAnimation = undefined;
+        inlineBody.style.overflow = '';
+        inlineToc.open = open;
+    });
+}
+
 // The button stands in for the inline ToC once that has scrolled away. It isn't displayed at `sm` and up.
 function updateSheetButton() {
-    if (!sheetButton || !sheet || !inlineToc) return;
+    if (!sheetButton || !sheet || !inlinePlace) return;
     const isDisplayed = sheetButton.getClientRects().length > 0;
-    sheetButton.toggleAttribute('data-shown', isDisplayed && inlineToc.getBoundingClientRect().bottom <= 0);
-    if (!isDisplayed && sheet.open) sheet.close();
+    sheetButton.toggleAttribute('data-shown', isDisplayed && inlinePlace.getBoundingClientRect().bottom <= 0);
+    if (!isDisplayed && sheet.open) {
+        pendingSheetClose?.cancel();
+        sheet.removeAttribute('data-shown');
+        sheet.close();
+    }
 }
 
 // THE STRIP (from `sm` to `lg`): a bar at the top of the window that names the current section and drops down the list.
@@ -144,10 +230,10 @@ function setUpStripHover(box: HTMLElement) {
 
 // The strip stands in for the inline ToC, from when that has scrolled away until the end of the article.
 function updateStrip() {
-    if (!strip || !stripButton || !inlineToc || !article) return;
+    if (!strip || !stripButton || !inlinePlace || !article) return;
     const isShown =
         strip.getClientRects().length > 0 &&
-        inlineToc.getBoundingClientRect().bottom <= 0 &&
+        inlinePlace.getBoundingClientRect().bottom <= 0 &&
         article.getBoundingClientRect().bottom > stripBottom();
     strip.toggleAttribute('data-shown', isShown);
     if (!isShown) setStripOpen(false);
@@ -269,7 +355,7 @@ function queueUpdate() {
 if (headings.length > 0) {
     window.addEventListener('scroll', queueUpdate, { passive: true });
     window.addEventListener('resize', queueUpdate);
-    // Late-loading images and opening the inline ToC move the headings.
+    // Late-loading images move the headings.
     const resizeObserver = new ResizeObserver(queueUpdate);
     resizeObserver.observe(article ?? document.body);
     // Web fonts can re-wrap the entries, which moves the faint bar.
@@ -280,8 +366,9 @@ if (headings.length > 0) {
             // These open the link elsewhere and leave this page where it is.
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
             clickedId = headingId(link);
-            sheet?.close();
+            closeSheet();
             setStripOpen(false);
+            setInlineOpen(false);
             queueUpdate();
         });
     });
@@ -322,7 +409,39 @@ if (headings.length > 0) {
         // The dialog itself is only hit by taps on its backdrop; its content fills the panel.
         const isBackdrop = event.target === sheet;
         const isCloseButton = event.target instanceof Element && event.target.closest('[data-toc-close]');
-        if (isBackdrop || isCloseButton) sheet.close();
+        if (isBackdrop || isCloseButton) closeSheet();
+    });
+    // However it closed (the browser can force a close on Escape), it's hidden again and the page scrolls.
+    sheet?.addEventListener('close', () => {
+        if (sheet.open) return;
+        pendingSheetClose?.cancel();
+        sheet.removeAttribute('data-shown');
+    });
+    // Escape slides it away too.
+    sheet?.addEventListener('cancel', (event) => {
+        event.preventDefault();
+        closeSheet();
+    });
+
+    inlineSummary?.addEventListener('click', (event) => {
+        event.preventDefault();
+        setInlineOpen(!inlineToc?.hasAttribute('data-expanded'));
+    });
+    // Its open list covers the post, so tapping or tabbing elsewhere closes it, and so does Escape.
+    document.addEventListener('pointerdown', (event) => {
+        if (!inlineToc?.contains(event.target as Node | null)) setInlineOpen(false);
+    });
+    inlineToc?.addEventListener('focusout', (event) => {
+        if (event.relatedTarget && !inlineToc.contains(event.relatedTarget as Node)) setInlineOpen(false);
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || !inlineToc?.hasAttribute('data-expanded')) return;
+        setInlineOpen(false);
+        inlineSummary?.focus();
+    });
+    // The browser can open it too (finding text in it, say).
+    inlineToc?.addEventListener('toggle', () => {
+        if (!inlineAnimation) inlineToc.toggleAttribute('data-expanded', (inlineToc as HTMLDetailsElement).open);
     });
 
     updateActiveLinks();

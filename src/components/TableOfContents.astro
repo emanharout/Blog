@@ -89,46 +89,54 @@ const titleId = `table-of-contents-title-${variant}`;
     )
 }
 {
-    // Styled like the strip, which takes over from it as the page scrolls.
-    // Animates where the browser can interpolate to the list's own height (`interpolate-size`), else opens at once.
+    // Shaped like the strip, which takes over from it as the page scrolls. Glass like the sheet and the mobile navigation
+    // menu, only clearer (`glass-clear`), rather than as opaque as the article it sits in. In light mode its glass shadow
+    // is closer and wider than usual, so that it stands out from the pale article.
+    // Opened, its list floats over the post rather than pushing it down: the placeholder keeps the closed card's place
+    // (its title bar and 1px borders), and the card grows down from its top. tableOfContents.ts animates the list's
+    // height as it opens and closes, and closes it when it's tapped or tabbed away from.
     hasToC && variant === 'inline' && (
-        <details
-            class="not-prose group lg:hidden my-6 overflow-hidden rounded-xl aero:rounded-box
-            border border-fg-border-2 bg-bg-2 shadow-md
-            [interpolate-size:allow-keywords] details-content:h-0 open:details-content:h-auto details-content:overflow-hidden
-            details-content:transition-[height,content-visibility] details-content:transition-discrete
-            details-content:duration-300 details-content:ease-out motion-reduce:details-content:transition-none"
-        >
-            <summary
-                class="relative flex h-(--toc-strip-height) items-center justify-between gap-3 px-5 pb-3 cursor-pointer list-none
-                [&::-webkit-details-marker]:hidden rounded-xl aero:rounded-box
-                focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-tertiary-500"
+        <div class="not-prose relative lg:hidden my-6 h-[calc(var(--toc-strip-height)+2px)]">
+            <details
+                data-toc-inline
+                class="group absolute inset-x-0 top-0 z-30 overflow-hidden rounded-xl aero:rounded-box glass glass-clear
+                not-dark:[--glass-shadow-y:16px] not-dark:[--glass-shadow-blur:40px] not-dark:[--glass-shadow-spread:-10px]
+                not-dark:[--glass-shadow-alpha:0.42] not-dark:[--glass-contact-alpha:0.16]"
             >
-                <span id={titleId} class="text-sm font-medium text-fg-1">Table of Contents</span>
-                <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
-                    transition-transform duration-300 motion-reduce:transition-none group-open:rotate-180"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                <summary
+                    class="relative flex h-(--toc-strip-height) items-center justify-between gap-3 px-5 pb-3 cursor-pointer list-none
+                    [&::-webkit-details-marker]:hidden rounded-xl aero:rounded-box
+                    focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-tertiary-500"
                 >
-                    <path d="M6 9l6 6 6-6" />
-                </svg>
-                <TableOfContentsSegments sections={sections} />
-            </summary>
-            <nav aria-labelledby={titleId} class="px-5 pt-3 pb-3">
-                <div data-toc-list class="relative">
-                    <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
-                    <ul class="text-[0.95rem]">
-                        {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
-                    </ul>
-                </div>
-            </nav>
-        </details>
+                    <span id={titleId} class="text-sm font-medium text-fg-1">Table of Contents</span>
+                    <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
+                        transition-transform duration-450 ease-toc-arrive motion-reduce:transition-none group-data-expanded:rotate-180"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M6 9l6 6 6-6" />
+                    </svg>
+                    <TableOfContentsSegments sections={sections} />
+                </summary>
+                <!-- Unpadded, so its height can shrink to nothing -->
+                <nav data-toc-inline-body aria-labelledby={titleId}>
+                    <div class="px-5 pt-3 pb-3">
+                        <div data-toc-list class="relative">
+                            <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
+                            <ul class="text-[0.95rem]">
+                                {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </details>
+        </div>
     )
 }
 {
@@ -149,38 +157,55 @@ const titleId = `table-of-contents-title-${variant}`;
                     <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
                 </svg>
             </button>
+            <!--
+              Opens focused on itself (`autofocus`), not on its close button, which would show its focus ring.
+              tableOfContents.ts slides it in and out by toggling `data-shown` while it's open. Each way takes the
+              timing function of where it's headed: easing out as it arrives, easing in as it leaves.
+              As wide as the inline ToC: the card's width (up to 65ch) less its `--article-pad` and 1px border on each
+              side, as in BlogArticle.astro. Its padding, corners and clearer glass (`glass-clear`) match the
+              inline ToC's too. Like the mobile navigation menu (SiteHeader.astro, HeaderNav.astro), it floats as a glass
+              card, clear of the bottom of the window, over the page dimmed and blurred the same way.
+            -->
             <dialog
                 data-toc-sheet
                 aria-labelledby={titleId}
-                class="fixed inset-x-0 top-auto bottom-0 flex-col open:flex w-full max-w-none max-h-[70dvh] overflow-hidden
-                rounded-t-2xl border border-b-0 border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl
-                translate-y-full open:translate-y-0 starting:open:translate-y-full
-                transition-[translate,display,overlay] transition-discrete duration-300 ease-out motion-reduce:transition-none
-                backdrop:bg-black/40 backdrop:opacity-0 open:backdrop:opacity-100 starting:open:backdrop:opacity-0
-                backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete backdrop:duration-300
+                autofocus
+                tabindex="-1"
+                class="fixed inset-x-0 top-auto bottom-4 mx-auto flex-col open:flex max-w-none max-h-[70dvh] overflow-hidden
+                [--article-pad:clamp(1.25rem,5vw,2rem)] w-[calc(min(100%,65ch)-2*(var(--article-pad)+1px))]
+                rounded-xl aero:rounded-box glass glass-clear text-fg-1 outline-none
+                translate-y-[calc(100%+2rem)] data-shown:translate-y-0
+                transition-[translate] duration-450 ease-toc-leave data-shown:ease-toc-arrive motion-reduce:transition-none
+                backdrop:bg-gray-temp-900/10 dark:backdrop:bg-black/30 backdrop:backdrop-blur-[3px] backdrop:opacity-0 data-shown:backdrop:opacity-100
+                backdrop:transition-opacity backdrop:duration-450 backdrop:ease-toc-leave data-shown:backdrop:ease-toc-arrive
                 motion-reduce:backdrop:transition-none"
             >
-                <!-- Stays put while the list scrolls -->
-                <div class="flex shrink-0 items-center justify-between px-[clamp(1.25rem,5vw,2rem)] pt-2">
-                    <h2 id={titleId} class="font-serif text-[1.0625rem] font-medium text-gray-temp-500 dark:text-gray-temp-300">
+                <!--
+                  Stays put while the list scrolls. The title is centered, between the close button and a space as wide.
+                  The progress segments run along its bottom, as under the inline ToC's and the strip's titles.
+                -->
+                <div class="relative grid shrink-0 grid-cols-[2.75rem_1fr_2.75rem] items-center px-2 pt-2 pb-4">
+                    <span aria-hidden="true" />
+                    <h2 id={titleId} class="text-center font-serif text-[1.0625rem] font-medium text-gray-temp-500 dark:text-gray-temp-300">
                         Table of Contents
                     </h2>
                     <button
                         type="button"
                         data-toc-close
                         aria-label="Close"
-                        class="-mr-3 grid size-11 place-items-center rounded-full cursor-pointer
+                        class="grid size-11 place-items-center rounded-full cursor-pointer
                         focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-tertiary-500"
                     >
                         <svg aria-hidden="true" viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                             <path d="M6 6l12 12M18 6L6 18" />
                         </svg>
                     </button>
+                    <TableOfContentsSegments sections={sections} />
                 </div>
                 <nav
                     data-toc-scroller
                     aria-labelledby={titleId}
-                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-[clamp(1.25rem,5vw,2rem)] pt-1 pb-4', edgeFadeClasses]}
+                    class:list={['min-h-0 overflow-y-auto overscroll-contain px-5 pt-1 pb-4', edgeFadeClasses]}
                 >
                     <div data-toc-list class="relative [--toc-bar-inset:8px]">
                         <span data-toc-bar aria-hidden="true" class:list={onScreenBarClasses} />
@@ -227,7 +252,7 @@ const titleId = `table-of-contents-title-${variant}`;
                             aria-hidden="true"
                             viewBox="0 0 24 24"
                             class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
-                            transition-transform duration-300 motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
+                            transition-transform duration-450 ease-toc-arrive motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2"
@@ -242,7 +267,7 @@ const titleId = `table-of-contents-title-${variant}`;
                     <div
                         id="table-of-contents-strip-panel"
                         class="h-0 overflow-hidden invisible data-open:visible
-                        transition-[height,visibility] duration-300 ease-out motion-reduce:transition-none"
+                        transition-[height,visibility] duration-450 ease-toc-leave data-open:ease-toc-arrive motion-reduce:transition-none"
                     >
                         <div data-toc-scroller class:list={['max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pt-3 pb-3', topFadeClasses]}>
                             <div data-toc-list class="relative">
