@@ -9,13 +9,18 @@ const options = [
 ];
 ---
 
+<!--
+    Aero pages: a glass pill with a raised glass bead under the selected option that slides between them. Extra room
+    at both ends pulls the sun and gear in toward the middle. Other pages keep the pressed-in gray cells.
+-->
 <fieldset
-    class="grid grid-cols-3 h-9 w-32 shrink-0 overflow-hidden
+    class="theme-picker grid grid-cols-3 h-9 w-32 shrink-0 overflow-hidden
     text-sm shadow-md outline outline-1 outline-gray-temp-500/25 dark:outline-gray-temp-800
     rounded-lg bg-bg-2
-    aero:glass aero:outline-0 aero:rounded-pill"
+    aero:glass aero:outline-0 aero:rounded-pill aero:px-(--bead-end-pad)"
 >
     <legend class="sr-only">Color theme</legend>
+    <span class="theme-bead" aria-hidden="true"></span>
     {
         options.map(({ value, label, icon, iconClass }) => (
             <label
@@ -25,14 +30,12 @@ const options = [
                 shadow-[inset_0_-1px_0px_rgba(0,0,0,0.08)] dark:shadow-[inset_0_-1px_0px_rgba(0,0,0,0.125)]
                 has-checked:bg-gray-temp-100 dark:has-checked:bg-gray-temp-800
                 has-checked:shadow-[inset_0_1px_4px_rgba(0,0,0,0.2)] dark:has-checked:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]
-                aero:shadow-none aero:hover:bg-accent/12 aero:dark:hover:bg-white/8
-                aero:has-checked:bg-accent/18 aero:dark:has-checked:bg-white/14
-                aero:has-checked:shadow-[inset_0_1px_3px_hsl(var(--glass-shadow-color)/0.18)]
-                aero:dark:has-checked:shadow-[inset_0_1px_3px_rgba(0,0,0,0.35)]
+                aero:z-1 aero:rounded-pill aero:shadow-none
+                aero:hover:bg-transparent aero:has-checked:bg-transparent aero:has-checked:shadow-none
                 has-focus-visible:outline-2 has-focus-visible:-outline-offset-2 has-focus-visible:outline-tertiary-500"
             >
                 <input type="radio" name="theme" value={value} data-label={label} class="sr-only" />
-                <Icon name={icon} size="22" aria-hidden="true" class={`size-[22px] ${iconClass}`} />
+                <Icon name={icon} size="22" aria-hidden="true" class={`theme-icon size-[22px] ${iconClass}`} />
                 <span class="sr-only">{label}</span>
             </label>
         ))
@@ -41,3 +44,83 @@ const options = [
 
 <!-- Announces theme changes to screen readers -->
 <div aria-live="polite" class="sr-only" id="theme-selection-feedback"></div>
+
+<style>
+    .theme-picker {
+        --bead-end-pad: 6px;
+    }
+
+    /*
+     * A theme switch cross-fades the page from a snapshot (see colorThemeScript.js), which would hide the bead's slide
+     * behind a fading copy of the old picker. Naming the picker gives it its own layer in that transition; showing
+     * only the live picker in that layer lets the bead slide while the rest of the page fades.
+     */
+    :global([data-design='aero']) .theme-picker {
+        view-transition-name: theme-picker;
+    }
+
+    :global(html.theme-switching::view-transition-old(theme-picker)) {
+        display: none;
+    }
+
+    :global(html.theme-switching::view-transition-new(theme-picker)) {
+        animation: none;
+    }
+
+    .theme-bead {
+        display: none;
+    }
+
+    :global([data-design='aero']) .theme-bead {
+        display: block;
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        left: var(--bead-end-pad);
+        width: calc((100% - 2 * var(--bead-end-pad)) / 3);
+        border-radius: 9999px;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.7));
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 1),
+            0 0 0 1px hsl(var(--glass-shadow-color) / 0.14),
+            0 1px 2px hsl(var(--glass-shadow-color) / 0.18),
+            0 3px 8px -2px hsl(var(--glass-shadow-color) / 0.35);
+    }
+
+    :global(.dark[data-design='aero']) .theme-bead {
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.08));
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.25),
+            0 0 0 1px rgb(255 255 255 / 0.1),
+            0 2px 6px -1px rgb(0 0 0 / 0.5);
+    }
+
+    .theme-picker:has(input[value='dark']:checked) .theme-bead {
+        transform: translateX(100%);
+    }
+
+    .theme-picker:has(input[value='system']:checked) .theme-bead {
+        transform: translateX(200%);
+    }
+
+    /* Slide only while the picker is in use, so the bead doesn't glide into place when a page loads */
+    .theme-picker:is(:hover, :focus-within) .theme-bead {
+        transition: transform 320ms cubic-bezier(0.3, 1.4, 0.5, 1);
+    }
+
+    :global([data-design='aero'] .theme-icon) {
+        transition: transform 200ms ease-out;
+    }
+
+    :global([data-design='aero']) label:not(:has(:checked)):hover :global(.theme-icon) {
+        transform: scale(1.1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .theme-picker .theme-bead,
+        :global([data-design='aero'] .theme-icon) {
+            transition: none;
+        }
+    }
+</style>
