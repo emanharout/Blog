@@ -25,6 +25,8 @@ let clickedId: string | undefined;
 const sheetButton = document.querySelector<HTMLButtonElement>('[data-toc-button]');
 const sheet = document.querySelector<HTMLDialogElement>('[data-toc-sheet]');
 const inlineToc = document.querySelector<HTMLElement>('details:has([data-toc-list])');
+// Where the inline ToC sits in the post: its list floats over the post when opened, so this keeps the closed one's place.
+const inlinePlace = inlineToc?.parentElement;
 
 // Scrolls a list, if it's long enough to, so its active entry is in the middle.
 function revealActiveEntry(container: HTMLElement | null) {
@@ -99,6 +101,7 @@ let inlineAnimation: Animation | undefined;
 
 function setInlineOpen(open: boolean) {
     if (!(inlineToc instanceof HTMLDetailsElement) || !inlineBody) return;
+    if (open === inlineToc.hasAttribute('data-expanded')) return;
     inlineToc.toggleAttribute('data-expanded', open);
     // From wherever an unfinished animation has got to
     const fromHeight = inlineToc.open ? inlineBody.getBoundingClientRect().height : 0;
@@ -126,9 +129,9 @@ function setInlineOpen(open: boolean) {
 
 // The button stands in for the inline ToC once that has scrolled away. It isn't displayed at `sm` and up.
 function updateSheetButton() {
-    if (!sheetButton || !sheet || !inlineToc) return;
+    if (!sheetButton || !sheet || !inlinePlace) return;
     const isDisplayed = sheetButton.getClientRects().length > 0;
-    sheetButton.toggleAttribute('data-shown', isDisplayed && inlineToc.getBoundingClientRect().bottom <= 0);
+    sheetButton.toggleAttribute('data-shown', isDisplayed && inlinePlace.getBoundingClientRect().bottom <= 0);
     if (!isDisplayed && sheet.open) {
         pendingSheetClose?.cancel();
         sheet.removeAttribute('data-shown');
@@ -227,10 +230,10 @@ function setUpStripHover(box: HTMLElement) {
 
 // The strip stands in for the inline ToC, from when that has scrolled away until the end of the article.
 function updateStrip() {
-    if (!strip || !stripButton || !inlineToc || !article) return;
+    if (!strip || !stripButton || !inlinePlace || !article) return;
     const isShown =
         strip.getClientRects().length > 0 &&
-        inlineToc.getBoundingClientRect().bottom <= 0 &&
+        inlinePlace.getBoundingClientRect().bottom <= 0 &&
         article.getBoundingClientRect().bottom > stripBottom();
     strip.toggleAttribute('data-shown', isShown);
     if (!isShown) setStripOpen(false);
@@ -352,7 +355,7 @@ function queueUpdate() {
 if (headings.length > 0) {
     window.addEventListener('scroll', queueUpdate, { passive: true });
     window.addEventListener('resize', queueUpdate);
-    // Late-loading images and opening the inline ToC move the headings.
+    // Late-loading images move the headings.
     const resizeObserver = new ResizeObserver(queueUpdate);
     resizeObserver.observe(article ?? document.body);
     // Web fonts can re-wrap the entries, which moves the faint bar.
@@ -365,6 +368,7 @@ if (headings.length > 0) {
             clickedId = headingId(link);
             closeSheet();
             setStripOpen(false);
+            setInlineOpen(false);
             queueUpdate();
         });
     });
@@ -422,6 +426,18 @@ if (headings.length > 0) {
     inlineSummary?.addEventListener('click', (event) => {
         event.preventDefault();
         setInlineOpen(!inlineToc?.hasAttribute('data-expanded'));
+    });
+    // Its open list covers the post, so tapping or tabbing elsewhere closes it, and so does Escape.
+    document.addEventListener('pointerdown', (event) => {
+        if (!inlineToc?.contains(event.target as Node | null)) setInlineOpen(false);
+    });
+    inlineToc?.addEventListener('focusout', (event) => {
+        if (event.relatedTarget && !inlineToc.contains(event.relatedTarget as Node)) setInlineOpen(false);
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || !inlineToc?.hasAttribute('data-expanded')) return;
+        setInlineOpen(false);
+        inlineSummary?.focus();
     });
     // The browser can open it too (finding text in it, say).
     inlineToc?.addEventListener('toggle', () => {

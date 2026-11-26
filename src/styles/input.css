@@ -220,7 +220,11 @@
  */
 @utility frost-shine {
     @apply frost;
-    background: color-mix(in srgb, var(--color-bg-2) 85%, transparent);
+    /* An image rather than a color, so that a panel can lay a background color under it */
+    background: linear-gradient(
+        color-mix(in srgb, var(--color-bg-2) 85%, transparent),
+        color-mix(in srgb, var(--color-bg-2) 85%, transparent)
+    );
     border-color: rgb(255 255 255 / 0.14);
     border-top-color: rgb(255 255 255 / 0.22);
     box-shadow:
