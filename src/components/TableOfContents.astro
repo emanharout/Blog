@@ -155,8 +155,9 @@ const titleId = `table-of-contents-title-${variant}`;
               tableOfContents.ts slides it in and out by toggling `data-shown` while it's open. Each way takes the
               timing function of where it's headed: easing out as it arrives, easing in as it leaves.
               As wide as the inline ToC: the card's width (up to 65ch) less its `--article-pad` and 1px border on each
-              side, as in BlogArticle.astro. Its padding, corners and surface match the inline ToC's too. Like the
-              navigation menu, it floats as a card, clear of the bottom of the window.
+              side, as in BlogArticle.astro. Its padding and corners match the inline ToC's too. Like the mobile
+              navigation menu (SiteHeader.astro, HeaderNav.astro), it floats as a glass card, clear of the bottom of the
+              window, over the page dimmed and blurred the same way.
             -->
             <dialog
                 data-toc-sheet
@@ -165,10 +166,10 @@ const titleId = `table-of-contents-title-${variant}`;
                 tabindex="-1"
                 class="fixed inset-x-0 top-auto bottom-4 mx-auto flex-col open:flex max-w-none max-h-[70dvh] overflow-hidden
                 [--article-pad:clamp(1.25rem,5vw,2rem)] w-[calc(min(100%,65ch)-2*(var(--article-pad)+1px))]
-                rounded-xl aero:rounded-box border border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl outline-none
+                rounded-xl aero:rounded-box glass text-fg-1 outline-none
                 translate-y-[calc(100%+2rem)] data-shown:translate-y-0
                 transition-[translate] duration-450 ease-toc-leave data-shown:ease-toc-arrive motion-reduce:transition-none
-                backdrop:bg-black/40 backdrop:opacity-0 data-shown:backdrop:opacity-100
+                backdrop:bg-gray-temp-900/10 dark:backdrop:bg-black/30 backdrop:backdrop-blur-[3px] backdrop:opacity-0 data-shown:backdrop:opacity-100
                 backdrop:transition-opacity backdrop:duration-450 backdrop:ease-toc-leave data-shown:backdrop:ease-toc-arrive
                 motion-reduce:backdrop:transition-none"
             >
