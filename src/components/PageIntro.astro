@@ -1,0 +1,27 @@
+---
+type Props = {
+    title: string;
+    // Small label above the title, e.g. "Topic"
+    eyebrow?: string;
+};
+
+const { title, eyebrow } = Astro.props;
+---
+
+<!--
+  A compact glass intro for list pages (All Posts, a tag's posts): an optional eyebrow, the page's serif title, and a
+  line or two of copy from the slot. Lighter than Hero.astro, which the two blogs use for their longer introductions.
+-->
+<header class="glass mt-4 mb-6 flex flex-col items-center gap-2 rounded-box px-6 py-8 text-center sm:mt-10 sm:px-12">
+    {
+        eyebrow && (
+            <p class="text-xs font-medium uppercase tracking-[0.2em] text-secondary-600 dark:text-secondary-300">
+                {eyebrow}
+            </p>
+        )
+    }
+    <h1 class="font-serif text-4xl text-balance text-fg-1">{title}</h1>
+    <div class="max-w-prose text-pretty text-fg-2">
+        <slot />
+    </div>
+</header>

@@ -4,6 +4,7 @@ import type { CollectionEntry } from 'astro:content';
 import BlogGrid from '../../../components/BlogGrid.astro';
 import Hero from '../../../layouts/Hero.astro';
 import MainLayout from '../../../layouts/MainLayout.astro';
+import PageIntro from '../../../components/PageIntro.astro';
 import Pagination from '../../../components/Pagination.astro';
 import TagList from '../../../components/TagList.astro';
 import ProgrammingBlogHeader from '../../../components/ProgrammingBlogHeader.astro';
@@ -73,8 +74,14 @@ const description = blogType ? descriptions[blogType] : "Explore all of Eman's b
             </Hero>
         )
     }
-    {!blogType && <h1 class="sr-only">{title}</h1>}
     <section class="container-page container-wide">
+        {
+            !blogType && (
+                <PageIntro title={title}>
+                    <p>Everything from the Wonder and Programming blogs, newest first.</p>
+                </PageIntro>
+            )
+        }
         {
             tags.length > 0 && (
                 <div class="flex justify-center">
