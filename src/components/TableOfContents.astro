@@ -107,7 +107,7 @@ const titleId = `table-of-contents-title-${variant}`;
                     aria-hidden="true"
                     viewBox="0 0 24 24"
                     class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
-                    transition-transform duration-300 motion-reduce:transition-none group-data-expanded:rotate-180"
+                    transition-transform duration-450 ease-toc-arrive motion-reduce:transition-none group-data-expanded:rotate-180"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
@@ -151,8 +151,9 @@ const titleId = `table-of-contents-title-${variant}`;
                 </svg>
             </button>
             <!--
-              Opens focused on itself (`autofocus`), not on its close button, which would show its focus ring. While
-              tableOfContents.ts slides it away, it has `data-closing` and is still open.
+              Opens focused on itself (`autofocus`), not on its close button, which would show its focus ring.
+              tableOfContents.ts slides it in and out by toggling `data-shown` while it's open. Each way takes the
+              timing function of where it's headed: easing out as it arrives, easing in as it leaves.
             -->
             <dialog
                 data-toc-sheet
@@ -161,10 +162,10 @@ const titleId = `table-of-contents-title-${variant}`;
                 tabindex="-1"
                 class="fixed inset-x-0 top-auto bottom-0 flex-col open:flex w-full max-w-none max-h-[70dvh] overflow-hidden
                 rounded-t-2xl border border-b-0 border-fg-border-2 bg-bg-2 text-fg-1 shadow-md aero:backdrop-blur-xl outline-none
-                translate-y-full [&[open]:not([data-closing])]:translate-y-0 starting:open:translate-y-full
-                transition-[translate,display,overlay] transition-discrete duration-300 ease-out motion-reduce:transition-none
-                backdrop:bg-black/40 backdrop:opacity-0 [&[open]:not([data-closing])]:backdrop:opacity-100 starting:open:backdrop:opacity-0
-                backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete backdrop:duration-300
+                translate-y-full data-shown:translate-y-0
+                transition-[translate] duration-450 ease-toc-leave data-shown:ease-toc-arrive motion-reduce:transition-none
+                backdrop:bg-black/40 backdrop:opacity-0 data-shown:backdrop:opacity-100
+                backdrop:transition-opacity backdrop:duration-450 backdrop:ease-toc-leave data-shown:backdrop:ease-toc-arrive
                 motion-reduce:backdrop:transition-none"
             >
                 <!-- Stays put while the list scrolls -->
@@ -234,7 +235,7 @@ const titleId = `table-of-contents-title-${variant}`;
                             aria-hidden="true"
                             viewBox="0 0 24 24"
                             class="size-5 shrink-0 text-gray-temp-500 dark:text-gray-temp-300
-                            transition-transform duration-300 motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
+                            transition-transform duration-450 ease-toc-arrive motion-reduce:transition-none [[aria-expanded=true]>&]:rotate-180"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2"
@@ -249,7 +250,7 @@ const titleId = `table-of-contents-title-${variant}`;
                     <div
                         id="table-of-contents-strip-panel"
                         class="h-0 overflow-hidden invisible data-open:visible
-                        transition-[height,visibility] duration-300 ease-out motion-reduce:transition-none"
+                        transition-[height,visibility] duration-450 ease-toc-leave data-open:ease-toc-arrive motion-reduce:transition-none"
                     >
                         <div data-toc-scroller class:list={['max-h-[70dvh] overflow-y-auto overscroll-contain px-5 pt-3 pb-3', topFadeClasses]}>
                             <div data-toc-list class="relative">

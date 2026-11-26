@@ -37,55 +37,58 @@ function revealActiveEntry(container: HTMLElement | null) {
 }
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-// The sheet's and the inline ToC's transitions (TableOfContents.astro)
-const TOGGLE_DURATION_MS = 300;
+// The sheet's and the inline ToC's transitions, as long as the menu's (`--menu-duration`, SiteHeader.astro). The easings
+// are `--ease-toc-arrive` and `--ease-toc-leave` (input.css).
+const TOGGLE_DURATION_MS = 450;
+const EASE_ARRIVE = 'cubic-bezier(0.2, 0.7, 0.2, 1)';
+const EASE_LEAVE = 'cubic-bezier(0.45, 0, 0.25, 1)';
 
-// Undoes a close that's still sliding the sheet away.
-let cancelSheetClose: (() => void) | undefined;
+// Closes the sheet once it has slid away; undone if it's opened again first.
+let pendingSheetClose: { cancel(): void } | undefined;
 
+// The sheet slides in and out with `data-shown` (TableOfContents.astro), while it's open: browsers don't all animate a
+// dialog entering and leaving the top layer (Safari can't keep a closing one there).
 function openSheet() {
     if (!sheet) return;
-    if (cancelSheetClose) {
-        cancelSheetClose();
-        return;
+    pendingSheetClose?.cancel();
+    if (!sheet.open) {
+        sheet.showModal();
+        // Browsers that ignore `autofocus` on the dialog would focus its close button and ring it.
+        sheet.focus();
+        // Lays it out below the window first, so that it slides up from there.
+        sheet.getBoundingClientRect();
     }
-    if (sheet.open) return;
-    sheet.showModal();
-    // Browsers that ignore `autofocus` on the dialog would focus its close button and ring it.
-    sheet.focus();
+    sheet.setAttribute('data-shown', '');
 
     // The faint bar can only be measured while the sheet is displayed.
     updateActiveLinks();
     revealActiveEntry(sheet);
 }
 
-// The sheet slides away while still open (`data-closing`) and only then leaves the top layer; browsers that can't keep
-// a closing dialog in the top layer (Safari: no `overlay` transition) would otherwise drop it at once.
 function closeSheet() {
-    if (!sheet?.open || cancelSheetClose) return;
+    if (!sheet?.hasAttribute('data-shown')) return;
+    sheet.removeAttribute('data-shown');
     if (reducedMotion.matches) {
         sheet.close();
         return;
     }
 
-    sheet.setAttribute('data-closing', '');
-    const finish = () => {
-        cleanUp();
-        sheet.close();
-    };
     const onTransitionEnd = (event: TransitionEvent) => {
         if (event.target === sheet && event.propertyName === 'translate') finish();
     };
     // In case the transition never runs or ends (a hidden tab, say).
-    const timer = window.setTimeout(finish, TOGGLE_DURATION_MS + 100);
-    const cleanUp = () => {
-        cancelSheetClose = undefined;
+    const timer = window.setTimeout(() => finish(), TOGGLE_DURATION_MS + 100);
+    const cancel = () => {
+        pendingSheetClose = undefined;
         clearTimeout(timer);
         sheet.removeEventListener('transitionend', onTransitionEnd);
-        sheet.removeAttribute('data-closing');
+    };
+    const finish = () => {
+        cancel();
+        sheet.close();
     };
     sheet.addEventListener('transitionend', onTransitionEnd);
-    cancelSheetClose = cleanUp;
+    pendingSheetClose = { cancel };
 }
 
 // THE INLINE TOC: its height is animated in script, since browsers can't all interpolate to `auto`. It stays open while
@@ -111,7 +114,7 @@ function setInlineOpen(open: boolean) {
     inlineBody.style.overflow = 'hidden';
     const animation = inlineBody.animate(
         { height: [`${fromHeight}px`, `${toHeight}px`] },
-        { duration: TOGGLE_DURATION_MS, easing: 'ease-out' },
+        { duration: TOGGLE_DURATION_MS, easing: open ? EASE_ARRIVE : EASE_LEAVE },
     );
     inlineAnimation = animation;
     animation.addEventListener('finish', () => {
@@ -126,7 +129,11 @@ function updateSheetButton() {
     if (!sheetButton || !sheet || !inlineToc) return;
     const isDisplayed = sheetButton.getClientRects().length > 0;
     sheetButton.toggleAttribute('data-shown', isDisplayed && inlineToc.getBoundingClientRect().bottom <= 0);
-    if (!isDisplayed && sheet.open) sheet.close();
+    if (!isDisplayed && sheet.open) {
+        pendingSheetClose?.cancel();
+        sheet.removeAttribute('data-shown');
+        sheet.close();
+    }
 }
 
 // THE STRIP (from `sm` to `lg`): a bar at the top of the window that names the current section and drops down the list.
@@ -399,6 +406,12 @@ if (headings.length > 0) {
         const isBackdrop = event.target === sheet;
         const isCloseButton = event.target instanceof Element && event.target.closest('[data-toc-close]');
         if (isBackdrop || isCloseButton) closeSheet();
+    });
+    // However it closed (the browser can force a close on Escape), it's hidden again and the page scrolls.
+    sheet?.addEventListener('close', () => {
+        if (sheet.open) return;
+        pendingSheetClose?.cancel();
+        sheet.removeAttribute('data-shown');
     });
     // Escape slides it away too.
     sheet?.addEventListener('cancel', (event) => {

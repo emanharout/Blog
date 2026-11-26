@@ -18,6 +18,11 @@
  */
 
 @theme {
+    /* Table of contents panels (TableOfContents.astro, tableOfContents.ts), over the menu's 450ms (SiteHeader.astro):
+       easing out as they arrive, easing in as they leave. Use: ease-toc-arrive / ease-toc-leave */
+    --ease-toc-arrive: cubic-bezier(0.2, 0.7, 0.2, 1);
+    --ease-toc-leave: cubic-bezier(0.45, 0, 0.25, 1);
+
     /* Fluid horizontal gutter shared by every page edge. Use: px-outer-edge / mx-outer-edge */
     --spacing-outer-edge: clamp(1rem, 4vw, 2rem);
 
@@ -317,7 +322,7 @@
     }
 
     /* The page stays put behind the open table of contents sheet (TableOfContents.astro) */
-    html:has([data-toc-sheet][open]:not([data-closing])) {
+    html:has([data-toc-sheet][data-shown]) {
         overflow: hidden;
     }
 
