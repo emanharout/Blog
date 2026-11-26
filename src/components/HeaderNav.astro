@@ -336,10 +336,11 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
     }
 
     /*
-     * Theme switches and page changes made from the open mobile card are drawn from snapshots (see
-     * colorThemeScript.js and navigationDropdownMenu.ts). Safari leaves backdrop-filter blur out of snapshots, so the
-     * card would turn see-through and show the text behind it. Instead the card gets its own layer, and that layer does
-     * the frosting: its box blurs the page beneath it, the way the live card blurs the live page.
+     * Page changes made from the open mobile card are drawn from snapshots (see navigationDropdownMenu.ts), which
+     * leave backdrop-filter blur out, so the card would turn see-through and show the text behind it. Instead the card
+     * gets its own layer, and that layer does the frosting: its box blurs the page beneath it, the way the live card
+     * blurs the live page. (Safari turns off backdrop-filter for the whole transition, so this helps only elsewhere.
+     * Theme switches from the open card skip the fade for that reason; see colorThemeScript.js.)
      */
     @media (width < 48rem) {
         #site-nav-panel[data-open] {
