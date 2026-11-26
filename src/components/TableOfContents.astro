@@ -95,16 +95,13 @@ const titleId = `table-of-contents-title-${variant}`;
     // Opened, its list floats over the post rather than pushing it down: the placeholder keeps the closed card's place
     // (its title bar and 1px borders), and the card grows down from its top. tableOfContents.ts animates the list's
     // height as it opens and closes, and closes it when it's tapped or tabbed away from.
-    // While open, it lays the article's glass color, made opaque, under its own glass. The article's blur keeps the card's
-    // from reaching the post's text, which would otherwise show through it unblurred; this hides it.
     hasToC && variant === 'inline' && (
         <div class="not-prose relative lg:hidden my-6 h-[calc(var(--toc-strip-height)+2px)]">
             <details
                 data-toc-inline
                 class="group absolute inset-x-0 top-0 z-30 overflow-hidden rounded-xl aero:rounded-box glass glass-default-opacity
                 not-dark:[--glass-shadow-y:16px] not-dark:[--glass-shadow-blur:40px] not-dark:[--glass-shadow-spread:-10px]
-                not-dark:[--glass-shadow-alpha:0.42] not-dark:[--glass-contact-alpha:0.16]
-                open:bg-[hsl(var(--glass-tint-top))]"
+                not-dark:[--glass-shadow-alpha:0.42] not-dark:[--glass-contact-alpha:0.16]"
             >
                 <summary
                     class="relative flex h-(--toc-strip-height) items-center justify-between gap-3 px-5 pb-3 cursor-pointer list-none

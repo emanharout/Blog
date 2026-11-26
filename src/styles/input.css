@@ -145,26 +145,31 @@
     &:not(.sticky, .fixed, .absolute) {
         position: relative;
     }
-    background: linear-gradient(
+    /* The parts of the surface, named so that `glass-reading` can move some of them to a layer of their own */
+    --glass-surface: linear-gradient(
         180deg,
         hsl(var(--glass-tint-top) / var(--glass-panel-opacity, var(--glass-opacity))),
         hsl(var(--glass-tint-bottom) / calc(var(--glass-panel-opacity, var(--glass-opacity)) * var(--glass-fade)))
     );
-    border: 1px solid var(--glass-border);
     --glass-lift: calc(var(--glass-shadow-depth) * var(--glass-intensity));
-    box-shadow:
+    --glass-inner-shadow:
         /* Top highlight */
         inset 0 1px 0 hsl(0 0% 100% / calc(var(--glass-highlight-alpha) * var(--glass-intensity))),
         /* Rim light: a bright inner edge and a soft inner glow */
         inset 0 0 0 1px hsl(0 0% 100% / calc(var(--glass-rim) * 0.45 * var(--glass-intensity))),
-        inset 0 0 1.5rem hsl(0 0% 100% / calc(var(--glass-rim) * 0.22 * var(--glass-intensity))),
+        inset 0 0 1.5rem hsl(0 0% 100% / calc(var(--glass-rim) * 0.22 * var(--glass-intensity)));
+    --glass-outer-shadow:
         /* Contact shadow and float shadow */
         0 1px 2px hsl(var(--glass-shadow-color) / calc(var(--glass-contact-alpha) * var(--glass-lift))),
         0 calc(var(--glass-shadow-y) * var(--glass-lift)) calc(var(--glass-shadow-blur) * var(--glass-lift))
             var(--glass-shadow-spread) hsl(var(--glass-shadow-color) / calc(var(--glass-shadow-alpha) * var(--glass-lift)));
-    -webkit-backdrop-filter: blur(var(--glass-blur))
-        saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
-    backdrop-filter: blur(var(--glass-blur)) saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+    --glass-backdrop: blur(var(--glass-blur)) saturate(calc(100% + (var(--glass-boost) - 100%) * var(--glass-intensity)));
+
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-inner-shadow), var(--glass-outer-shadow);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    backdrop-filter: var(--glass-backdrop);
 
     &::before {
         content: '';
@@ -177,9 +182,33 @@
     }
 }
 
-/* A calmer, more opaque glass for long reading (the post page's article). Pair with `glass`. */
+/*
+ * A calmer, more opaque glass for long reading (the post page's article). Pair with `glass`.
+ * Its tint, inner shadows and blur are drawn on a layer behind its content (::after) rather than on the panel itself.
+ * A blurring panel keeps the glass inside it from blurring what's behind that (Chrome), so the post page's inline table
+ * of contents, which floats over the text when opened, would show the text sharp through its glass.
+ */
 @utility glass-reading {
     --glass-panel-opacity: var(--glass-reading-opacity);
+    background: none;
+    box-shadow: var(--glass-outer-shadow);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+
+    /* Covers the panel's border box, like its own background would, under the gloss (::before) */
+    &::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        z-index: -2;
+        border: 1px solid transparent;
+        border-radius: inherit;
+        pointer-events: none;
+        background: var(--glass-surface) border-box;
+        box-shadow: var(--glass-inner-shadow);
+        -webkit-backdrop-filter: var(--glass-backdrop);
+        backdrop-filter: var(--glass-backdrop);
+    }
 }
 
 /* For a glass panel inside a `glass-reading` one (the post page's inline table of contents): back to the usual opacity */
