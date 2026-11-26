@@ -34,12 +34,21 @@
         document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
     }
 
+    // Safari and Firefox turn off every backdrop-filter while a view transition runs (WebKit bug 302256), the
+    // transition's own layers included, so the open mobile menu card would lose its frosting for the whole fade and
+    // get it back at the end. The picker lives in that card on small screens, so the switch is instant while it's open.
+    function isMobileMenuOpen() {
+        return (
+            window.matchMedia('(width < 48rem)').matches && document.querySelector('#site-nav-panel[data-open]') !== null
+        );
+    }
+
     // A user-initiated switch cross-fades the whole page (CSS in src/styles/input.css) where the View Transitions
-    // API is available; otherwise, or with reduced motion, it switches instantly.
+    // API is available; otherwise, with reduced motion, or from the open mobile menu, it switches instantly.
     function applyThemeSmoothly(option) {
         const root = document.documentElement;
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (!document.startViewTransition || reduceMotion) {
+        if (!document.startViewTransition || reduceMotion || isMobileMenuOpen()) {
             applyTheme(option);
             return;
         }
