@@ -1143,3 +1143,25 @@
         }
     }
 }
+
+/*
+ * Tooltips (tippy.js, `theme: 'glass'` in footnoteNotes.ts and tippyTooltipSetup.js): a small glass panel in place
+ * of tippy's black box, with no arrow, since a translucent arrow can't match the panel's gradient. Kept outside any
+ * @layer: tippy.css isn't layered, so a layered rule would lose to it.
+ */
+.tippy-box[data-theme~='glass'] {
+    @apply glass rounded-card text-fg-1;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+/* The night glass is clear enough that text behind a tooltip would compete with it, so dark tooltips are more solid */
+.dark .tippy-box[data-theme~='glass'] {
+    --glass-panel-opacity: 0.88;
+}
+.tippy-box[data-theme~='glass'] > .tippy-content {
+    padding: 0.625rem 0.875rem;
+}
+.tippy-box[data-theme~='glass'] a {
+    color: hsl(var(--fg-link-2));
+    text-decoration: underline;
+}
