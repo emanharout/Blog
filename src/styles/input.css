@@ -689,10 +689,10 @@
 
         /*
          * PRIMARY / SECONDARY / TERTIARY (tunable). Primary: the accent (nav underline, active table of contents
-         * entry) at a lightness fixed per theme, plus half the card tags, the Wonder badge and part of the logo.
-         * Secondary: "Eman", the quote mark, the Programming badge, inline code, tooltips and text selection. Tertiary:
-         * links, buttons, the logo, footnotes, the footer icons and the other tags. Light styles and dark mode set
-         * their own. Background hues (sky, lawn, sun) are separate knobs.
+         * entry) at a lightness fixed per theme, plus half the card tags, the Wonder badge, the footer icons, and "Eman"
+         * and the quote mark in the hero. Secondary: the Programming badge, inline code, tooltips, links, post titles on
+         * hover, text selection and the other tags. Tertiary: buttons and other accents. Light styles and dark mode
+         * set their own. Background hues (sky, lawn, sun) are separate knobs.
          */
         --primary-h: 127.9;
         --primary-s: 32.3%;
@@ -788,13 +788,13 @@
         /* Primary / secondary / tertiary (tunable); the night sky's own hue is --aero-night-h */
         /*
          * Primary (accent): dusty rose, on the same elements as in light mode. Lightness 74% keeps it clear of the
-         * white heading text. Secondary: honey gold.
+         * white heading text. Secondary: a soft, muted honey gold.
          */
         --primary-h: 340;
         --primary-s: 30%;
         --primary-l: 74%;
-        --secondary-h: 44;
-        --secondary-s: 65%;
+        --secondary-h: 42;
+        --secondary-s: 42%;
         --tertiary-h: 222;
         --tertiary-s: 60%;
         --accent-color: var(--primary-h) var(--primary-s) var(--primary-l);
