@@ -213,29 +213,43 @@ async function getSearchableJSONData(): Promise<SearchablePostData[] | undefined
     }
 }
 
-// Takes the results of a search and maps it to user-displayable HTML.
+// Takes the results of a search and maps it to user-displayable HTML: one row per post, styled like the glass panel it
+// sits in (title in the serif face, then its description and date), with a soft highlight on hover or focus.
 function generateSearchListItems(results: FuseResult<SearchablePostData>[]) {
     const listItems = results.map((result) => {
-        const { id, title, date } = result.item;
+        const { id, title, description, date } = result.item;
         const dateAsDate = new Date(date);
         const listItem = document.createElement('li');
-        listItem.className = 'mt-4 opacity-0 translate-y-4';
+        listItem.className = 'opacity-0 translate-y-4';
 
         const resultLink = document.createElement('a');
         resultLink.href = `/blog/${id}/`;
-        resultLink.className = 'text-fg-link-2 font-medium hover:text-fg-link-2-hover focus:text-fg-link-2-hover';
-        resultLink.textContent = title;
+        resultLink.className =
+            'group -mx-3 flex flex-col gap-1 rounded-box px-3 py-3 ' +
+            'transition-colors duration-200 hover:bg-white/60 dark:hover:bg-white/6 motion-reduce:transition-none ' +
+            'focus-visible:outline-2 focus-visible:outline-tertiary-500';
+
+        const titleLabel = document.createElement('span');
+        titleLabel.className =
+            'font-serif text-lg leading-snug text-fg-1 ' +
+            'group-hover:text-secondary-600 dark:group-hover:text-secondary-300';
+        titleLabel.textContent = title;
+
+        const descriptionLabel = document.createElement('span');
+        descriptionLabel.className = 'text-sm text-fg-2 line-clamp-2';
+        descriptionLabel.textContent = description;
 
         const dateLabel = document.createElement('time');
         dateLabel.dateTime = dateAsDate.toISOString();
-        dateLabel.className = 'ml-2 text-xs text-fg-2/70';
+        dateLabel.className = 'text-xs text-fg-2/70';
         dateLabel.textContent = dateAsDate.toLocaleDateString('en-us', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
         });
 
-        listItem.append(resultLink, dateLabel);
+        resultLink.append(titleLabel, descriptionLabel, dateLabel);
+        listItem.append(resultLink);
         return listItem;
     });
 
