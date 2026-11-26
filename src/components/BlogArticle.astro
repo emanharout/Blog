@@ -40,7 +40,7 @@ const { Content, headings } = await render(post);
     >
         {
             hasImage && (
-                <div class="overflow-hidden rounded-t-[inherit]">
+                <div class="post-hero overflow-hidden rounded-t-[inherit]">
                     <Picture
                         src={post.data.image!}
                         alt={post.data.imageAlt ?? ''}
