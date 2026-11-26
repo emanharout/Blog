@@ -89,13 +89,12 @@ const titleId = `table-of-contents-title-${variant}`;
     )
 }
 {
-    // Styled like the strip, which takes over from it as the page scrolls.
+    // Shaped like the strip, which takes over from it as the page scrolls, and glass like the sheet.
     // tableOfContents.ts animates the list's height as it opens and closes.
     hasToC && variant === 'inline' && (
         <details
             data-toc-inline
-            class="not-prose group lg:hidden my-6 overflow-hidden rounded-xl aero:rounded-box
-            border border-fg-border-2 bg-bg-2 shadow-md"
+            class="not-prose group lg:hidden my-6 overflow-hidden rounded-xl aero:rounded-box glass"
         >
             <summary
                 class="relative flex h-(--toc-strip-height) items-center justify-between gap-3 px-5 pb-3 cursor-pointer list-none
@@ -155,7 +154,7 @@ const titleId = `table-of-contents-title-${variant}`;
               tableOfContents.ts slides it in and out by toggling `data-shown` while it's open. Each way takes the
               timing function of where it's headed: easing out as it arrives, easing in as it leaves.
               As wide as the inline ToC: the card's width (up to 65ch) less its `--article-pad` and 1px border on each
-              side, as in BlogArticle.astro. Its padding and corners match the inline ToC's too. Like the mobile
+              side, as in BlogArticle.astro. Its padding, corners and glass match the inline ToC's too. Like the mobile
               navigation menu (SiteHeader.astro, HeaderNav.astro), it floats as a glass card, clear of the bottom of the
               window, over the page dimmed and blurred the same way.
             -->
