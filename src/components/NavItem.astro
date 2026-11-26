@@ -1,6 +1,6 @@
 ---
 // A top-level navigation item. On desktop a glass bead (in HeaderNav) sits under the active item and slides to whichever
-// item is hovered or keyboard-focused. On mobile (inside the collapsible menu) items get a background tint instead.
+// item is hovered or keyboard-focused. On mobile (inside the menu card) the active item's row wears the bead's look.
 type Props = {
     active?: boolean;
     class?: string;
@@ -11,13 +11,13 @@ const { active = false, class: className } = Astro.props;
 
 <li
     class:list={[
-        'nav-item relative rounded md:rounded-pill',
-        'hover:bg-bg-2 md:hover:bg-transparent',
-        // Text and icons (which use currentColor) take the primary color only on the item under the bead. HeaderNav's
-        // script moves data-bead along with the bead; it starts on the active item so there is no flash before the script runs.
+        'nav-item relative rounded-pill',
+        // Text and icons (which use currentColor) take the primary color on the item under the bead. On desktop that
+        // follows HeaderNav's script, which moves data-bead along with the bead (it starts on the active item, so there
+        // is no flash before the script runs); on mobile it's the active item.
         'md:transition-colors md:duration-300 motion-reduce:transition-none',
         'md:data-bead:text-primary-700 md:dark:data-bead:text-primary-300',
-        active && 'bg-bg-2 md:bg-transparent',
+        'max-md:data-active:text-primary-700 max-md:dark:data-active:text-primary-300',
         className,
     ]}
     data-active={active || undefined}

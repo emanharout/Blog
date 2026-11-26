@@ -11,28 +11,30 @@ const isAbout = path.startsWith('/about');
 const isSearch = path.startsWith('/search');
 
 const blogLinks = [
-    { href: `/blog/${WONDER_BLOG_TYPE}`, label: 'Wonder Blog' },
-    { href: `/blog/${PROGRAMMING_BLOG_TYPE}`, label: 'Programming Blog' },
-    { href: '/blog', label: 'All Posts' },
+    // `short` is the chip label in the mobile menu, where the full names don't fit on one line
+    { href: `/blog/${WONDER_BLOG_TYPE}`, label: 'Wonder Blog', short: 'Wonder' },
+    { href: `/blog/${PROGRAMMING_BLOG_TYPE}`, label: 'Programming Blog', short: 'Programming' },
+    { href: '/blog', label: 'All Posts', short: 'All posts' },
 ];
 
-const linkClasses = 'block px-3 py-3 md:py-2';
+const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
 ---
 
 <!--
-  Below `md` this whole panel is hidden until the menu button in SiteHeader opens it (data-open).
-  At `md` and up it is always visible as a horizontal nav bar.
+  Below `md` this panel is a floating glass card under the header, hidden until the menu button in SiteHeader opens it
+  (data-open); it grows out of the button's corner. At `md` and up it is always visible as a horizontal nav bar.
 -->
 <nav
     id="site-nav-panel"
     aria-label="Main"
-    class="hidden basis-full pb-4
-    data-open:block
-    md:relative md:block md:basis-auto md:pb-0"
+    class="hidden data-open:block
+    max-md:absolute! max-md:top-full max-md:right-[calc(var(--spacing-outer-edge)-0.25rem)]
+    max-md:w-max max-md:max-w-[calc(100%-2*var(--spacing-outer-edge)+0.5rem)] max-md:mt-2 max-md:p-2 max-md:glass max-md:rounded-panel
+    md:relative md:block md:basis-auto"
 >
     <!-- Desktop only: the glass bead that rests under the active item and slides to the hovered one (script below) -->
     <span class="nav-bead" aria-hidden="true"></span>
-    <ul class="flex flex-col gap-1 md:flex-row md:items-center md:gap-3 md:py-6">
+    <ul class="nav-list flex flex-col md:flex-row md:items-center md:gap-3 md:py-6">
         <NavItem active={isHome}>
             <a href="/" class={linkClasses} aria-current={isHome ? 'page' : undefined}>Home</a>
         </NavItem>
@@ -40,12 +42,13 @@ const linkClasses = 'block px-3 py-3 md:py-2';
         <NavItem active={isBlog}>
             <div class="flex items-center">
                 <a href="/blog" class={`${linkClasses} grow md:pr-1`} aria-current={path === '/blog' ? 'page' : undefined}>Blog</a>
+                <!-- Desktop only: on mobile the sections are always shown as chips under Blog -->
                 <button
                     id="blog-submenu-button"
                     type="button"
                     aria-expanded="false"
                     aria-controls="blog-submenu"
-                    class="px-3 py-3 md:px-2 md:py-2 rounded"
+                    class="hidden md:block px-2 py-2 rounded"
                 >
                     <span class="sr-only">Show blog sections</span>
                     <Icon
@@ -57,19 +60,20 @@ const linkClasses = 'block px-3 py-3 md:py-2';
                 </button>
             </div>
             <!--
-              On desktop: a glass panel with its own bead, which rests on the current section and slides to the hovered row
-              (script below). Only the row under the bead takes the primary color (data-bead), as in the nav bar.
+              Mobile: a row of chips, always shown. Desktop: a glass dropdown with its own bead, which rests on the current
+              section and slides to the hovered row (script below). Only the row under the bead takes the primary color
+              (data-bead), as in the nav bar.
             -->
             <ul
                 id="blog-submenu"
-                class="blog-submenu hidden data-open:block
-                pl-4 pb-2 text-sm text-fg-2
+                class="blog-submenu flex flex-wrap gap-x-1.5 gap-y-2 mx-3 mt-2 mb-2.5 md:mx-0 md:mb-0 text-[0.8125rem] text-fg-2
+                md:hidden md:data-open:block md:gap-0 md:text-sm
                 md:absolute! md:left-0 md:top-full md:z-20 md:mt-2 md:w-52 md:p-1.5 md:space-y-0.5
                 md:glass md:rounded-box"
             >
                 <li class="nav-bead" aria-hidden="true"></li>
                 {
-                    blogLinks.map(({ href, label }) => {
+                    blogLinks.map(({ href, label, short }) => {
                         const current = path === href;
                         return (
                             <li
@@ -81,12 +85,13 @@ const linkClasses = 'block px-3 py-3 md:py-2';
                                 <a
                                     href={href}
                                     aria-current={current ? 'page' : undefined}
-                                    class="flex items-center justify-between gap-2 px-4 py-2 rounded md:rounded-pill
-                                    hover:bg-bg-2 md:hover:bg-transparent
-                                    max-md:aria-[current=page]:text-primary-700 max-md:dark:aria-[current=page]:text-primary-300"
+                                    class="block rounded-pill px-3 py-1.5 md:px-4 md:py-2
+                                    max-md:bg-bg-2/40 max-md:ring-1 max-md:ring-fg-border-2
+                                    max-md:aria-[current=page]:ring-0 max-md:aria-[current=page]:text-primary-700
+                                    max-md:dark:aria-[current=page]:text-primary-300"
                                 >
-                                    {label}
-                                    {current && <span class="size-1.5 rounded-full bg-current md:hidden" aria-hidden="true" />}
+                                    <span class="md:hidden">{short}</span>
+                                    <span class="max-md:hidden">{label}</span>
                                 </a>
                             </li>
                         );
@@ -100,13 +105,17 @@ const linkClasses = 'block px-3 py-3 md:py-2';
         </NavItem>
 
         <NavItem active={isSearch}>
-            <a href="/search" class="flex items-center gap-3 px-3 py-2.5 md:py-2" aria-current={isSearch ? 'page' : undefined}>
-                <Icon name="nav-search-icon" size="24" aria-hidden="true" />
+            <a href="/search" class="flex items-center justify-between gap-3 px-4 py-2.5 md:px-3 md:py-2" aria-current={isSearch ? 'page' : undefined}>
                 <span class="md:sr-only">Search</span>
+                <Icon name="nav-search-icon" size="24" aria-hidden="true" class="max-md:hidden" />
             </a>
         </NavItem>
 
-        <li class="px-3 pt-3 md:p-0">
+        <li
+            class="theme-row flex items-center justify-between mt-1.5 px-4 pt-2.5 pb-1 border-t border-fg-border-2
+            md:mt-0 md:p-0 md:border-0"
+        >
+            <span class="text-sm text-fg-2 md:hidden">Theme</span>
             <ColorThemeToggle />
         </li>
     </ul>
@@ -114,11 +123,130 @@ const linkClasses = 'block px-3 py-3 md:py-2';
 
 <style>
     /*
-     * Built like the theme picker's bead (ColorThemeToggle.astro), tinted with the primary color. There are two: one in
-     * the nav bar and one in the Blog dropdown.
+     * The bead look: tinted glass built like the theme picker's bead (ColorThemeToggle.astro), in the primary color.
+     * Desktop slides it as .nav-bead (one in the nav bar, one in the Blog dropdown); mobile puts it straight on the
+     * current row and section chip.
      */
+    #site-nav-panel {
+        --bead-tint: hsl(var(--primary-color-500));
+        --bead-background: linear-gradient(
+            180deg,
+            color-mix(in oklab, var(--bead-tint) 14%, rgb(255 255 255 / 0.95)),
+            color-mix(in oklab, var(--bead-tint) 26%, rgb(255 255 255 / 0.7))
+        );
+        --bead-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 1),
+            0 1px 2px hsl(var(--glass-shadow-color) / 0.14),
+            0 3px 8px -2px hsl(var(--glass-shadow-color) / 0.28);
+    }
+
+    :global(.dark) #site-nav-panel {
+        --bead-tint: hsl(var(--primary-color-300));
+        --bead-background: linear-gradient(
+            180deg,
+            color-mix(in oklab, var(--bead-tint) 30%, transparent),
+            color-mix(in oklab, var(--bead-tint) 12%, transparent)
+        );
+        --bead-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.2),
+            0 2px 6px -1px rgb(0 0 0 / 0.5);
+    }
+
     .nav-bead {
         display: none;
+    }
+
+    @media (width < 48rem) {
+        /* The current row (for Blog, the row itself, not the chips under it) and section chip wear the bead */
+        #site-nav-panel :global(.nav-item > :first-child),
+        .submenu-item > a {
+            border-radius: 9999px;
+        }
+
+        #site-nav-panel :global(.nav-item[data-active] > :first-child),
+        .submenu-item[data-active] > a {
+            background: var(--bead-background);
+            box-shadow: var(--bead-shadow);
+        }
+
+        /*
+         * Hover moves the bead, as on desktop: the hovered row or chip takes it (and the primary color), and the current
+         * one goes plain until the pointer leaves. Pointer devices only, so a tap on a phone doesn't leave it stuck.
+         */
+        @media (hover: hover) {
+            #site-nav-panel :global(.nav-item:not([data-active]) > :first-child:hover),
+            .submenu-item:not([data-active]) > a:hover {
+                background: var(--bead-background);
+                box-shadow: var(--bead-shadow);
+                color: hsl(var(--primary-color-700));
+            }
+
+            /*
+             * The pointer is over the list (gaps included, so moving between rows doesn't flash the current one back)
+             * but not over the current item, Blog's chips included, or the Theme row: the current row goes plain.
+             */
+            #site-nav-panel:has(.nav-list:hover):not(
+                    :has(.theme-row:hover, :global(.nav-item[data-active]:hover))
+                ) {
+                & :global(.nav-item[data-active] > :first-child) {
+                    background: none;
+                    box-shadow: none;
+                }
+
+                & :global(.nav-item[data-active]) {
+                    color: hsl(var(--fg-color-1));
+                }
+            }
+
+            /*
+             * The current section chip (e.g. Wonder) turns back into an ordinary chip when the current row goes plain, or
+             * while the pointer is among the other chips. The space above and below the chips is margin, not part of
+             * the chip list, so moving from the Blog row down to Wonder never counts as being among the other chips.
+             */
+            #site-nav-panel:has(.nav-list:hover):not(:has(.theme-row:hover, :global(.nav-item[data-active]:hover)))
+                .submenu-item[data-active]
+                > a,
+            .blog-submenu:hover:not(:has(.submenu-item[data-active]:hover)) .submenu-item[data-active] > a {
+                background: color-mix(in oklab, var(--color-bg-2) 40%, transparent);
+                box-shadow: 0 0 0 1px var(--color-fg-border-2);
+                color: hsl(var(--fg-color-2));
+            }
+
+            :global(.dark) #site-nav-panel :global(.nav-item:not([data-active]) > :first-child:hover),
+            :global(.dark) .submenu-item:not([data-active]) > a:hover {
+                color: hsl(var(--primary-color-300));
+            }
+        }
+
+        /*
+         * The card grows out of the menu button's corner as it opens, and shrinks back into it as it closes
+         * (allow-discrete keeps it displayed until the closing transition ends). Closing (the rule without data-open)
+         * starts gently and fades only near the end, so the shrink stays visible; opening pops out with a slight overshoot.
+         */
+        #site-nav-panel {
+            opacity: 0;
+            clip-path: inset(0 0 100% calc(100% - 3rem) round var(--panel-radius));
+            transition:
+                opacity calc(var(--menu-duration) * 0.65) ease-in calc(var(--menu-duration) * 0.35),
+                clip-path var(--menu-duration) cubic-bezier(0.45, 0, 0.25, 1),
+                display var(--menu-duration) allow-discrete;
+        }
+
+        #site-nav-panel[data-open] {
+            opacity: 1;
+            clip-path: inset(0 round var(--panel-radius));
+            transition:
+                opacity calc(var(--menu-duration) * 0.6) ease-out,
+                clip-path var(--menu-duration) cubic-bezier(0.35, 0.9, 0.4, 1.04),
+                display var(--menu-duration) allow-discrete;
+        }
+
+        @starting-style {
+            #site-nav-panel[data-open] {
+                opacity: 0;
+                clip-path: inset(0 0 100% calc(100% - 3rem) round var(--panel-radius));
+            }
+        }
     }
 
     @media (width >= 48rem) {
@@ -130,47 +258,37 @@ const linkClasses = 'block px-3 py-3 md:py-2';
             border-radius: 9999px;
             pointer-events: none;
             opacity: 0;
+            background: var(--bead-background);
+            box-shadow: var(--bead-shadow);
         }
 
-        .nav-bead {
-            --nav-bead-tint: hsl(var(--primary-color-500));
-            background: linear-gradient(
-                180deg,
-                color-mix(in oklab, var(--nav-bead-tint) 14%, rgb(255 255 255 / 0.95)),
-                color-mix(in oklab, var(--nav-bead-tint) 26%, rgb(255 255 255 / 0.7))
-            );
-            box-shadow:
-                inset 0 1px 0 rgb(255 255 255 / 1),
-                0 1px 2px hsl(var(--glass-shadow-color) / 0.14),
-                0 3px 8px -2px hsl(var(--glass-shadow-color) / 0.28);
-        }
-
-        :global(.dark) .nav-bead {
-            --nav-bead-tint: hsl(var(--primary-color-300));
-            background: linear-gradient(
-                180deg,
-                color-mix(in oklab, var(--nav-bead-tint) 30%, transparent),
-                color-mix(in oklab, var(--nav-bead-tint) 12%, transparent)
-            );
-            box-shadow:
-                inset 0 1px 0 rgb(255 255 255 / 0.2),
-                0 2px 6px -1px rgb(0 0 0 / 0.5);
-        }
-
-        /* The dropdown fades and drops into place as it opens */
-        .blog-submenu[data-open] {
+        /*
+         * Like the mobile card, the dropdown unfolds out of its top-left corner (under Blog) as it opens and folds back
+         * into it as it closes (the rule without data-open; allow-discrete keeps it displayed until that finishes).
+         * Fully open, the clip reaches 3rem past the edges so the glass's floating shadow isn't cut off.
+         */
+        .blog-submenu {
+            opacity: 0;
+            clip-path: inset(0 calc(100% - 3rem) 100% 0 round var(--box-radius));
             transition:
-                opacity 180ms ease-out,
-                translate 180ms ease-out,
-                scale 180ms ease-out;
-            transform-origin: top left;
+                opacity calc(var(--menu-duration) * 0.65) ease-in calc(var(--menu-duration) * 0.35),
+                clip-path var(--menu-duration) cubic-bezier(0.45, 0, 0.25, 1),
+                display var(--menu-duration) allow-discrete;
+        }
+
+        .blog-submenu[data-open] {
+            opacity: 1;
+            clip-path: inset(-3rem round calc(var(--box-radius) + 3rem));
+            transition:
+                opacity calc(var(--menu-duration) * 0.6) ease-out,
+                clip-path var(--menu-duration) cubic-bezier(0.35, 0.9, 0.4, 1.04),
+                display var(--menu-duration) allow-discrete;
         }
 
         @starting-style {
             .blog-submenu[data-open] {
                 opacity: 0;
-                translate: 0 -4px;
-                scale: 0.98;
+                clip-path: inset(0 calc(100% - 3rem) 100% 0 round var(--box-radius));
             }
         }
 
@@ -192,8 +310,19 @@ const linkClasses = 'block px-3 py-3 md:py-2';
             transition: opacity 200ms ease-out;
         }
 
+        .blog-submenu,
         .blog-submenu[data-open] {
-            transition: opacity 180ms ease-out;
+            clip-path: none !important;
+            transition:
+                opacity calc(var(--menu-duration) * 0.6) ease-out,
+                display calc(var(--menu-duration) * 0.6) allow-discrete;
+        }
+
+        #site-nav-panel {
+            clip-path: none !important;
+            transition:
+                opacity calc(var(--menu-duration) * 0.6) ease-out,
+                display calc(var(--menu-duration) * 0.6) allow-discrete;
         }
     }
 </style>
