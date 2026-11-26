@@ -16,7 +16,7 @@ import { Picture } from 'astro:assets';
     />
     <!--
       Aero pages: the same hexagon "E" redrawn as glass, colored like the sky behind it. A light style can set
-      --logo-top / --logo-mid / --logo-bottom (Daybreak runs sky blue into terracotta); by night it is starlit
+      --logo-top / --logo-mid / --logo-bottom (Daybreak runs sky blue into sage); by night it is starlit
       blue sinking to navy. Colors are set in the <style> below so they follow the theme and the --aero-* knobs.
     -->
     <svg viewBox="0 0 512 512" class="aero-logo hidden size-9 md:size-12 aero:block" aria-hidden="true">
@@ -71,14 +71,14 @@ import { Picture } from 'astro:assets';
             color-mix(
                 in oklab,
                 var(--logo-top, hsl(var(--tertiary-color-400))),
-                var(--logo-bottom, hsl(var(--secondary-color-500)))
+                var(--logo-bottom, hsl(var(--primary-color-500)))
             )
         );
     }
     .stop-bottom {
-        stop-color: var(--logo-bottom, hsl(var(--secondary-color-500)));
+        stop-color: var(--logo-bottom, hsl(var(--primary-color-500)));
     }
-    /* Night: starlit blue at the crown, through dusk violet, down to deep navy, with a faint starlight halo */
+    /* Night: starlit blue at the crown, through a band of the primary color, down to deep navy, with a faint starlight halo */
     :global(.dark) .aero-logo {
         filter: drop-shadow(0 0 10px hsl(var(--tertiary-h) 90% 75% / 0.3));
     }
@@ -86,7 +86,7 @@ import { Picture } from 'astro:assets';
         stop-color: hsl(var(--night-color-500));
     }
     :global(.dark) .stop-mid {
-        stop-color: hsl(var(--dusk-color-700));
+        stop-color: hsl(var(--primary-color-700));
     }
     :global(.dark) .stop-bottom {
         stop-color: hsl(var(--night-color-900));

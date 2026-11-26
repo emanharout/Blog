@@ -161,9 +161,9 @@
         --glass-contact-alpha: 0.04;
         --glass-border: hsl(0 0% 100% / calc(var(--glass-edge-alpha) * 0.9 * var(--glass-intensity)));
 
-        /* Logo colored like the sunrise behind it: tertiary blue blending into secondary terracotta */
+        /* Logo colored like the sunrise behind it: tertiary blue blending into primary sage */
         --logo-top: hsl(var(--tertiary-h) 62% 52%);
-        --logo-bottom: hsl(var(--secondary-h) 55% 55%);
+        --logo-bottom: hsl(var(--primary-h) 55% 55%);
         --logo-shadow: hsl(var(--tertiary-h) 45% 30% / 0.25);
 
         --orb-fill: 0;
