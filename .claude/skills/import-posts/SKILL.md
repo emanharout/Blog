@@ -7,20 +7,23 @@ description: Publish a blog post that is ready in the "3 Ready to Publish" folde
 
 ## Overview
 
-Run a deterministic publishing flow for files in the Ready-to-Publish folder. Keep the original markdown unchanged: copy it into `./src/content/posts` (same filename, still `.md`) and edit only that copy, then move the original and copy the images to the published and Astro content destinations.
+Run a deterministic publishing flow for posts written in Obsidian and placed in the vault's Ready to Publish folder. Keep the original markdown unchanged: copy it into `./src/content/posts` (same filename, still `.md`) and edit only that copy, copy its images into the site, then move the original to the vault's Published folder.
+
+Why this skill exists: posts are written in Obsidian, which uses its own syntax that Astro doesn't understand. Most importantly, Obsidian embeds images as wiki links (`![[photo.jpg]]`) and keeps the files in one shared attachments folder. Astro needs standard Markdown images (`![alt](./images/photo.jpg)`) with the files next to the post. Converting those links and copying the images by hand is the tedious, error-prone part this skill automates, along with the frontmatter. Footnotes need no conversion: Obsidian and the site both use standard Markdown footnotes.
 
 ## Paths
 
-Path base rule: All relative paths in this skill are resolved from the repository root (the command working directory), not from this file's location. The one exception is `references/additional-processing.md`, which sits next to this file. So `./` means repo root and `../` means one directory above repo root.
+Path base rule: Paths starting with `./` are resolved from the repository root (the command working directory), not from this file's location. The one exception is `references/additional-processing.md`, which sits next to this file. Vault paths are absolute.
 
-Primary paths (as provided):
+Obsidian vault: `~/Obsidian/Obsidian Vault` (quote paths: they contain spaces).
 
-- Ready posts: `../Posts/Production Content/3 Ready to Publish`
-- Ready images: `../Posts/Production Content/3 Ready to Publish/images`
-- Published posts: `../Posts/Production Content/4 Published`
-- Published images: `../Posts/Production Content/4 Published/images`
+- Ready posts: `~/Obsidian/Obsidian Vault/3 Studio/3 Studio Archive/EmanHarout.com/Articles/Ready to Publish`
+- Published posts: `~/Obsidian/Obsidian Vault/3 Studio/3 Studio Archive/EmanHarout.com/Articles/Published`
+- Vault images (Obsidian's attachments folder, shared by every note in the vault): `~/Obsidian/Obsidian Vault/1 Atlas/Productivity/Obsidian System/Attachments`
 - Astro posts destination: `./src/content/posts`
 - Astro images destination: `./src/content/posts/images`
+
+If an image isn't in the attachments folder, search the vault for its filename. Never move or delete files in the attachments folder: other notes use it. Only copy images out of it.
 
 Use overrides only when the user explicitly provides them.
 
@@ -52,10 +55,9 @@ If a value is missing, keep the frontmatter key and leave its value empty so the
 7. Convert image wiki links (`![[image-name.jpg]]`) to Markdown image paths under `./images/...`.
 8. Normalize image references in the copy so filenames with spaces become either URL-encoded (`%20`) or underscore-formatted names.
 9. Keep footnotes as plain Markdown footnotes (`[^1]` and `[^1]: ...`); the site shows them as side notes (see reference file).
-10. Move the original `.md` from ready posts to published posts.
-11. Copy any referenced images into `./src/content/posts/images`.
-12. Move all related images from ready images to published images.
-13. Ensure the original and the copy share the same filename.
+10. Copy every image the post references (including the cover image) from the vault images folder into `./src/content/posts/images`, using the filename the post now references.
+11. Move the original `.md` from ready posts to published posts.
+12. Ensure the original and the copy share the same filename.
 
 ## Required Frontmatter Template
 

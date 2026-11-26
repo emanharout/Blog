@@ -39,11 +39,10 @@ Notes:
 
 After content edits are complete:
 
-Path base rule: Resolve `./` and `../` from repository root (execution working directory), not from this reference file's location.
+Path base rule: Resolve `./` from repository root (execution working directory), not from this reference file's location. Vault paths are listed in `SKILL.md`.
 
-1. Move the original `.md` to `../Posts/Production Content/4 Published`.
-2. Copy referenced images to `./src/content/posts/images`.
-3. Move related images from `../Posts/Production Content/3 Ready to Publish/images` to `../Posts/Production Content/4 Published/images`.
+1. Copy referenced images (including the cover image) from the vault images folder to `./src/content/posts/images`. If a reference was normalized (step 5 above), give the copied file the same normalized name. Never move or delete the vault copies.
+2. Move the original `.md` from Ready to Publish to Published.
 
 ## Verification Checklist
 
@@ -53,4 +52,5 @@ Path base rule: Resolve `./` and `../` from repository root (execution working d
 - Title is sourced from first `#` heading.
 - Body contains no `# Title` heading or `<h1>`; the title lives only in frontmatter.
 - No remaining Obsidian wiki image syntax unless user explicitly requests it.
-- Referenced images exist in both Published and Astro image destinations.
+- Every referenced image exists in `./src/content/posts/images` under the name the post uses.
+- `npm run build` passes.
