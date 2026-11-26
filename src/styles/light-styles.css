@@ -9,7 +9,7 @@
 @layer base {
     /* Shared by every experimental style: palettes from two hues, and roles derived from them */
     :root[data-design='aero'][data-light-style]:not(.dark) {
-        /* Primary: the accent (nav underline, active table of contents entry, footer icons) at a lightness fixed per style, plus half the card tags and text selection. */
+        /* Primary: the accent (nav underline, active table of contents entry) at a lightness fixed per style, plus half the card tags and text selection. */
         --primary-h: 150;
         --primary-s: 20%;
         --primary-l: 38%;
