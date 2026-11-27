@@ -31,6 +31,10 @@
 
     /* Named page widths, used by the container-* utilities below */
     --container-prose: 65ch;
+    /* The post card (BlogArticle.astro) and the table of contents panels that line up with it. Use: max-w-post.
+       In rem, not ch, so it doesn't change with the body font: at 17px Source Sans it gives lines of about 66
+       characters. */
+    --container-post: 36rem;
     --container-content: 64rem;
     --container-wide: 90rem;
 
@@ -111,8 +115,10 @@
 
     /* Project typography families used by font-serif and font-sans. */
     /* The variables come from the `fonts` config in astro.config.mjs and already include fallbacks. */
-    --font-serif: var(--font-frank-ruhl-libre);
-    --font-sans: var(--font-inter), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    /* Newsreader, a literary serif made for reading on screens, with Source Sans 3, a humanist sans: the family of the
+       Aero era's own UI type (Frutiger, Myriad, Segoe). /dev/type compares other pairings. */
+    --font-serif: var(--font-newsreader);
+    --font-sans: var(--font-source-sans-3), "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 /* LAYOUT PRIMITIVES */
@@ -744,6 +750,103 @@
         --glass-shadow-y: 24px;
         --glass-shadow-blur: 48px;
         --glass-shadow-spread: -24px;
+    }
+}
+
+/*
+ * The typography plugin's `prose` styles are in the utilities layer, so these overrides must be too (a lower layer
+ * loses whatever its specificity). Within the layer they win on specificity: .article-content h2 beats :where(h2).
+ */
+@layer utilities {
+    /*
+     * POST TYPE
+     * Source Sans 3 sits small on its size, so post text is set a step up; the prose plugin's em-based spacing
+     * follows. Headings use rem so they don't. Each heading level differs from its neighbors in more than size:
+     *   h2: Newsreader semibold, a hairline above it to open the section
+     *   h3: Newsreader italic, regular weight
+     *   h4: the sans in bold, in the accent color (sentence case, so API names like init(wrappedValue:) keep theirs)
+     *   h5: a small uppercase label in the sans
+     *   h6: the sans in italic, in the body text color
+     * Headings take the strong text color, a step darker than body text, and sit closer to the text they introduce
+     * than to the text before them.
+     */
+    .article-content {
+        font-size: 1.0625rem;
+    }
+    .article-content :is(h1, h2, h3, h4) {
+        color: hsl(var(--fg-color-1));
+        text-wrap: balance;
+    }
+    .article-content :is(h1, h2, h3) {
+        font-family: var(--font-serif);
+        letter-spacing: -0.01em;
+    }
+    .article-content h1 {
+        font-size: 2.5rem;
+        font-weight: 600;
+        line-height: 1.1;
+    }
+    .article-content h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        line-height: 1.2;
+        margin-top: 3rem;
+        margin-bottom: 0.75rem;
+    }
+    /* The footnotes heading has its own divider (#footnote-label below) */
+    .article-content h2:not(#footnote-label) {
+        padding-top: 1.5rem;
+        border-top: 1px solid hsl(var(--fg-color-border-2));
+    }
+    .article-content h3 {
+        font-size: 1.3125rem;
+        font-style: italic;
+        font-weight: 400;
+        line-height: 1.3;
+        margin-top: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    .article-content h4 {
+        font-family: var(--font-sans);
+        font-size: 0.9375rem;
+        font-weight: 700;
+        letter-spacing: 0.005em;
+        line-height: 1.4;
+        color: hsl(var(--primary-color-700));
+        margin-top: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+    .dark .article-content h4 {
+        color: hsl(var(--primary-color-300));
+    }
+    /* Below h4 the size can't shrink much further without getting smaller than the text, so h5 and h6 change form */
+    .article-content :is(h5, h6) {
+        font-family: var(--font-sans);
+        line-height: 1.4;
+        margin-top: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    /* The prose plugin does this for h2–h4 only: without it the text's own top margin pushes it away from its heading */
+    .article-content :is(h5, h6) + * {
+        margin-top: 0;
+    }
+    .article-content h5 {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: hsl(var(--fg-color-1));
+    }
+    /* Code keeps its own case and spacing, so API names stay readable */
+    .article-content h5 code {
+        text-transform: none;
+        letter-spacing: 0;
+    }
+    .article-content h6 {
+        font-size: 0.9375rem;
+        font-style: italic;
+        font-weight: 600;
+        color: hsl(var(--fg-color-2));
     }
 }
 

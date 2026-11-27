@@ -23,7 +23,7 @@ const headings = getHeadings();
         <div aria-hidden="true"></div>
 
         <div
-            class="relative w-full max-w-[65ch] mt-4 mb-6 glass glass-reading sm:rounded-box
+            class="relative w-full max-w-post mt-4 mb-6 glass glass-reading sm:rounded-box
             [--article-pad:clamp(1.25rem,5vw,2rem)]"
         >
             <div class="px-(--article-pad) py-8">
@@ -32,8 +32,7 @@ const headings = getHeadings();
                     class="article-content
                     prose prose-fg2 max-w-none
                     prose-a:not-in-[sup]:text-fg-link-2
-                    prose-a:not-in-[sup]:hover:text-fg-link-2-hover prose-a:not-in-[sup]:focus:text-fg-link-2-hover prose-a:in-[sup]:text-fg-footnote-2
-                    prose-headings:font-serif prose-headings:tracking-wide prose-headings:font-medium"
+                    prose-a:not-in-[sup]:hover:text-fg-link-2-hover prose-a:not-in-[sup]:focus:text-fg-link-2-hover prose-a:in-[sup]:text-fg-footnote-2"
                 >
                     <h1>Understanding Swift Metatypes</h1>
                     <TableOfContents headings={headings} variant="inline" />

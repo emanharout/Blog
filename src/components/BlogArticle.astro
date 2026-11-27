@@ -45,7 +45,7 @@ const { Content, headings } = await render(post);
       image is rounded to the card's corners by its own wrapper.
     -->
     <div
-        class="relative w-full max-w-[65ch] mt-4 mb-6 glass glass-reading sm:rounded-box
+        class="relative w-full max-w-post mt-4 mb-6 glass glass-reading sm:rounded-box
         [--article-pad:clamp(1.25rem,5vw,2rem)]"
     >
         {
@@ -59,7 +59,7 @@ const { Content, headings } = await render(post);
                         loading="eager"
                         fetchpriority="high"
                         widths={[480, 720, 1040]}
-                        sizes="(min-width: 65ch) 65ch, 100vw"
+                        sizes="(min-width: 36rem) 36rem, 100vw"
                         class="w-full object-cover"
                     />
                 </div>
@@ -89,8 +89,7 @@ const { Content, headings } = await render(post);
                 prose-blockquote:font-light prose-blockquote:italic prose-blockquote:tracking-[.01em]
                 prose-blockquote:leading-snug prose-blockquote:border-s-0 prose-blockquote:pl-[3.25rem]
                 prose-img:rounded-sm prose-img:max-w-none
-                prose-img:mx-[calc(-1*var(--article-pad))] prose-img:w-[calc(100%+2*var(--article-pad))]
-                prose-headings:font-serif prose-headings:tracking-wide prose-headings:font-medium"
+                prose-img:mx-[calc(-1*var(--article-pad))] prose-img:w-[calc(100%+2*var(--article-pad))]"
             >
                 <!-- The title comes from frontmatter; posts contain only body content. -->
                 <h1>{post.data.title}</h1>
