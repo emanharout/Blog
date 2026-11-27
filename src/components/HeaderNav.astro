@@ -4,7 +4,8 @@ import ColorThemeToggle from './ColorThemeToggle.astro';
 import NavItem from './NavItem.astro';
 import { PROGRAMMING_BLOG_TYPE, WONDER_BLOG_TYPE } from '../scripts/constants';
 
-const path = Astro.url.pathname;
+// Without the trailing slash the built site is served with, so `/blog/wonder/` matches `/blog/wonder`
+const path = Astro.url.pathname.replace(/(.)\/$/, '$1');
 const isHome = path === '/';
 const isBlog = path.startsWith('/blog') || path.startsWith('/tags');
 const isAbout = path.startsWith('/about');
@@ -74,7 +75,8 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
                 <li class="nav-bead" aria-hidden="true"></li>
                 {
                     blogLinks.map(({ href, label, short }) => {
-                        const current = path === href;
+                        // A section stays current on its later pages (/blog/wonder/2, and /blog/2 for All Posts)
+                        const current = path === href || new RegExp(`^${href}/\\d+$`).test(path);
                         return (
                             <li
                                 class="submenu-item relative md:transition-colors md:duration-200 motion-reduce:transition-none
@@ -87,8 +89,8 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
                                     aria-current={current ? 'page' : undefined}
                                     class="block rounded-pill px-3 py-1.5 md:px-4 md:py-2
                                     max-md:bg-bg-2/40 max-md:ring-1 max-md:ring-fg-border-2
-                                    max-md:aria-[current=page]:ring-0 max-md:aria-[current=page]:text-primary-700
-                                    max-md:dark:aria-[current=page]:text-primary-300"
+                                    max-md:[[data-active]>&]:ring-0 max-md:[[data-active]>&]:text-primary-700
+                                    max-md:dark:[[data-active]>&]:text-primary-300"
                                 >
                                     <span class="md:hidden">{short}</span>
                                     <span class="max-md:hidden">{label}</span>
@@ -546,5 +548,34 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
     const submenuBead = submenu?.querySelector<HTMLElement>(':scope > .nav-bead');
     if (submenu && submenuBead) {
         setupBead(submenu, submenuBead, [...submenu.querySelectorAll<HTMLElement>(':scope > .submenu-item')]);
+    }
+
+    /**
+     * In the mobile card the bead is drawn on the current row and section chip (`data-active`), so a tap would leave it
+     * on the page being left while the card folds away. A tap on a link hands `data-active` to the rows and chips of
+     * the page it opens: the row holding the link, and the chip with the same address (Blog's own row opens All Posts).
+     */
+    if (nav) {
+        const navItems = [...nav.querySelectorAll<HTMLElement>(':scope > ul > .nav-item')];
+        const chips = [...nav.querySelectorAll<HTMLElement>('.submenu-item')];
+        const markers = [...navItems, ...chips];
+        const initial = new Map(markers.map((item) => [item, item.hasAttribute('data-active')]));
+        const mobile = window.matchMedia('(width < 48rem)');
+
+        nav.addEventListener('click', (event) => {
+            const link = (event.target as Element).closest<HTMLAnchorElement>('a[href]');
+            if (!link || !mobile.matches || event.defaultPrevented) return;
+            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            for (const item of navItems) item.toggleAttribute('data-active', item.contains(link));
+            for (const chip of chips) {
+                chip.toggleAttribute('data-active', chip.querySelector('a')?.pathname === link.pathname);
+            }
+        });
+
+        // Coming back to this page from the back-forward cache would otherwise show the bead on the tapped item
+        window.addEventListener('pageshow', (event) => {
+            if (!event.persisted) return;
+            for (const [item, active] of initial) item.toggleAttribute('data-active', active);
+        });
     }
 </script>
