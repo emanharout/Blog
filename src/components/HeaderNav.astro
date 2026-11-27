@@ -481,14 +481,36 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
         // A touch that turns into a scroll is cancelled rather than lifted, so the bead still goes back after it.
         let tappedLink = false;
 
+        // Once a link is clicked, its page is on the way, so the bead stays on that item until the page changes, even
+        // if the pointer moves off it (or onto another item) while the new page loads
+        let leaving = false;
+        const follow = (item: HTMLElement | undefined) => {
+            if (!leaving) moveTo(item);
+        };
+
         for (const item of items) {
-            item.addEventListener('pointerenter', () => moveTo(item));
+            item.addEventListener('pointerenter', () => follow(item));
+            item.addEventListener('click', (event) => {
+                const link = (event.target as Element).closest<HTMLAnchorElement>('a[href]');
+                const opensHere =
+                    event.button === 0 &&
+                    !event.metaKey &&
+                    !event.ctrlKey &&
+                    !event.shiftKey &&
+                    !event.altKey &&
+                    (!link?.target || link.target === '_self') &&
+                    !link?.hasAttribute('download');
+                if (link && opensHere && !event.defaultPrevented) {
+                    moveTo(item);
+                    leaving = true;
+                }
+            });
             item.addEventListener('pointerup', (event) => {
                 tappedLink = event.pointerType !== 'mouse' && !!(event.target as Element).closest('a[href]');
             });
             // Follow keyboard focus only; a mouse click also focuses, and the bead shouldn't stay behind after it
             item.addEventListener('focusin', (event) => {
-                if ((event.target as HTMLElement).matches(':focus-visible')) moveTo(item);
+                if ((event.target as HTMLElement).matches(':focus-visible')) follow(item);
             });
         }
         container.addEventListener('pointerleave', () => {
@@ -496,17 +518,18 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
                 tappedLink = false;
                 return;
             }
-            if (!container.querySelector(':focus-visible')) moveTo(activeItem);
+            if (!container.querySelector(':focus-visible')) follow(activeItem);
         });
         // Coming back to this page from the back-forward cache would otherwise show the bead on the tapped item
         window.addEventListener('pageshow', (event) => {
             if (!event.persisted) return;
             tappedLink = false;
+            leaving = false;
             target = activeItem;
             placeInstantly();
         });
         container.addEventListener('focusout', (event) => {
-            if (!container.contains(event.relatedTarget as Node | null)) moveTo(activeItem);
+            if (!container.contains(event.relatedTarget as Node | null)) follow(activeItem);
         });
 
         // Item sizes change as fonts load and at the md breakpoint, and the dropdown has no size until it opens
