@@ -20,7 +20,8 @@ interface FontOption {
     vibe: string;
 }
 
-// The shortlist the site's pairing was chosen from. Source Serif 4 loads with its optical-size axis, as Newsreader does.
+// The site's serif, Source Serif 4 from the first shortlist, then serifs with more historical character. Source Serif 4
+// and Piazzolla load with their optical-size axis, as Newsreader does. Fonts with a few fixed weights list only those.
 const SERIFS: FontOption[] = [
     {
         id: 'site',
@@ -33,6 +34,64 @@ const SERIFS: FontOption[] = [
         family: 'Source Serif 4',
         axes: 'ital,opsz,wght@0,8..60,300..700;1,8..60,300..700',
         vibe: 'A sober, bookish serif, and Source Sans’s sibling. Academic and trustworthy: a university press, a library reading room, tweed.',
+    },
+    {
+        id: 'libre-caslon',
+        label: 'Libre Caslon',
+        family: 'Libre Caslon Text',
+        axes: 'ital,wght@0,400;0,700;1,400',
+        vibe: 'Caslon, the type of 18th-century England, from Georgian pamphlets to the first printings of the Declaration of Independence. The most tweed of the set: a gentleman’s library, leather armchairs, foxed pages.',
+    },
+    {
+        id: 'eb-garamond',
+        label: 'EB Garamond',
+        family: 'EB Garamond',
+        axes: 'ital,wght@0,400..800;1,400..800',
+        vibe: 'A faithful revival of Claude Garamond’s 16th-century Paris type. Classical and graceful: Oxford college quads, Renaissance humanism, a well-thumbed Penguin Classic.',
+    },
+    {
+        id: 'cardo',
+        label: 'Cardo',
+        family: 'Cardo',
+        axes: 'ital,wght@0,400;0,700;1,400',
+        vibe: 'Made for classicists and medievalists, after the type of Aldus Manutius’s Venice. Scholarly and warm: illuminated manuscripts, a seminar on Virgil, candlelit study.',
+    },
+    {
+        id: 'alegreya',
+        label: 'Alegreya',
+        family: 'Alegreya',
+        vibe: 'Calligraphic, with a lively written rhythm. Literary and full of heart, less formal than the Garamonds: a poetry reading, a fountain pen, a sketchbook journal.',
+    },
+    {
+        id: 'brygada',
+        label: 'Brygada 1918',
+        family: 'Brygada 1918',
+        vibe: 'Revived from a Polish typeface of the 1920s, with sturdy, slightly quirky shapes. Old-world and characterful: interwar Europe, a café in Kraków, letterpress posters.',
+    },
+    {
+        id: 'besley',
+        label: 'Besley',
+        family: 'Besley',
+        vibe: 'A Clarendon, the bold Victorian type of English shop signs and newspaper headlines. Hearty and a little playful without being casual: brass plaques, a London pub, a Victorian railway poster.',
+    },
+    {
+        id: 'piazzolla',
+        label: 'Piazzolla',
+        family: 'Piazzolla',
+        axes: 'ital,opsz,wght@0,8..30,100..900;1,8..30,100..900',
+        vibe: 'Sharp, angular serifs with an Argentine accent, made for dense text. Contemporary but with real bite: an independent bookshop, a tango record sleeve, an arts quarterly.',
+    },
+    {
+        id: 'spectral',
+        label: 'Spectral',
+        family: 'Spectral',
+        vibe: 'Elegant and restrained, with crisp, slightly flared strokes, made for screens. The most minimal here, but still literary: a gallery catalogue, white walls, a quiet museum café.',
+    },
+    {
+        id: 'cormorant',
+        label: 'Cormorant Garamond',
+        family: 'Cormorant Garamond',
+        vibe: 'A dramatic, high-contrast Garamond for display sizes, delicate and refined. Romantic and artistic: an opera programme, a perfume label, a Pre-Raphaelite gallery.',
     },
 ];
 
