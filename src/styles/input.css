@@ -538,7 +538,11 @@
         --fg-footnote-2: var(--primary-color-950);
         /* A note's number, beside its text */
         --fg-footnote-num: var(--primary-color-600);
-        /* Secondary-tinted bg for inline code and tooltip spans, and the text on it */
+        /* Primary-tinted bg for inline code, and the text on it */
+        --primary-bg: var(--primary-color-200);
+        --primary-bg-border: var(--primary-color-300);
+        --fg-primary-2: var(--primary-color-950);
+        /* Secondary-tinted bg for tooltip spans, and the text on it */
         --secondary-bg: var(--secondary-color-200);
         --secondary-bg-border: var(--secondary-color-300);
         --fg-secondary-2: var(--secondary-color-950);
@@ -550,6 +554,9 @@
 
     /* SHARED ROLES (dark): only values that differ from light mode */
     :root.dark {
+        --primary-bg: var(--primary-color-700);
+        --primary-bg-border: var(--primary-color-900);
+        --fg-primary-2: var(--primary-color-100);
         --secondary-bg: var(--secondary-color-700);
         --secondary-bg-border: var(--secondary-color-900);
         --fg-secondary-2: var(--secondary-color-100);
@@ -611,8 +618,8 @@
 
         /*
          * PRIMARY / SECONDARY / TERTIARY (tunable). Primary: the accent (nav underline, active table of contents
-         * entry) at a lightness fixed per theme, plus half the card tags, the Wonder badge, the footer icons, and "Eman"
-         * and the quote mark in the hero. Secondary: the Programming badge, inline code, tooltips, links, post titles on
+         * entry) at a lightness fixed per theme, plus half the card tags, inline code, the Wonder badge, the footer icons, and "Eman"
+         * and the quote mark in the hero. Secondary: the Programming badge, tooltips, links, post titles on
          * hover, text selection and the other tags. Tertiary: buttons and other accents. Light styles and dark mode
          * set their own. Background hues (sky, lawn, sun) are separate knobs.
          */
@@ -943,7 +950,7 @@
 
     /* Inline tooltips that aren't footnotes, e.g. <span tip="Popup text">highlighted words</span> */
     span[tip]:not(:has(sup)) {
-        /* Secondary, like inline code, so it doesn't read as a footnote number */
+        /* Secondary, like links, so it doesn't read as a footnote number or inline code */
         color: hsl(var(--fg-secondary-2));
         background-color: hsl(var(--secondary-bg));
         outline: 1px solid hsl(var(--secondary-bg-border));
