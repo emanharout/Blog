@@ -476,15 +476,34 @@ const linkClasses = 'block px-4 py-2.5 md:px-3 md:py-2';
 
         placeInstantly();
 
+        // A finger lifting off the screen also counts as the pointer leaving, which would send the bead back to the
+        // active item while the tapped link's page loads. So a tap that lands on a link keeps the bead where it went.
+        // A touch that turns into a scroll is cancelled rather than lifted, so the bead still goes back after it.
+        let tappedLink = false;
+
         for (const item of items) {
             item.addEventListener('pointerenter', () => moveTo(item));
+            item.addEventListener('pointerup', (event) => {
+                tappedLink = event.pointerType !== 'mouse' && !!(event.target as Element).closest('a[href]');
+            });
             // Follow keyboard focus only; a mouse click also focuses, and the bead shouldn't stay behind after it
             item.addEventListener('focusin', (event) => {
                 if ((event.target as HTMLElement).matches(':focus-visible')) moveTo(item);
             });
         }
         container.addEventListener('pointerleave', () => {
+            if (tappedLink) {
+                tappedLink = false;
+                return;
+            }
             if (!container.querySelector(':focus-visible')) moveTo(activeItem);
+        });
+        // Coming back to this page from the back-forward cache would otherwise show the bead on the tapped item
+        window.addEventListener('pageshow', (event) => {
+            if (!event.persisted) return;
+            tappedLink = false;
+            target = activeItem;
+            placeInstantly();
         });
         container.addEventListener('focusout', (event) => {
             if (!container.contains(event.relatedTarget as Node | null)) moveTo(activeItem);
