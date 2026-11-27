@@ -35,7 +35,7 @@ const socialImageAlt = imageAlt ?? description;
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{fullTitle}</title>
-        <Font cssVariable="--font-newsreader" preload={[{ style: 'normal' }]} />
+        <Font cssVariable="--font-libre-caslon" preload={[{ style: 'normal' }]} />
         <Font cssVariable="--font-source-sans-3" preload={[{ style: 'normal' }]} />
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="canonical" href={canonicalURL} />
@@ -76,6 +76,32 @@ const socialImageAlt = imageAlt ?? description;
                             else if (style) document.documentElement.dataset.lightStyle = style;
                         } catch {
                             // Storage unavailable; use the default style.
+                        }
+                    })();
+                </script>
+            )
+        }
+        {
+            /* Dev only: the font picker's choice (src/components/FontPicker.astro), applied before first paint. */
+            import.meta.env.DEV && (
+                <script is:inline>
+                    (() => {
+                        try {
+                            const { serif } = JSON.parse(localStorage.getItem('font-preview') ?? '{}');
+                            for (const [kind, font] of Object.entries({ serif })) {
+                                if (!font) continue;
+                                const link = document.createElement('link');
+                                link.rel = 'stylesheet';
+                                link.href = font.href;
+                                link.dataset.fontPreview = kind;
+                                document.head.append(link);
+                                document.documentElement.style.setProperty(`--font-${kind}`, font.stack);
+                                // Undo Libre Caslon's adjustments in input.css, as FontPicker.astro does
+                                document.documentElement.style.setProperty('--serif-size-adjust', 'none');
+                                document.documentElement.style.setProperty('--serif-h2-weight', '600');
+                            }
+                        } catch {
+                            // Storage unavailable or malformed; use the site's fonts.
                         }
                     })();
                 </script>

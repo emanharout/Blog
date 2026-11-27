@@ -1,0 +1,19 @@
+---
+// Dev-only page (registered in astro.config.mjs only for `astro dev`): a realistic sample post, laid out like a real
+// one, to judge fonts and heading styles on post-like content. The font picker at the bottom swaps the fonts.
+import MainLayout from '../layouts/MainLayout.astro';
+import heroImage from '../content/posts/images/blog_swift-property-wrappers-gist.jpg';
+import DevArticle from './DevArticle.astro';
+import { Content, getHeadings } from './samplePost.md';
+---
+
+<MainLayout title="Sample post" description="A realistic sample post" shootingStars={false}>
+    <DevArticle
+        title="What a Year of SwiftUI Taught Me About State"
+        headings={getHeadings()}
+        image={heroImage}
+        imageAlt="A wrapped gift smiling."
+    >
+        <Content />
+    </DevArticle>
+</MainLayout>
