@@ -346,6 +346,256 @@ const isOnScreen = (element: Element) => {
     return rect.width > 0 && rect.bottom > 0 && rect.top < window.innerHeight;
 };
 
+// THE HAND-OFF (from `xl` up): the ToC glides between the sidebar and its place in the post. A stand-in panel moves and
+// resizes from one to the other, showing what it's leaving and then what it's becoming, and fades into the real one as
+// it lands. Meanwhile the place in the post opens or closes, so the text below it moves smoothly rather than jumping.
+// Once the place has scrolled away, the ToC glides to and from the strip at the top of the window instead. With neither
+// on screen (past the end of the post), the sidebar only fades away or in.
+const GLIDE_DURATION_MS = 550;
+const EASE_GLIDE = 'cubic-bezier(0.5, 0, 0.2, 1)';
+// Where in the glide the stand-in shows what it's leaving, then what it's becoming, then hands over to the real one
+const LEAVING_UNTIL = 0.5;
+const BECOMING_FROM = 0.25;
+const BECOMING_BY = 0.75;
+const LANDING_FROM = 0.85;
+const FADE_SHIFT = '0.75rem';
+
+let handOffAnimations: Animation[] = [];
+let handOffGhost: HTMLElement | undefined;
+
+function cancelHandOff() {
+    const animations = handOffAnimations;
+    handOffAnimations = [];
+    animations.forEach((animation) => animation.cancel());
+    handOffGhost?.remove();
+    handOffGhost = undefined;
+    inlinePlace?.style.removeProperty('display');
+    inlinePlace?.querySelector<HTMLElement>('[data-toc-expand]')?.style.removeProperty('display');
+}
+
+// Runs once every animation of the hand-off has finished, unless it's cancelled first.
+function trackHandOff(animations: Animation[], onFinish: () => void) {
+    handOffAnimations = animations;
+    Promise.all(animations.map((animation) => animation.finished)).then(
+        () => {
+            if (handOffAnimations !== animations) return;
+            handOffAnimations = [];
+            onFinish();
+            document.dispatchEvent(new Event('footnote-notes:layout'));
+        },
+        // Cancelled
+        () => {},
+    );
+}
+
+// What the sidebar or the inline ToC looks like right now: where it is, its corners, and a copy of its contents
+type Snapshot = { rect: DOMRect; radius: string; layer: HTMLElement };
+// The strip's glass card, which stands in for the inline ToC once that has scrolled away
+const stripCard = strip?.querySelector<HTMLElement>('[data-toc-strip-card]');
+
+// A copy of an element, unlinked from the page, at its size and pinned to the stand-in's top left (inside its border)
+function copyLayer(element: HTMLElement, rect: DOMRect) {
+    const layer = element.cloneNode(true) as HTMLElement;
+    [layer, ...layer.querySelectorAll('*')].forEach((node) => {
+        node.removeAttribute('id');
+        [...node.attributes].forEach(({ name }) => {
+            if (name.startsWith('data-toc') || name.startsWith('aria-')) node.removeAttribute(name);
+        });
+    });
+    // The stand-in draws the glass, and the copy keeps the look it had even as the collapsed state changes.
+    [layer, ...layer.querySelectorAll('*')].forEach((node) =>
+        node.classList.remove(...[...node.classList].filter((name) => name.includes('toc-collapsed:'))),
+    );
+    layer.classList.remove('glass', 'glass-clear', 'sticky');
+    Object.assign(layer.style, {
+        position: 'absolute',
+        top: '-1px',
+        left: '-1px',
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+        margin: '0',
+    });
+    return layer;
+}
+
+function snapshotSidebar(): Snapshot | undefined {
+    if (!sidebar || !isDisplayed(sidebar)) return undefined;
+    const rect = sidebar.getBoundingClientRect();
+    const layer = copyLayer(sidebar, rect);
+    layer.style.display = 'flex';
+    const scroller = sidebar.querySelector('[data-toc-scroller]');
+    const copiedScroller = layer.querySelector<HTMLElement>('.overflow-y-auto');
+    // Keeps the list scrolled where it was, once the copy is in the page.
+    if (scroller && copiedScroller) requestAnimationFrame(() => (copiedScroller.scrollTop = scroller.scrollTop));
+    return { rect, radius: getComputedStyle(sidebar).borderRadius, layer };
+}
+
+// The inline ToC closed: its title bar
+function snapshotCard(): Snapshot | undefined {
+    const summary = inlineToc?.querySelector('summary');
+    if (!inlineToc || !summary || !isDisplayed(inlineToc)) return undefined;
+    const rect = summary.getBoundingClientRect();
+    return { rect, radius: getComputedStyle(inlineToc).borderRadius, layer: copyLayer(summary, rect) };
+}
+
+// The strip's card, if it's showing
+function snapshotStrip(): Snapshot | undefined {
+    if (!stripCard || !strip?.hasAttribute('data-shown') || !isDisplayed(stripCard)) return undefined;
+    // Where it slides to: the stand-in brings it in instead.
+    strip.getAnimations().forEach((animation) => animation.finish());
+    const rect = stripCard.getBoundingClientRect();
+    return { rect, radius: getComputedStyle(stripCard).borderRadius, layer: copyLayer(stripCard, rect) };
+}
+
+// The stand-in: an empty glass panel, fixed over the page, holding the copies
+function createGhost(rect: DOMRect, layers: HTMLElement[]) {
+    const ghost = document.createElement('div');
+    ghost.className = 'glass';
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.inert = true;
+    Object.assign(ghost.style, {
+        position: 'fixed',
+        top: `${rect.top}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+        overflow: 'hidden',
+        zIndex: '35',
+        pointerEvents: 'none',
+    });
+    ghost.append(...layers);
+    document.body.append(ghost);
+    handOffGhost = ghost;
+    return ghost;
+}
+
+const fadeKeyframes = (pairs: [offset: number, opacity: number][]) =>
+    pairs.map(([offset, opacity]) => ({ offset, opacity }));
+const linear = { duration: GLIDE_DURATION_MS, easing: 'linear', fill: 'both' } as const;
+
+// Moves the stand-in from one snapshot to the other, then hands over to `arrivals`, the real elements it becomes.
+function glide(from: Snapshot, to: Snapshot, arrivals: Element[]) {
+    const ghost = createGhost(from.rect, [from.layer, to.layer]);
+    const toRect = to.rect;
+    return [
+        ghost.animate(
+            {
+                top: [`${from.rect.top}px`, `${toRect.top}px`],
+                left: [`${from.rect.left}px`, `${toRect.left}px`],
+                width: [`${from.rect.width}px`, `${toRect.width}px`],
+                height: [`${from.rect.height}px`, `${toRect.height}px`],
+                borderRadius: [from.radius, to.radius],
+            },
+            { duration: GLIDE_DURATION_MS, easing: EASE_GLIDE, fill: 'forwards' },
+        ),
+        ghost.animate(fadeKeyframes([[0, 1], [LANDING_FROM, 1], [1, 0]]), linear),
+        from.layer.animate(fadeKeyframes([[0, 1], [LEAVING_UNTIL, 0], [1, 0]]), linear),
+        to.layer.animate(fadeKeyframes([[0, 0], [BECOMING_FROM, 0], [BECOMING_BY, 1], [1, 1]]), linear),
+        ...arrivals.map((element) => element.animate(fadeKeyframes([[0, 0], [LANDING_FROM, 0], [1, 1]]), linear)),
+    ];
+}
+
+// The place's height and margins, from nothing to what they are now
+function animatePlace(place: HTMLElement, opening: boolean) {
+    const style = getComputedStyle(place);
+    return place.animate(
+        {
+            height: ['0px', style.height],
+            marginTop: ['0px', style.marginTop],
+            marginBottom: ['0px', style.marginBottom],
+        },
+        { duration: GLIDE_DURATION_MS, easing: EASE_GLIDE, direction: opening ? 'normal' : 'reverse', fill: 'forwards' },
+    );
+}
+
+// The sidebar has just been hidden; `from` is how it looked.
+function handOffToInline(from: Snapshot | undefined) {
+    if (!from) return;
+    const restoreButton = inlinePlace?.querySelector('[data-toc-expand]');
+    if (inlinePlace && inlineToc && isOnScreen(inlinePlace)) {
+        // Where the inline ToC lands, once its place has opened
+        const to = snapshotCard();
+        if (to) {
+            const animations = [
+                ...glide(from, to, [inlineToc, ...(restoreButton ? [restoreButton] : [])]),
+                animatePlace(inlinePlace, true),
+            ];
+            trackHandOff(animations, () => {
+                animations.forEach((animation) => animation.cancel());
+                handOffGhost?.remove();
+                handOffGhost = undefined;
+            });
+            return;
+        }
+    }
+    // Scrolled past the place: into the strip at the top of the window
+    const toStrip = stripCard && snapshotStrip();
+    if (stripCard && toStrip) {
+        const animations = glide(from, toStrip, [stripCard]);
+        trackHandOff(animations, () => {
+            animations.forEach((animation) => animation.cancel());
+            handOffGhost?.remove();
+            handOffGhost = undefined;
+        });
+        return;
+    }
+
+    const ghost = createGhost(from.rect, [from.layer]);
+    const animation = ghost.animate(
+        { opacity: [1, 0], transform: ['none', `translateY(${FADE_SHIFT}) scale(0.96)`] },
+        { duration: TOGGLE_DURATION_MS * 0.6, easing: EASE_LEAVE, fill: 'forwards' },
+    );
+    trackHandOff([animation], () => {
+        ghost.remove();
+        handOffGhost = undefined;
+    });
+}
+
+// The sidebar has just been shown again; `from` is how the inline ToC (`fromPlace`) or the strip looked, if either was
+// on screen.
+function handOffToSidebar(from: Snapshot | undefined, fromPlace: boolean) {
+    if (!sidebar) return;
+    const to = from && snapshotSidebar();
+    const restoreButton = inlinePlace?.querySelector<HTMLElement>('[data-toc-expand]');
+    // From the strip, which has already gone
+    if (from && to && !fromPlace) {
+        const animations = glide(from, to, [sidebar]);
+        trackHandOff(animations, () => {
+            animations.forEach((animation) => animation.cancel());
+            handOffGhost?.remove();
+            handOffGhost = undefined;
+        });
+        return;
+    }
+    if (!from || !to || !inlinePlace || !inlineToc) {
+        const animation = sidebar.animate(
+            { opacity: [0, 1], transform: [`translateY(${FADE_SHIFT}) scale(0.96)`, 'none'] },
+            { duration: TOGGLE_DURATION_MS, easing: EASE_ARRIVE },
+        );
+        trackHandOff([animation], () => {});
+        return;
+    }
+
+    // Kept displayed (its button too), unseen, while it closes up under the stand-in
+    inlinePlace.style.display = 'block';
+    if (restoreButton) restoreButton.style.display = 'grid';
+    const hidden = { duration: GLIDE_DURATION_MS, fill: 'forwards' } as const;
+    const animations = [
+        ...glide(from, to, [sidebar]),
+        animatePlace(inlinePlace, false),
+        ...[inlineToc, ...(restoreButton ? [restoreButton] : [])].map((element) =>
+            element.animate({ opacity: [0, 0] }, hidden),
+        ),
+    ];
+    trackHandOff(animations, () => {
+        animations.forEach((animation) => animation.cancel());
+        handOffGhost?.remove();
+        handOffGhost = undefined;
+        inlinePlace.style.removeProperty('display');
+        restoreButton?.style.removeProperty('display');
+    });
+}
+
 function setSidebarCollapsed(collapsed: boolean) {
     if (!sidebar || collapsed === isSidebarCollapsed()) return;
     const hadFocus =
@@ -355,6 +605,16 @@ function setSidebarCollapsed(collapsed: boolean) {
     const fromRadius = fromRect ? getComputedStyle(sidebar).borderRadius : '';
     sidebarAnimation?.cancel();
     sidebarAnimation = undefined;
+    cancelHandOff();
+    // From `xl` up, the sidebar and the inline ToC swap places: the one that's leaving is copied before it's hidden.
+    const fromPlace = !collapsed && isDisplayed(inlinePlace) && isOnScreen(inlinePlace!);
+    const leaving = collapsed ? snapshotSidebar() : fromPlace ? snapshotCard() : snapshotStrip();
+    // The text after the inline ToC's place, which moves when the place opens or closes
+    const contentBottom = article?.getBoundingClientRect().bottom;
+    const isPlaceAbove = () => isDisplayed(inlinePlace) && inlinePlace!.getBoundingClientRect().bottom <= 0;
+    const wasPlaceAbove = isPlaceAbove();
+    // This page keeps the reader's place itself (below), so the browser mustn't as well.
+    document.documentElement.style.overflowAnchor = 'none';
 
     document.documentElement.toggleAttribute('data-toc-collapsed', collapsed);
     try {
@@ -367,6 +627,13 @@ function setSidebarCollapsed(collapsed: boolean) {
     sidebar.querySelector('[data-toc-expand]')?.setAttribute('aria-expanded', String(!collapsed));
     setInlineOpen(false);
     setStripOpen(false);
+    // The place opens or closes at once when it has scrolled away above the window, which would move the text being
+    // read. Scrolling by as much keeps it still.
+    if ((collapsed ? isPlaceAbove() : wasPlaceAbove) && article && contentBottom !== undefined) {
+        const shift = article.getBoundingClientRect().bottom - contentBottom;
+        if (shift !== 0) window.scrollBy({ top: shift, behavior: 'instant' });
+    }
+    requestAnimationFrame(() => document.documentElement.style.removeProperty('overflow-anchor'));
     // Shows or hides the strip at once, so that its button can take the focus.
     updateActiveLinks();
     revealActiveEntry(sidebar);
@@ -381,8 +648,18 @@ function setSidebarCollapsed(collapsed: boolean) {
         target?.focus({ preventScroll: true });
     }
 
+    if (reducedMotion.matches) return;
+    if (fromRect && !isDisplayed(sidebar)) {
+        handOffToInline(leaving);
+        return;
+    }
+    if (!fromRect && isDisplayed(sidebar)) {
+        handOffToSidebar(leaving, fromPlace);
+        return;
+    }
+
     // From `lg` to `xl` the panel shrinks into its round button, and grows back out of it.
-    if (!fromRect || !isDisplayed(sidebar) || reducedMotion.matches) return;
+    if (!fromRect || !isDisplayed(sidebar)) return;
     const toRect = sidebar.getBoundingClientRect();
     const toRadius = getComputedStyle(sidebar).borderRadius;
     sidebar.style.overflow = 'hidden';
