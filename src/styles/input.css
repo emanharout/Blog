@@ -32,9 +32,9 @@
     /* Named page widths, used by the container-* utilities below */
     --container-prose: 65ch;
     /* The post card (BlogArticle.astro) and the table of contents panels that line up with it. Use: max-w-post.
-       In rem, not ch, so it doesn't change with the body font: at 17px Source Sans it gives lines of about 66
+       In rem, not ch, so it doesn't change with the body font: at 17px Source Sans it gives lines of about 70
        characters. */
-    --container-post: 36rem;
+    --container-post: 38rem;
     --container-content: 64rem;
     --container-wide: 90rem;
 
@@ -1044,7 +1044,9 @@
             position: absolute;
             /* Lines up with the table of contents, which sits in the column right of the article card */
             left: calc(100% + 0.75rem);
-            width: min(30ch, calc((100vw - 100%) / 2 - 2.5rem));
+            /* As wide as the table of contents (max-w-[34ch], TableOfContents.astro). `ch` grows with the font size, and
+               the notes are in post text (1.0625rem) where the table of contents is at 1rem, so it's divided back. */
+            width: min(calc(34ch / 1.0625), calc((100vw - 100%) / 2 - 2.5rem));
             margin: 0;
             transition:
                 opacity 200ms ease,
