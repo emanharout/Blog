@@ -74,7 +74,7 @@ const restoreButtonClasses =
             glass rounded-card
             toc-collapsed:size-11 toc-collapsed:p-0 toc-collapsed:rounded-[1.375rem]"
         >
-            <h2
+            <h5
                 id={titleId}
                 class="shrink-0 px-2 font-serif font-medium text-base xl:text-lg toc-collapsed:hidden"
             >
@@ -105,7 +105,7 @@ const restoreButtonClasses =
                         </svg>
                     </span>
                 </button>
-            </h2>
+            </h5>
             <button
                 type="button"
                 data-toc-expand
@@ -169,7 +169,7 @@ const restoreButtonClasses =
                     [&::-webkit-details-marker]:hidden rounded-box
                     focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-tertiary-500"
                 >
-                    <span id={titleId} class="text-sm font-medium text-fg-1">Table of Contents</span>
+                    <h5 id={titleId} class="font-serif text-base font-medium text-fg-1">Table of Contents</h5>
                     <svg
                         aria-hidden="true"
                         viewBox="0 0 24 24"
@@ -247,9 +247,9 @@ const restoreButtonClasses =
                 -->
                 <div class="relative grid shrink-0 grid-cols-[2.75rem_1fr_2.75rem] items-center px-2 pt-2 pb-4">
                     <span aria-hidden="true" />
-                    <h2 id={titleId} class="text-center font-serif text-[1.0625rem] font-medium text-gray-temp-500 dark:text-gray-temp-300">
+                    <h5 id={titleId} class="text-center font-serif text-[1.0625rem] font-medium text-gray-temp-500 dark:text-gray-temp-300">
                         Table of Contents
-                    </h2>
+                    </h5>
                     <button
                         type="button"
                         data-toc-close

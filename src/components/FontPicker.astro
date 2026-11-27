@@ -1,0 +1,182 @@
+---
+// Dev-only font picker (rendered by MainLayout only when `import.meta.env.DEV`). Swaps the serif (headings, wordmark,
+// quotes) on every page, to try heading fonts while browsing the site. Options live in src/dev/typeFonts.ts; /dev/type
+// has every heading level, and /dev/sample-post a realistic post.
+//
+// The choice is kept in localStorage ('font-preview'), and RootLayout applies it before first paint, so it carries
+// across pages and reloads. Picking an "(site)" option goes back to the shipped font.
+import { SERIF_FALLBACK, SERIFS, fontStylesheetUrl } from '../dev/typeFonts';
+
+const rows = [{ kind: 'serif', title: 'Headings', fonts: SERIFS }] as const;
+---
+
+<details id="font-picker">
+    <summary>Heading font <span class="font-picker-current"></span></summary>
+    {
+        rows.map((row) => (
+            <div class="font-picker-row" role="group" aria-label={`${row.title} font`} data-kind={row.kind}>
+                <span class="font-picker-title">{row.title}</span>
+                {row.fonts.map((font) => (
+                    <button
+                        type="button"
+                        data-font={font.id}
+                        data-label={font.label.replace(' (site)', '')}
+                        data-stack={font.family && `'${font.family}', ${SERIF_FALLBACK}`}
+                        data-href={fontStylesheetUrl(font)}
+                        data-vibe={font.vibe}
+                    >
+                        {font.label}
+                    </button>
+                ))}
+                <p class="font-picker-vibe" aria-live="polite" />
+            </div>
+        ))
+    }
+</details>
+
+<!-- Inline, so the styles render only with the panel and stay out of the production stylesheet -->
+<style is:inline>
+    #font-picker {
+        position: fixed;
+        inset-inline: 1rem;
+        /* Clear of the design tuner's button and Astro's dev toolbar */
+        bottom: 4rem;
+        z-index: 50;
+        width: fit-content;
+        max-width: min(48rem, calc(100% - 2rem));
+        margin-inline: auto;
+        padding: 0.35rem 0.75rem;
+        font-family: system-ui, sans-serif;
+        font-size: 0.78rem;
+        color: hsl(var(--fg-color-2));
+        background: hsl(var(--background-color-2) / 0.92);
+        border: 1px solid hsl(var(--fg-color-border-2) / 0.4);
+        border-radius: 1rem;
+        box-shadow: 0 4px 16px hsl(0 0% 0% / 0.12);
+        backdrop-filter: blur(8px);
+    }
+    #font-picker[open] {
+        padding-block: 0.5rem;
+    }
+    #font-picker summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: hsl(var(--fg-color-1));
+    }
+    .font-picker-current {
+        font-weight: 400;
+        color: hsl(var(--fg-color-2));
+    }
+    .font-picker-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.2rem;
+        margin-top: 0.5rem;
+    }
+    .font-picker-row:first-of-type {
+        margin-top: 0.35rem;
+    }
+    .font-picker-title {
+        width: 4.5rem;
+        font-weight: 600;
+    }
+    .font-picker-row button {
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        cursor: pointer;
+    }
+    .font-picker-row button[aria-pressed='true'] {
+        font-weight: 600;
+        color: hsl(var(--fg-footnote-2));
+        background: hsl(var(--footnote-bg));
+    }
+    .font-picker-vibe {
+        flex-basis: 100%;
+        margin: 0.15rem 0 0 4.7rem;
+        font-style: italic;
+        line-height: 1.4;
+    }
+</style>
+
+<script>
+    type Choice = { id: string; stack: string; href: string };
+    const STORAGE_KEY = 'font-preview';
+    const OPEN_KEY = 'font-preview-open';
+    // Also set before first paint in RootLayout.astro
+    const OTHER_SERIF_VARS = { '--serif-size-adjust': 'none', '--serif-h2-weight': '600' };
+
+    const root = document.documentElement;
+    const panel = document.getElementById('font-picker') as HTMLDetailsElement;
+    const current = panel.querySelector<HTMLElement>('.font-picker-current')!;
+
+    const read = (key: string) => {
+        try {
+            return localStorage.getItem(key);
+        } catch {
+            return null;
+        }
+    };
+    const write = (key: string, value: string | null) => {
+        try {
+            if (value === null) localStorage.removeItem(key);
+            else localStorage.setItem(key, value);
+        } catch {
+            // Storage unavailable: the choice lasts until the next page.
+        }
+    };
+
+    let saved: Partial<Record<string, Choice>> = {};
+    try {
+        // Only the serif: an older body-font choice is dropped
+        const { serif } = JSON.parse(read(STORAGE_KEY) ?? '{}');
+        if (serif) saved.serif = serif;
+    } catch {
+        // Ignore a malformed value.
+    }
+
+    panel.open = read(OPEN_KEY) === 'true';
+    panel.addEventListener('toggle', () => write(OPEN_KEY, String(panel.open)));
+
+    const labels: Record<string, string> = {};
+    const showCurrent = () => (current.textContent = `· ${labels.serif}`);
+
+    for (const row of panel.querySelectorAll<HTMLElement>('.font-picker-row')) {
+        const kind = row.dataset.kind!;
+        const buttons = [...row.querySelectorAll<HTMLButtonElement>('button')];
+        const vibe = row.querySelector<HTMLElement>('.font-picker-vibe')!;
+
+        const choose = (id: string | undefined) => {
+            const button = buttons.find((b) => b.dataset.font === id) ?? buttons[0];
+            const { stack, href } = button.dataset;
+            // font-serif and the post headings read --font-serif.
+            // RootLayout may already have applied the saved choice before first paint; this replaces it.
+            document.querySelectorAll(`link[data-font-preview="${kind}"]`).forEach((link) => link.remove());
+            if (stack && href) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = href;
+                link.dataset.fontPreview = kind;
+                document.head.append(link);
+                root.style.setProperty(`--font-${kind}`, stack);
+                saved[kind] = { id: button.dataset.font!, stack, href };
+            } else {
+                root.style.removeProperty(`--font-${kind}`);
+                delete saved[kind];
+            }
+            // Libre Caslon's adjustments in input.css (smaller size, Regular h2s) are undone for the other serifs
+            for (const [name, value] of Object.entries(OTHER_SERIF_VARS)) {
+                if (stack) root.style.setProperty(name, value);
+                else root.style.removeProperty(name);
+            }
+            write(STORAGE_KEY, Object.keys(saved).length ? JSON.stringify(saved) : null);
+
+            buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+            vibe.textContent = button.dataset.vibe ?? '';
+            labels[kind] = button.dataset.label!;
+            showCurrent();
+        };
+        buttons.forEach((button) => button.addEventListener('click', () => choose(button.dataset.font)));
+        choose(saved[kind]?.id);
+    }
+</script>

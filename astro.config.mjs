@@ -62,6 +62,7 @@ export default defineConfig({
             injectRoute({ pattern: '/dev/compare', entrypoint: './src/dev/compare.astro' });
             injectRoute({ pattern: '/dev/notes', entrypoint: './src/dev/notes.astro' });
             injectRoute({ pattern: '/dev/type', entrypoint: './src/dev/type.astro' });
+            injectRoute({ pattern: '/dev/sample-post', entrypoint: './src/dev/samplePost.astro' });
             injectRoute({ pattern: '/dev/picker', entrypoint: './src/dev/picker.astro' });
             injectRoute({ pattern: '/dev/picker-frame', entrypoint: './src/dev/pickerFrame.astro' });
           }
@@ -105,25 +106,31 @@ export default defineConfig({
   // RootLayout preloads only the upright files; italics load when a page uses them.
   fonts: [
     {
-      // The `opsz` files carry the optical-size axis along with weight: letter shapes get finer at heading sizes
-      // and sturdier at text sizes. Browsers set it from the font size on their own.
+      // Libre Caslon Text has only these three styles: there's no semibold, medium, light or bold italic. A heading
+      // that asks for 600 renders in Bold, and one that asks for 500 in Regular. Its letters run large, so
+      // src/styles/input.css scales it down where it's used (font-size-adjust).
       provider: fontProviders.local(),
-      name: 'Newsreader Variable',
+      name: 'Libre Caslon Text',
       options: {
         variants: [
           {
-            src: ['@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2'],
-            weight: '200 800',
+            src: ['@fontsource/libre-caslon-text/files/libre-caslon-text-latin-400-normal.woff2'],
+            weight: '400',
             style: 'normal',
           },
           {
-            src: ['@fontsource-variable/newsreader/files/newsreader-latin-opsz-italic.woff2'],
-            weight: '200 800',
+            src: ['@fontsource/libre-caslon-text/files/libre-caslon-text-latin-700-normal.woff2'],
+            weight: '700',
+            style: 'normal',
+          },
+          {
+            src: ['@fontsource/libre-caslon-text/files/libre-caslon-text-latin-400-italic.woff2'],
+            weight: '400',
             style: 'italic',
           },
         ],
       },
-      cssVariable: '--font-newsreader',
+      cssVariable: '--font-libre-caslon',
       fallbacks: ['ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
     },
     {

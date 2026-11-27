@@ -23,7 +23,7 @@ const { post } = Astro.props;
 >
     <article class="contents">
         <div>
-            <h3 class="font-semibold leading-tight text-fg-1 line-clamp-3">
+            <h4 class="font-serif text-lg font-normal leading-tight text-fg-1 line-clamp-3">
                 <a
                     href={`/blog/${post.id}`}
                     class="after:absolute after:inset-0 after:rounded-card
@@ -31,7 +31,7 @@ const { post } = Astro.props;
                 >
                     {post.data.title}
                 </a>
-            </h3>
+            </h4>
             <p class="mt-2 text-xs text-fg-2/80">
                 by {post.data.author} on <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
             </p>
