@@ -35,8 +35,8 @@ const socialImageAlt = imageAlt ?? description;
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{fullTitle}</title>
-        <Font cssVariable="--font-frank-ruhl-libre" preload />
-        <Font cssVariable="--font-inter" preload />
+        <Font cssVariable="--font-newsreader" preload={[{ style: 'normal' }]} />
+        <Font cssVariable="--font-source-sans-3" preload={[{ style: 'normal' }]} />
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="canonical" href={canonicalURL} />
         <link rel="alternate" type="application/rss+xml" title={`${SITE_NAME} | All Posts`} href="/rss.xml" />

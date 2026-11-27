@@ -61,6 +61,7 @@ export default defineConfig({
           if (command === 'dev') {
             injectRoute({ pattern: '/dev/compare', entrypoint: './src/dev/compare.astro' });
             injectRoute({ pattern: '/dev/notes', entrypoint: './src/dev/notes.astro' });
+            injectRoute({ pattern: '/dev/type', entrypoint: './src/dev/type.astro' });
             injectRoute({ pattern: '/dev/picker', entrypoint: './src/dev/picker.astro' });
             injectRoute({ pattern: '/dev/picker-frame', entrypoint: './src/dev/pickerFrame.astro' });
           }
@@ -101,31 +102,48 @@ export default defineConfig({
   // Only the Latin subset is included: posts don't use other scripts, and `local` variants can't be
   // tagged by subset, so adding more files would make <Font preload /> preload all of them.
   // (Astro 7.4's `npm` provider would pick subsets itself, but fails to read files from node_modules.)
+  // RootLayout preloads only the upright files; italics load when a page uses them.
   fonts: [
     {
+      // The `opsz` files carry the optical-size axis along with weight: letter shapes get finer at heading sizes
+      // and sturdier at text sizes. Browsers set it from the font size on their own.
       provider: fontProviders.local(),
-      name: 'Frank Ruhl Libre Variable',
+      name: 'Newsreader Variable',
       options: {
-        variants: [{
-          src: ['@fontsource-variable/frank-ruhl-libre/files/frank-ruhl-libre-latin-wght-normal.woff2'],
-          weight: '300 900',
-          style: 'normal',
-        }],
+        variants: [
+          {
+            src: ['@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2'],
+            weight: '200 800',
+            style: 'normal',
+          },
+          {
+            src: ['@fontsource-variable/newsreader/files/newsreader-latin-opsz-italic.woff2'],
+            weight: '200 800',
+            style: 'italic',
+          },
+        ],
       },
-      cssVariable: '--font-frank-ruhl-libre',
+      cssVariable: '--font-newsreader',
       fallbacks: ['ui-serif', 'Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
     },
     {
       provider: fontProviders.local(),
-      name: 'Inter Variable',
+      name: 'Source Sans 3 Variable',
       options: {
-        variants: [{
-          src: ['@fontsource-variable/inter/files/inter-latin-wght-normal.woff2'],
-          weight: '100 900',
-          style: 'normal',
-        }],
+        variants: [
+          {
+            src: ['@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2'],
+            weight: '200 900',
+            style: 'normal',
+          },
+          {
+            src: ['@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-italic.woff2'],
+            weight: '200 900',
+            style: 'italic',
+          },
+        ],
       },
-      cssVariable: '--font-inter',
+      cssVariable: '--font-source-sans-3',
       fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
     },
   ],
